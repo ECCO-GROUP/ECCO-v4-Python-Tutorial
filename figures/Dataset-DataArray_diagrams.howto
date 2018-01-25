@@ -1,0 +1,24 @@
+https://mermaidjs.github.io/mermaid-live-editor/#/edit/Z3JhcGggTFIKQjQoRGF0YUFycmF5IE9iamVjdCkKQjQtLT4gRDUobmFtZSAvU3RyaW5nLykKQjQtLT4gRDYoZGltcyAvZGljdC8pCkI0LS0-IEQxKHZhbHVlcyAvTnVtUHkgYXJyYXkvKQpCNC0tPiBEMyhjb29yZHMgL0RhdGFBcnJheS8pCkI0LS0-IEQ0KGF0dHJzIC9kaWN0LykK
+
+
+graph LR
+B4(DataArray Object)
+B4--> D5(name /String/)
+B4--> D6(dims /dict/)
+B4--> D1(values /NumPy array/)
+B4--> D3(coords /DataArray/)
+B4--> D4(attrs /dict/)
+
+
+
+https://mermaidjs.github.io/mermaid-live-editor/#/edit/Z3JhcGggTFIKCkEoRGF0YXNldCBPYmplY3QpIApBLS0-IEI2KGRpbXMgL2RpY3QvKQpBIC0tPiBCNShjb29yZHMgL2RpY3QvKQpBLS0-IEIxKERhdGEgVmFyaWFibGUgMSAvRGF0YUFycmF5LykKQS0tPiBCMihEYXRhIFZhcmlhYmxlIDIgL0RhdGFBcnJheS8pCkEtLT4gQjMoRGF0YSBWYXJpYWJsZSBuIC9EYXRhQXJyYXkvKQpBLS0-IEQ3KGF0dHJzIC9kaWN0Lyk
+
+graph LR
+
+A(Dataset Object) 
+A--> B6(dims /dict/)
+A --> B5(coords /dict/)
+A--> B1(Data Variable 1 /DataArray/)
+A--> B2(Data Variable 2 /DataArray/)
+A--> B3(Data Variable n /DataArray/)
+A--> D7(attrs /dict/)
