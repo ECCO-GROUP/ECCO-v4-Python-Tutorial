@@ -8,25 +8,29 @@ Welcome to the ECCO Version 4 Tutorial
 
 This website contains a set of tutorials to how to analyze the ECCO Central Production Version 4 (ECCO v4) global ocean and sea-ice state estimate.
 
-Getting Started
----------------
-
 .. toctree::
    :maxdepth: 2
+   :caption: Getting Started
 
    intro
    Installing_Python_and_Python_Packages
    Downloading_the_ECCO_v4_state_estimate
 
 
-Tutorial
---------
-
 .. toctree::
    :maxdepth: 1
+   :caption: Tutorial 
+   :glob:
 
    ECCO_v4_data_structure_basics
    ECCO_v4_Improving_the_GRID_Dataset_Object
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Support 
+   :glob:
+
+   support
 
 Indices and tables
 ==================

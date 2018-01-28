@@ -305,8 +305,8 @@ In the last tutorial we read in a single GRID netCDF tile file and
 examined its contents. We found that it listed three dimensions, i1, i2,
 and i3, for its Data variables. Let's load it up again and take a closer
 look. This time we'll name the \texttt{Dataset} object as
-\texttt{grid\_default} since we are loading it with the default method
-from \texttt{xarray}.
+\texttt{grid\_3\_default} since we are loading it with the default
+method from \texttt{xarray}.
 
     \begin{Verbatim}[commandchars=\\\{\}]
 {\color{incolor}In [{\color{incolor}26}]:} \PY{k+kn}{import} \PY{n+nn}{matplotlib.pylab} \PY{k+kn}{as} \PY{n+nn}{plt}
@@ -320,19 +320,19 @@ from \texttt{xarray}.
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}27}]:} \PY{n}{data\PYZus{}dir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/Volumes/ECCO\PYZus{}BASE/ECCO\PYZus{}v4r3/nctiles\PYZus{}grid/}\PY{l+s+s1}{\PYZsq{}}    
+{\color{incolor}In [{\color{incolor}45}]:} \PY{n}{data\PYZus{}dir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/Volumes/ECCO\PYZus{}BASE/ECCO\PYZus{}v4r3/nctiles\PYZus{}grid/}\PY{l+s+s1}{\PYZsq{}}    
          \PY{n}{fname} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{GRID.0003.nc}\PY{l+s+s1}{\PYZsq{}}
-         \PY{n}{grid\PYZus{}default} \PY{o}{=} \PY{n}{xr}\PY{o}{.}\PY{n}{open\PYZus{}dataset}\PY{p}{(}\PY{n}{data\PYZus{}dir} \PY{o}{+} \PY{n}{fname}\PY{p}{)}
+         \PY{n}{grid\PYZus{}3\PYZus{}default} \PY{o}{=} \PY{n}{xr}\PY{o}{.}\PY{n}{open\PYZus{}dataset}\PY{p}{(}\PY{n}{data\PYZus{}dir} \PY{o}{+} \PY{n}{fname}\PY{p}{)}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}28}]:} \PY{n}{grid\PYZus{}default}
+{\color{incolor}In [{\color{incolor}46}]:} \PY{n}{grid\PYZus{}3\PYZus{}default}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}28}]:} <xarray.Dataset>
+{\color{outcolor}Out[{\color{outcolor}46}]:} <xarray.Dataset>
          Dimensions:  (i1: 50, i2: 90, i3: 90)
          Coordinates:
            * i1       (i1) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
@@ -390,23 +390,25 @@ from \texttt{xarray}.
              missing\_value:  nan
 \end{Verbatim}
             
-    We see that all of the Data variables in \texttt{grid\_default} use one
-of three dimensions, \textbf{i1},\textbf{i2},\textbf{i3}. As we saw
-before, some variables are 3D (e.g., hFacC), others are 2D (e.g., XC),
-and others are 1D (e.g., RF).
+    We see that all of the Data variables in \texttt{grid\_3\_default} use
+one of three dimensions, \textbf{i1}, \textbf{i2}, and \textbf{i3}. As
+we saw before, some variables are 3D (e.g., hFacC), others are 2D (e.g.,
+XC), and others are 1D (e.g., RF).
 
 Now, while the default format of this Dataset object is already quite
 useful, it falls short of taking full advantage of the 'coordinate'
 feature afforded by the Dataset object.
 
+\subsection{The four horizontal points of the Arakawa-C
+grid}\label{the-four-horizontal-points-of-the-arakawa-c-grid}
+
 Model variables on Arakawa-C grids are staggered in space. On the
 horizontal plane, model variables can be situated at one of four
 different classes of point.
 
-figure
-
-\subsection{The four horizontal points of the Arakawa-C
-grid}\label{the-four-horizontal-points-of-the-arakawa-c-grid}
+\includegraphics{../figures/C-grid-points.png} \textbf{The four
+different classes of points used in the staggered Arakawa-C grid
+(C-grid)}
 
 \subsubsection{\texorpdfstring{\emph{c}
 points}{c points}}\label{c-points}
@@ -419,10 +421,16 @@ the \emph{tracer} grid cell in the horizontal plane.
 Let us define the \((i,j)\) coordinate system for the indices of \(c\)
 points.
 
-\(c(0,0)\) is the -x most and -y most tracer grid cell.
+In the ECCO v4 netCDF tile files, \(c(0,0)\) is the -x most and -y most
+tracer grid cell.
 
-Moving in the +\(y\) direction, the next grid cell is \(c(0,1)\) Moving
-in the +\(x\) direction, the next grid cell is \(c(1,0)\)
+\begin{itemize}
+\tightlist
+\item
+  In the +\(y\) direction, the next \(c\) point is \(c(0,1)\).
+\item
+  In the +\(x\) direction, the next \(c\) point is \(c(1,0)\)
+\end{itemize}
 
 \subsubsection{\texorpdfstring{\emph{u}
 points}{u points}}\label{u-points}
@@ -443,11 +451,8 @@ points are situated along the tracer grid cell ed\textbf{\emph{G}}es. We
 use the \(j\) for its \(y\) coordinate because it is the same as the
 \(y\) coordinate of the \(c\) points.
 
-\(u(0,0)\) is the first \(u\) point situated in the \(-x\) direction of
-\$c(0,0).
-
-Moving in the +\(y\) direction, the next grid cell is \(u(0,1)\) Moving
-in the +\(x\) direction, the next grid cell is \(u(1,0)\)
+In the ECCO v4 netCDF tile files, \(u(0,0)\) is the -x most and -y most
+\(u\) point.
 
 \subsubsection{\texorpdfstring{\emph{v}
 points}{v points}}\label{v-points}
@@ -468,11 +473,8 @@ use the \(i\) for its \(x\) coordinate because it is the same as the
 in the \(y\) direction because \(v\) points are situated along the
 tracer grid cell ed\textbf{\emph{G}}es.
 
-\(v(0,0)\) is the first \(v\) point situated in the \(-y\) direction of
-\$c(0,0).
-
-Moving in the +\(y\) direction, the next grid cell is \(v(0,1)\) Moving
-in the +\(x\) direction, the next grid cell is \(v(1,0)\)
+In the ECCO v4 netCDF tile files, \(v(0,0)\) is the -x most and -y most
+\(v\) point.
 
 \subsubsection{\texorpdfstring{\emph{g}
 points}{g points}}\label{g-points}
@@ -490,11 +492,8 @@ following the same reasoning as described above: in both the \(x\) and
 \(y\) directions, \(g\) points are on the ed\textbf{\emph{G}}es of
 tracer grid cells.
 
-\(g(0,0)\) is the first \(g\) point situated in the \(-y\) and \(-x\)
-directions of \$c(0,0).
-
-Moving in the +\(y\) direction, the next grid cell is \(g(0,1)\) Moving
-in the +\(x\) direction, the next grid cell is \(g(1,0)\)
+In the ECCO v4 netCDF tile files, \(g(0,0)\) is the -x most and -y most
+\(g\) point.
 
 \subsection{The two vertical points of the Arakawa-C
 gird}\label{the-two-vertical-points-of-the-arakawa-c-gird}
@@ -518,43 +517,46 @@ Indexing begins at the sea surface, k\_g=0.
 \subsubsection{\texorpdfstring{\emph{k}
 points}{k points}}\label{k-points}
 
-Let us define the \(k\) coordinate system for variables situated in the
-middle of a tracer grid cell in the vertical \(z\) direction. Examples
-include all tracers.
+Let us define \(k\) as the vertical coordinate corresponding with the
+middle of a tracer grid cell in the \(z\) direction. All tracers are
+situated at \(k\) in the vertical.
 
 Indexing begins in the uppermost grid cell surface, k=0.
 
-The default coordinate names in the GRID netcdf tile files are not
-sufficiently descriptive to distinguish between the four horizontal
-coordinates ('i','i\_g','j','j\_g') and the three vertical
-coordinates.\\
-Therefore, we provide a routine especially for reading in ECCOv4 llc90
-GRID netcdf files and giving the default i1, i2, and i3 coordinates more
-descriptive names.
+\subsection{Applying the C-grid coordinates to the
+variables}\label{applying-the-c-grid-coordinates-to-the-variables}
 
-    \subsection{Load the file containing the grid parameter information for
-one
-tile.}\label{load-the-file-containing-the-grid-parameter-information-for-one-tile.}
+The default coordinate names in the ECCO v4 netcdf tile files do not
+distinguish distinguish between the four horizontal coordinates,
+\(i, i_g, j, j_g\) and the two vertical coordinates, \(k_w\) and \(k\),
+used by the C-grid .
 
-To load ECCO v4's netcdf files we will use the \emph{open\_dataset}
-command from the
-\href{http://xarray.pydata.org/en/stable/index.html}{xarray} Python
-package. \emph{open\_dataset} creates a \textbf{Dataset} object and
-loads the contents of the netcdf file, including its metadata, into a
-data structure.
+To apply these more descriptive coordinates to the \texttt{Dataset}
+objects that are created when we load netCDF files, we have written a
+custom routine, \texttt{load\_tile\_from\_netcdf}.
 
-Let's open the grid file for \emph{tile 3} (North East Atlantic Ocean),
-of the 13 ECCO v4 llc90 grid files.
+\subsubsection{\texorpdfstring{\texttt{load\_tile\_from\_netcdf}}{load\_tile\_from\_netcdf}}\label{load_tile_from_netcdf}
 
-Change \texttt{data\_dir} to match the location of your
-\texttt{nctiles\_grid} directory.
+This routine takes four arguments, 1. \emph{data\_dir}: the directory of
+the netCDF file 2. \emph{var}: the name of the netCDF file without the
+tile number. 3. \emph{var\_type}: one of 'c','g','u','v', or 'grid'
+corresponding with the variables C-grid point type. 'grid' is a special
+case because \textbf{GRID} ECCO v4 tile files are unique in that they
+contain a mix of 'c','g','u','v','k', and 'w' points. 4.
+\emph{tile\_index}: the tile number {[}1 .. 13{]}
+
+    \subsubsection{\texorpdfstring{Loading an ECCO v4 netCDF tile file using
+\texttt{load\_tile\_from\_netcdf}}{Loading an ECCO v4 netCDF tile file using load\_tile\_from\_netcdf}}\label{loading-an-ecco-v4-netcdf-tile-file-using-load_tile_from_netcdf}
+
+Let's once again open the grid file for \emph{tile 3} (North East
+Atlantic Ocean) using \texttt{load\_tile\_from\_netcdf}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}41}]:} \PY{n}{data\PYZus{}dir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/Volumes/ECCO\PYZus{}BASE/ECCO\PYZus{}v4r3/nctiles\PYZus{}grid/}\PY{l+s+s1}{\PYZsq{}}    
+{\color{incolor}In [{\color{incolor}47}]:} \PY{n}{data\PYZus{}dir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/Volumes/ECCO\PYZus{}BASE/ECCO\PYZus{}v4r3/nctiles\PYZus{}grid/}\PY{l+s+s1}{\PYZsq{}}    
          \PY{n}{var} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{GRID}\PY{l+s+s1}{\PYZsq{}}
          \PY{n}{var\PYZus{}type} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{grid}\PY{l+s+s1}{\PYZsq{}}
          \PY{n}{tile\PYZus{}index} \PY{o}{=} \PY{l+m+mi}{3}
-         \PY{n}{grid\PYZus{}tile\PYZus{}3} \PY{o}{=} \PY{n}{ecco}\PY{o}{.}\PY{n}{load\PYZus{}tile\PYZus{}from\PYZus{}netcdf}\PY{p}{(}\PY{n}{data\PYZus{}dir}\PY{p}{,} 
+         \PY{n}{grid\PYZus{}3\PYZus{}new} \PY{o}{=} \PY{n}{ecco}\PY{o}{.}\PY{n}{load\PYZus{}tile\PYZus{}from\PYZus{}netcdf}\PY{p}{(}\PY{n}{data\PYZus{}dir}\PY{p}{,} 
                                                   \PY{n}{var}\PY{p}{,} 
                                                   \PY{n}{var\PYZus{}type}\PY{p}{,} 
                                                   \PY{n}{tile\PYZus{}index}\PY{p}{)}
@@ -567,12 +569,12 @@ loading /Volumes/ECCO\_BASE/ECCO\_v4r3/nctiles\_grid/GRID.0003.nc
     \end{Verbatim}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}32}]:} \PY{n}{grid\PYZus{}tile\PYZus{}3}
+{\color{incolor}In [{\color{incolor}49}]:} \PY{n}{grid\PYZus{}3\PYZus{}new}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}32}]:} <xarray.Dataset>
+{\color{outcolor}Out[{\color{outcolor}49}]:} <xarray.Dataset>
          Dimensions:  (i: 90, i\_g: 90, j: 90, j\_g: 90, k: 50, k\_l: 50, k\_u: 50)
          Coordinates:
              tile     int64 3

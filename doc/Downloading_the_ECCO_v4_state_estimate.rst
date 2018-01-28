@@ -1,6 +1,6 @@
-**********************************
-Getting the ECCO v4 State Estimate
-**********************************
+**************************************
+Downloading the ECCO v4 State Estimate
+**************************************
 
 ECCO Version 4 Release 3 is the most recent edition of the
 global ocean state estimate and estimation system described by Forget et al. (2015b, 2016).  

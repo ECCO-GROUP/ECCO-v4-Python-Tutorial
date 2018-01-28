@@ -11778,7 +11778,7 @@ div#notebook {
 <h1 id="An-Improved-Method-for-Loading-ECCOv4-netCDF-files">An Improved Method for Loading ECCOv4 netCDF files<a class="anchor-link" href="#An-Improved-Method-for-Loading-ECCOv4-netCDF-files">&#182;</a></h1><h2 id="Objectives:">Objectives:<a class="anchor-link" href="#Objectives:">&#182;</a></h2><p>To introduce a method for loading data from the ECCO v4 netCDF tile files that returns <code>Dataset</code> and <code>DataArray</code> objects that properly distinguish <em>where</em> on the Arakawa-C grid the variables are situated.</p>
 <p>This custom routine written for the <em>ecco_v4_py</em> package is: <code>load_tile_from_netcdf</code>.</p>
 <h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2><p>As we showed in the first tutorial, we can use the <code>xr.open_dataset(data_dir + fname)</code> routine from xarray to load a netCDF tile file into Python.  This routine parses the netCDF file and extracts the dimensions, coordinates, variables, and metadata information and uses those to construct the <code>Dataset</code> object.</p>
-<p>In the last tutorial we read in a single GRID netCDF tile file and examined its contents. We found that it listed three dimensions, i1, i2, and i3, for its Data variables. Let's load it up again and take a closer look.  This time we'll name the <code>Dataset</code> object as <code>grid_default</code> since we are loading it with the default method from <code>xarray</code>.</p>
+<p>In the last tutorial we read in a single GRID netCDF tile file and examined its contents. We found that it listed three dimensions, i1, i2, and i3, for its Data variables. Let's load it up again and take a closer look.  This time we'll name the <code>Dataset</code> object as <code>grid_3_default</code> since we are loading it with the default method from <code>xarray</code>.</p>
 
 </div>
 </div>
@@ -11804,12 +11804,12 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;/Volumes/ECCO_BASE/ECCO_v4r3/nctiles_grid/&#39;</span>    
 <span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;GRID.0003.nc&#39;</span>
-<span class="n">grid_default</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">data_dir</span> <span class="o">+</span> <span class="n">fname</span><span class="p">)</span>
+<span class="n">grid_3_default</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">data_dir</span> <span class="o">+</span> <span class="n">fname</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11819,10 +11819,10 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">grid_default</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">grid_3_default</span>
 </pre></div>
 
 </div>
@@ -11835,7 +11835,7 @@ div#notebook {
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[28]:</div>
+<div class="prompt output_prompt">Out[46]:</div>
 
 
 
@@ -11909,45 +11909,45 @@ Attributes:
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We see that all of the Data variables in <code>grid_default</code> use one of three dimensions, <strong>i1</strong>,<strong>i2</strong>,<strong>i3</strong>.  As we saw before, some variables are 3D (e.g., hFacC), others are 2D (e.g., XC), and others are 1D (e.g., RF).</p>
+<p>We see that all of the Data variables in <code>grid_3_default</code> use one of three dimensions, <strong>i1</strong>, <strong>i2</strong>, and <strong>i3</strong>.  As we saw before, some variables are 3D (e.g., hFacC), others are 2D (e.g., XC), and others are 1D (e.g., RF).</p>
 <p>Now, while the default format of this Dataset object is already quite useful, it falls short of taking full advantage of the 'coordinate' feature afforded by the Dataset object.</p>
-<p>Model variables on Arakawa-C grids are staggered in space.  On the horizontal plane, model variables can be situated at one of four different classes of point.</p>
-<p>figure</p>
-<h2 id="The-four-horizontal-points-of-the-Arakawa-C-grid">The four horizontal points of the Arakawa-C grid<a class="anchor-link" href="#The-four-horizontal-points-of-the-Arakawa-C-grid">&#182;</a></h2><h3 id="c-points"><em>c</em> points<a class="anchor-link" href="#c-points">&#182;</a></h3><p>Variables that do not have a horizontal velocity component (e.g., T, S, SSH, OBP, sea ice concentration, vertical velocity) are situated at $c$ points in the horizontal plane.  $c$ points are at the center of the <em>tracer</em> grid cell in the horizontal plane.</p>
+<h2 id="The-four-horizontal-points-of-the-Arakawa-C-grid">The four horizontal points of the Arakawa-C grid<a class="anchor-link" href="#The-four-horizontal-points-of-the-Arakawa-C-grid">&#182;</a></h2><p>Model variables on Arakawa-C grids are staggered in space.  On the horizontal plane, model variables can be situated at one of four different classes of point.</p>
+<p><img src="../figures/C-grid-points.png" alt="C-grid-points.png">
+<strong>The four different classes of points used in the staggered Arakawa-C grid (C-grid)</strong></p>
+<h3 id="c-points"><em>c</em> points<a class="anchor-link" href="#c-points">&#182;</a></h3><p>Variables that do not have a horizontal velocity component (e.g., T, S, SSH, OBP, sea ice concentration, vertical velocity) are situated at $c$ points in the horizontal plane.  $c$ points are at the center of the <em>tracer</em> grid cell in the horizontal plane.</p>
 <p>Let us define the $(i,j)$ coordinate system for the indices of $c$ points.</p>
-<p>$c(0,0)$ is the -x most and -y most tracer grid cell.</p>
-<p>Moving in the +$y$ direction, the next grid cell is $c(0,1)$ 
-Moving in the +$x$ direction, the next grid cell is $c(1,0)$</p>
+<p>In the ECCO v4 netCDF tile files, $c(0,0)$ is the -x most and -y most tracer grid cell.</p>
+<ul>
+<li>In the +$y$ direction, the next $c$ point is $c(0,1)$.</li>
+<li>In the +$x$ direction, the next $c$ point is $c(1,0)$ </li>
+</ul>
 <h3 id="u-points"><em>u</em> points<a class="anchor-link" href="#u-points">&#182;</a></h3><p>Variables that are explictly related to horizontal velocity or horizontal fluxes in the model's $x$ direction are situated at $u$ points in the horizontal plane.  Examples include horizontal velocity in the $x$ direction ($UVEL$) and horizontal advective flux of snow in the $x$ direction ($ADVxSNOW$).</p>
 <p>In the $x$ direction they are situated on the edges or faces of the tracer grid cell.  In the $y$ direction they are at the same locations as the $c$ points.</p>
 <p>Let us define the $(i_g, j)$ coordinate system for $u$ points.  We use $i_g$ as the coordinate in the $x$ direction because $u$ points are situated along the tracer grid cell ed<strong><em>G</em></strong>es.  We use the $j$ for its $y$ coordinate because it is the same as the $y$ coordinate of the $c$ points.</p>
-<p>$u(0,0)$ is the first $u$ point situated in the $-x$ direction of $c(0,0).</p>
-<p>Moving in the +$y$ direction, the next grid cell is $u(0,1)$ 
-Moving in the +$x$ direction, the next grid cell is $u(1,0)$</p>
+<p>In the ECCO v4 netCDF tile files, $u(0,0)$ is the -x most and -y most $u$ point.</p>
 <h3 id="v-points"><em>v</em> points<a class="anchor-link" href="#v-points">&#182;</a></h3><p>Variables that are explictly related to horizontal velocity or horizontal fluxes in the model's $y$ direction are situated at $v$ points in the horizontal plane.  Examples include horizontal velocity in the $y$ direction ($VVEL$) and horizontal advective flux of snow in the $y$ direction ($ADVySNOW$).</p>
 <p>In the $x$ direction they are at the same locations as the $c$ points.  In the $y$ direction they are situated on the edges (or faces) of the tracer grid cell.</p>
 <p>Let us define the $(i, j_g)$ coordinate system for $v$ points.  We use the $i$ for its $x$ coordinate because it is the same as the $x$ coordinate of the $c$ points. We use $j_g$ as the coordinate in the $y$ direction because $v$ points are situated along the tracer grid cell ed<strong><em>G</em></strong>es.</p>
-<p>$v(0,0)$ is the first $v$ point situated in the $-y$ direction of $c(0,0).</p>
-<p>Moving in the +$y$ direction, the next grid cell is $v(0,1)$ 
-Moving in the +$x$ direction, the next grid cell is $v(1,0)$</p>
+<p>In the ECCO v4 netCDF tile files, $v(0,0)$ is the -x most and -y most $v$ point.</p>
 <h3 id="g-points"><em>g</em> points<a class="anchor-link" href="#g-points">&#182;</a></h3><p>Variables that are explictly related to horizontal velocities in the model in both the $x$ and $y$ direction are situated at $g$ points in the horizontal plane.  Vorticity is an example.</p>
 <p>$g$ points are situated along the edges of the grid cell in both $x$ and $y$.  In other words, they are at the <strong>corners</strong> of tracer grid cells.</p>
 <p>Let us define the $(i_g, j_g)$ coordinate system for $g$ points following the same reasoning as described above: in both the $x$ and $y$ directions, $g$ points are on the ed<strong><em>G</em></strong>es of tracer grid cells.</p>
-<p>$g(0,0)$ is the first $g$ point situated in the $-y$ and $-x$ directions of $c(0,0).</p>
-<p>Moving in the +$y$ direction, the next grid cell is $g(0,1)$ 
-Moving in the +$x$ direction, the next grid cell is $g(1,0)$</p>
+<p>In the ECCO v4 netCDF tile files, $g(0,0)$ is the -x most and -y most $g$ point.</p>
 <h2 id="The-two-vertical-points-of-the-Arakawa-C-gird">The two vertical points of the Arakawa-C gird<a class="anchor-link" href="#The-two-vertical-points-of-the-Arakawa-C-gird">&#182;</a></h2><p>There are two coordinates in the vertical $z$ dimension:</p>
 <h3 id="w-points"><em>w</em> points<a class="anchor-link" href="#w-points">&#182;</a></h3><p>Variables related to vertical velocity or vertical fluxes are situated at $w$ in the vertical direction.  These variables are situated on the upper and lower faces of the tracer grid cell.</p>
 <p>Let us define the $k_g$ coordinate system for $w$ points by following the same reasoning as we used above: $w$ points fall along the the ed<strong><em>G</em></strong>es of tracer grid cells in the $z$ direction.</p>
 <p>Indexing begins at the sea surface, k_g=0.</p>
-<h3 id="k-points"><em>k</em> points<a class="anchor-link" href="#k-points">&#182;</a></h3><p>Let us define the $k$ coordinate system for variables situated in the middle of a tracer grid cell in the vertical $z$ direction.  Examples include all tracers.</p>
+<h3 id="k-points"><em>k</em> points<a class="anchor-link" href="#k-points">&#182;</a></h3><p>Let us define $k$ as the vertical coordinate corresponding with the middle of a tracer grid cell in the $z$ direction.  All tracers are situated at $k$ in the vertical.</p>
 <p>Indexing begins in the uppermost grid cell surface, k=0.</p>
-<p>The default coordinate names in the GRID netcdf tile files are not 
-sufficiently descriptive to distinguish between the four horizontal
-coordinates ('i','i_g','j','j_g') and the three vertical coordinates.<br>
-Therefore, we provide a routine especially for reading in ECCOv4 
-llc90 GRID netcdf files and giving the default
-i1, i2, and i3 coordinates more descriptive names.</p>
+<h2 id="Applying-the-C-grid-coordinates-to-the-variables">Applying the C-grid coordinates to the variables<a class="anchor-link" href="#Applying-the-C-grid-coordinates-to-the-variables">&#182;</a></h2><p>The default coordinate names in the ECCO v4 netcdf tile files do not distinguish distinguish between the four horizontal coordinates, $i, i_g, j, j_g$ and the two vertical coordinates, $k_w$ and $k$, used by the C-grid .</p>
+<p>To apply these more descriptive coordinates to the <code>Dataset</code> objects that are created when we load netCDF files, we have written a custom routine, <code>load_tile_from_netcdf</code>.</p>
+<h3 id="load_tile_from_netcdf"><code>load_tile_from_netcdf</code><a class="anchor-link" href="#load_tile_from_netcdf">&#182;</a></h3><p>This routine takes four arguments,</p>
+<ol>
+<li><em>data_dir</em>: the directory of the netCDF file</li>
+<li><em>var</em>: the name of the netCDF file without the tile number.</li>
+<li><em>var_type</em>: one of 'c','g','u','v', or 'grid' corresponding with the variables C-grid point type.  'grid' is a special case because <strong>GRID</strong> ECCO v4 tile files are unique in that they contain a mix of 'c','g','u','v','k', and 'w' points.</li>
+<li><em>tile_index</em>: the tile number [1 .. 13]</li>
+</ol>
 
 </div>
 </div>
@@ -11956,23 +11956,21 @@ i1, i2, and i3 coordinates more descriptive names.</p>
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Load-the-file-containing-the-grid-parameter-information-for-one-tile.">Load the file containing the grid parameter information for one tile.<a class="anchor-link" href="#Load-the-file-containing-the-grid-parameter-information-for-one-tile.">&#182;</a></h2><p>To load ECCO v4's netcdf files we will use the <em>open_dataset</em> command from the <a href="http://xarray.pydata.org/en/stable/index.html">xarray</a> Python package.  <em>open_dataset</em> creates a <strong>Dataset</strong> object and loads the contents of the netcdf file, including its metadata, into a data structure.</p>
-<p>Let's open the grid file for <em>tile 3</em> (North East Atlantic Ocean), of the 13 ECCO v4 llc90 grid files.</p>
-<p>Change <code>data_dir</code> to match the location of your <code>nctiles_grid</code> directory.</p>
+<h3 id="Loading-an-ECCO-v4-netCDF-tile-file-using--load_tile_from_netcdf">Loading an ECCO v4 netCDF tile file using  <code>load_tile_from_netcdf</code><a class="anchor-link" href="#Loading-an-ECCO-v4-netCDF-tile-file-using--load_tile_from_netcdf">&#182;</a></h3><p>Let's once again open the grid file for <em>tile 3</em> (North East Atlantic Ocean) using <code>load_tile_from_netcdf</code></p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="prompt input_prompt">In&nbsp;[47]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;/Volumes/ECCO_BASE/ECCO_v4r3/nctiles_grid/&#39;</span>    
 <span class="n">var</span> <span class="o">=</span> <span class="s1">&#39;GRID&#39;</span>
 <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;grid&#39;</span>
 <span class="n">tile_index</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="n">grid_tile_3</span> <span class="o">=</span> <span class="n">ecco</span><span class="o">.</span><span class="n">load_tile_from_netcdf</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> 
+<span class="n">grid_3_new</span> <span class="o">=</span> <span class="n">ecco</span><span class="o">.</span><span class="n">load_tile_from_netcdf</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> 
                                          <span class="n">var</span><span class="p">,</span> 
                                          <span class="n">var_type</span><span class="p">,</span> 
                                          <span class="n">tile_index</span><span class="p">)</span>
@@ -12003,10 +12001,10 @@ i1, i2, and i3 coordinates more descriptive names.</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="prompt input_prompt">In&nbsp;[49]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">grid_tile_3</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">grid_3_new</span>
 </pre></div>
 
 </div>
@@ -12019,7 +12017,7 @@ i1, i2, and i3 coordinates more descriptive names.</p>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[32]:</div>
+<div class="prompt output_prompt">Out[49]:</div>
 
 
 

@@ -9,4 +9,6 @@
 \BOOKMARK [2][-]{subsection.1.4}{The two vertical points of the Arakawa-C gird}{section.1}% 9
 \BOOKMARK [3][-]{subsubsection.1.4.1}{w points}{subsection.1.4}% 10
 \BOOKMARK [3][-]{subsubsection.1.4.2}{k points}{subsection.1.4}% 11
-\BOOKMARK [2][-]{subsection.1.5}{Load the file containing the grid parameter information for one tile.}{section.1}% 12
+\BOOKMARK [2][-]{subsection.1.5}{Applying the C-grid coordinates to the variables}{section.1}% 12
+\BOOKMARK [3][-]{subsubsection.1.5.1}{load\137tile\137from\137netcdf}{subsection.1.5}% 13
+\BOOKMARK [3][-]{subsubsection.1.5.2}{Loading an ECCO v4 netCDF tile file using load\137tile\137from\137netcdf}{subsection.1.5}% 14

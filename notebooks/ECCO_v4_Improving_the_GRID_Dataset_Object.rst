@@ -24,7 +24,7 @@ information and uses those to construct the ``Dataset`` object.
 In the last tutorial we read in a single GRID netCDF tile file and
 examined its contents. We found that it listed three dimensions, i1, i2,
 and i3, for its Data variables. Let's load it up again and take a closer
-look. This time we'll name the ``Dataset`` object as ``grid_default``
+look. This time we'll name the ``Dataset`` object as ``grid_3_default``
 since we are loading it with the default method from ``xarray``.
 
 .. code:: ipython2
@@ -41,11 +41,11 @@ since we are loading it with the default method from ``xarray``.
 
     data_dir='/Volumes/ECCO_BASE/ECCO_v4r3/nctiles_grid/'    
     fname = 'GRID.0003.nc'
-    grid_default = xr.open_dataset(data_dir + fname)
+    grid_3_default = xr.open_dataset(data_dir + fname)
 
 .. code:: ipython2
 
-    grid_default
+    grid_3_default
 
 
 
@@ -111,8 +111,8 @@ since we are loading it with the default method from ``xarray``.
 
 
 
-We see that all of the Data variables in ``grid_default`` use one of
-three dimensions, **i1**,\ **i2**,\ **i3**. As we saw before, some
+We see that all of the Data variables in ``grid_3_default`` use one of
+three dimensions, **i1**, **i2**, and **i3**. As we saw before, some
 variables are 3D (e.g., hFacC), others are 2D (e.g., XC), and others are
 1D (e.g., RF).
 
@@ -120,14 +120,15 @@ Now, while the default format of this Dataset object is already quite
 useful, it falls short of taking full advantage of the 'coordinate'
 feature afforded by the Dataset object.
 
+The four horizontal points of the Arakawa-C grid
+------------------------------------------------
+
 Model variables on Arakawa-C grids are staggered in space. On the
 horizontal plane, model variables can be situated at one of four
 different classes of point.
 
-figure
-
-The four horizontal points of the Arakawa-C grid
-------------------------------------------------
+|C-grid-points.png| **The four different classes of points used in the
+staggered Arakawa-C grid (C-grid)**
 
 *c* points
 ~~~~~~~~~~
@@ -140,11 +141,13 @@ center of the *tracer* grid cell in the horizontal plane.
 Let us define the :math:`(i,j)` coordinate system for the indices of
 :math:`c` points.
 
-:math:`c(0,0)` is the -x most and -y most tracer grid cell.
+In the ECCO v4 netCDF tile files, :math:`c(0,0)` is the -x most and -y
+most tracer grid cell.
 
-Moving in the +\ :math:`y` direction, the next grid cell is
-:math:`c(0,1)` Moving in the +\ :math:`x` direction, the next grid cell
-is :math:`c(1,0)`
+-  In the +\ :math:`y` direction, the next :math:`c` point is
+   :math:`c(0,1)`.
+-  In the +\ :math:`x` direction, the next :math:`c` point is
+   :math:`c(1,0)`
 
 *u* points
 ~~~~~~~~~~
@@ -166,12 +169,8 @@ ed\ ***G***\ es. We use the :math:`j` for its :math:`y` coordinate
 because it is the same as the :math:`y` coordinate of the :math:`c`
 points.
 
-:math:`u(0,0)` is the first :math:`u` point situated in the :math:`-x`
-direction of $c(0,0).
-
-Moving in the +\ :math:`y` direction, the next grid cell is
-:math:`u(0,1)` Moving in the +\ :math:`x` direction, the next grid cell
-is :math:`u(1,0)`
+In the ECCO v4 netCDF tile files, :math:`u(0,0)` is the -x most and -y
+most :math:`u` point.
 
 *v* points
 ~~~~~~~~~~
@@ -193,12 +192,8 @@ the same as the :math:`x` coordinate of the :math:`c` points. We use
 :math:`v` points are situated along the tracer grid cell
 ed\ ***G***\ es.
 
-:math:`v(0,0)` is the first :math:`v` point situated in the :math:`-y`
-direction of $c(0,0).
-
-Moving in the +\ :math:`y` direction, the next grid cell is
-:math:`v(0,1)` Moving in the +\ :math:`x` direction, the next grid cell
-is :math:`v(1,0)`
+In the ECCO v4 netCDF tile files, :math:`v(0,0)` is the -x most and -y
+most :math:`v` point.
 
 *g* points
 ~~~~~~~~~~
@@ -216,12 +211,8 @@ points following the same reasoning as described above: in both the
 :math:`x` and :math:`y` directions, :math:`g` points are on the
 ed\ ***G***\ es of tracer grid cells.
 
-:math:`g(0,0)` is the first :math:`g` point situated in the :math:`-y`
-and :math:`-x` directions of $c(0,0).
-
-Moving in the +\ :math:`y` direction, the next grid cell is
-:math:`g(0,1)` Moving in the +\ :math:`x` direction, the next grid cell
-is :math:`g(1,0)`
+In the ECCO v4 netCDF tile files, :math:`g(0,0)` is the -x most and -y
+most :math:`g` point.
 
 The two vertical points of the Arakawa-C gird
 ---------------------------------------------
@@ -245,34 +236,42 @@ Indexing begins at the sea surface, k\_g=0.
 *k* points
 ~~~~~~~~~~
 
-Let us define the :math:`k` coordinate system for variables situated in
-the middle of a tracer grid cell in the vertical :math:`z` direction.
-Examples include all tracers.
+Let us define :math:`k` as the vertical coordinate corresponding with
+the middle of a tracer grid cell in the :math:`z` direction. All tracers
+are situated at :math:`k` in the vertical.
 
 Indexing begins in the uppermost grid cell surface, k=0.
 
-| The default coordinate names in the GRID netcdf tile files are not
-  sufficiently descriptive to distinguish between the four horizontal
-  coordinates ('i','i\_g','j','j\_g') and the three vertical
-  coordinates.
-| Therefore, we provide a routine especially for reading in ECCOv4 llc90
-  GRID netcdf files and giving the default i1, i2, and i3 coordinates
-  more descriptive names.
+Applying the C-grid coordinates to the variables
+------------------------------------------------
 
-Load the file containing the grid parameter information for one tile.
----------------------------------------------------------------------
+The default coordinate names in the ECCO v4 netcdf tile files do not
+distinguish distinguish between the four horizontal coordinates,
+:math:`i, i_g, j, j_g` and the two vertical coordinates, :math:`k_w` and
+:math:`k`, used by the C-grid .
 
-To load ECCO v4's netcdf files we will use the *open\_dataset* command
-from the `xarray <http://xarray.pydata.org/en/stable/index.html>`__
-Python package. *open\_dataset* creates a **Dataset** object and loads
-the contents of the netcdf file, including its metadata, into a data
-structure.
+To apply these more descriptive coordinates to the ``Dataset`` objects
+that are created when we load netCDF files, we have written a custom
+routine, ``load_tile_from_netcdf``.
 
-Let's open the grid file for *tile 3* (North East Atlantic Ocean), of
-the 13 ECCO v4 llc90 grid files.
+``load_tile_from_netcdf``
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Change ``data_dir`` to match the location of your ``nctiles_grid``
-directory.
+This routine takes four arguments, 1. *data\_dir*: the directory of the
+netCDF file 2. *var*: the name of the netCDF file without the tile
+number. 3. *var\_type*: one of 'c','g','u','v', or 'grid' corresponding
+with the variables C-grid point type. 'grid' is a special case because
+**GRID** ECCO v4 tile files are unique in that they contain a mix of
+'c','g','u','v','k', and 'w' points. 4. *tile\_index*: the tile number
+[1 .. 13]
+
+.. |C-grid-points.png| image:: ../figures/C-grid-points.png
+
+Loading an ECCO v4 netCDF tile file using ``load_tile_from_netcdf``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Let's once again open the grid file for *tile 3* (North East Atlantic
+Ocean) using ``load_tile_from_netcdf``
 
 .. code:: ipython2
 
@@ -280,7 +279,7 @@ directory.
     var = 'GRID'
     var_type = 'grid'
     tile_index = 3
-    grid_tile_3 = ecco.load_tile_from_netcdf(data_dir, 
+    grid_3_new = ecco.load_tile_from_netcdf(data_dir, 
                                              var, 
                                              var_type, 
                                              tile_index)
@@ -293,7 +292,7 @@ directory.
 
 .. code:: ipython2
 
-    grid_tile_3
+    grid_3_new
 
 
 

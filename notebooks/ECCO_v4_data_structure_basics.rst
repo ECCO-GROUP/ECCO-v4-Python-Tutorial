@@ -122,6 +122,19 @@ directory.
     fname = 'GRID.0003.nc'
     ds = xr.open_dataset(data_dir + fname)
 
+.. code:: ipython2
+
+    type(ds)
+
+
+
+
+.. parsed-literal::
+
+    xarray.core.dataset.Dataset
+
+
+
 The Dataset object
 ------------------
 
