@@ -20,7 +20,7 @@ This website contains a set of tutorials to how to analyze the ECCO Central Prod
 .. toctree::
    :maxdepth: 1
    :caption: Tutorial 
-   :glob:
+   :numbered:
 
    ECCO_v4_data_structure_basics
    ECCO_v4_Improving_the_GRID_Dataset_Object
@@ -28,7 +28,6 @@ This website contains a set of tutorials to how to analyze the ECCO Central Prod
 .. toctree::
    :maxdepth: 1
    :caption: Support 
-   :glob:
 
    support
 
