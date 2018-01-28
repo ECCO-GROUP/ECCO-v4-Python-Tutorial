@@ -41,9 +41,7 @@ extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.extlinks',
     'cloud_sptheme.ext.autodoc_sections',
-    'cloud_sptheme.ext.autoattribute_search_bases',
-    'numpydoc']
-
+    'cloud_sptheme.ext.autoattribute_search_bases']
 
 # From xmitgcm's conf.py
 autosummary_generate = True
