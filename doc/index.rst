@@ -25,7 +25,6 @@ Tutorial
 .. toctree::
    :maxdepth: 1
 
-   Installing_Python_and_Python_Packages
    ECCO_v4_data_structure_basics
    ECCO_v4_Improving_the_GRID_Dataset_Object
 
