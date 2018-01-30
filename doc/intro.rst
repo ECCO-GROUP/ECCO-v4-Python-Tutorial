@@ -4,21 +4,23 @@ The ECCO Ocean and Sea-Ice State Estimate
 What is the ECCO Central Production State Estimate?
 ---------------------------------------------------
 
-The Estimating the Circulation and Climate of the Ocean (ECCO) Central Production state estimate is a reconstruction of the three-dimensional time-varying ocean and sea-ice state.  Currently in Version 4, Release 3 the state estimate covers the period 1992 to 2005 on an approximately 1-degree horizontal grid (cells range from ca. 20 to 110 km in length) and 50 progressively deeper vertical levels.
+The Estimating the Circulation and Climate of the Ocean (ECCO) Central Production state estimate is a reconstruction of the three-dimensional time-varying ocean and sea-ice state.  Currently in Version 4, Release 3 the state estimate covers the period Jan 1, 1992 to Dec 31, 2015 on an approximately 1-degree horizontal grid (cells range from ca. 20 to 110 km in length) and 50 vertical levels of varying thickness.
 
 The ECCO CP state estimate has two defining features: (1) it reproduces a large set of remote sensing and in-situ observational data within their prior quantified uncertainties and (2) the dynamical evolution of its ocean circulation, hydrography, and sea-ice through time perfectly satisfies the laws of physics and thermodynamics.  The state estimate is, in effect, the output of a data-constrained yet free-running simulation of an ocean and sea-ice general circulation model, and consequently can be used to assess budgets of quantities like heat, salt and vorticity.
-
 
 What are the fields provided by ECCO?
 -------------------------------------
 
-The ECCO Central Production Release 3 ocean and sea ice state estimate runs from Jan 1, 1992 to Dec 31, 2015.
+We package the binary output from the free-running model into user-friendly, self-describing NetCDF files.  
 
 Output comes in two geographical projections or layouts:
 1. The 13-tile *native* lat-lon-cap 90 (LLC90)
-1. 1-degree latitude and longitude 
+1. 1-degree interpolated to latitude and longitude 
 
-** why do you need both **
+Three dimensional fields are provided as monthly-means   Select two dimenmsional fields are provided as daily-means.  Because the state estimate is the output of a free-running model, one can actually re-run the model and generate any output 
+
+the 
+
 
 Below is a partial list of ocean and sea ice fields.  For more details on see
 ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_overview.pdf
