@@ -9,6 +9,49 @@ The Estimating the Circulation and Climate of the Ocean (ECCO) Central Productio
 The ECCO CP state estimate has two defining features: (1) it reproduces a large set of remote sensing and in-situ observational data within their prior quantified uncertainties and (2) the dynamical evolution of its ocean circulation, hydrography, and sea-ice through time perfectly satisfies the laws of physics and thermodynamics.  The state estimate is, in effect, the output of a data-constrained yet free-running simulation of an ocean and sea-ice general circulation model, and consequently can be used to assess budgets of quantities like heat, salt and vorticity.
 
 
+What are the fields provided by ECCO?
+-------------------------------------
+
+The ECCO Central Production Release 3 ocean and sea ice state estimate runs from Jan 1, 1992 to Dec 31, 2015.
+
+Output comes in two geographical projections or layouts:
+1. The 13-tile *native* lat-lon-cap 90 (LLC90)
+1. 1-degree latitude and longitude 
+
+** why do you need both **
+
+Below is a partial list of ocean and sea ice fields.  For more details on see
+ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_overview.pdf
+
+For a full list of output on the 13-tile grid see
+ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/README
+
+For a full list of output on the 13-tile grid see
+
+
+Ocean state and integral quantites
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+3-D temperature, salinity, velocity (u,v,w), ocean bottom pressure, sea surface height
+
+Ocean interior fluxes
+~~~~~~~~~~~~~~~~~~~~~
+advective and diffusive fluxes of heat, salt, momemtum
+advective volume fluxes 
+
+Atmospheric State
+~~~~~~~~~~~~~~~~~
+
+
+
+Air-Sea Fluxes
+~~~~~~~~~~~~~~
+
+
+
+
+
+
 How is the ECCO Central Production State Estimate Made?
 -------------------------------------------------------
 
