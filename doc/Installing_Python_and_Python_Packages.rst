@@ -52,7 +52,7 @@ The latest installers for the Anaconda Distribution can be found on the `Anacond
 Installing Required Python Packages
 -----------------------------------
 
-The following packages must be installed: *xarray*, *netcdf4*, *pyresample*, *basemap*.  After installing Anaconda, you can install these packages with the following command:
+Using the termnal, the following packages must be installed: *xarray*, *netcdf4*, *pyresample*, *basemap*.  After installing Anaconda, you can install these packages with the following command:
 
 .. code-block:: bash
 
@@ -72,7 +72,7 @@ From there you have two options:
 
 .. code-block:: bash
 	
-    git clone git@github.com:ECCO-GROUP/ECCOv4-py.git
+    git clone https://github.com/ECCO-GROUP/ECCOv4-py.git
 
 .. _github project page: https://github.com/ECCO-GROUP/ECCOv4-py/tree/master/ecco_v4_py
 
