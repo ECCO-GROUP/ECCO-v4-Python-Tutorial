@@ -1,1 +1,0 @@
-../notebooks/ECCO_v4_data_structure_basics.rst
