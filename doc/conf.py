@@ -19,7 +19,7 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-import cloud_sptheme as csp
+#import cloud_sptheme as csp
 import sphinx_rtd_theme
 
 # -- General configuration ------------------------------------------------
@@ -40,9 +40,24 @@ extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
     'sphinx.ext.extlinks',
-    'cloud_sptheme.ext.autodoc_sections',
-    'cloud_sptheme.ext.autoattribute_search_bases']
+    'sphinx.ext.napoleon',
+    'nbsphinx'
+]
+# Napoleon settings
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = False
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = True
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = False
+napoleon_use_param = True
+napoleon_use_rtype = True
 
+#    'cloud_sptheme.ext.autodoc_sections',
+#    'cloud_sptheme.ext.autoattribute_search_bases']
 # From xmitgcm's conf.py
 autosummary_generate = True
 numpydoc_class_members_toctree = True
@@ -85,7 +100,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
