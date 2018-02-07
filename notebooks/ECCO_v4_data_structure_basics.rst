@@ -92,7 +92,6 @@ installing the *ecco\_v4\_py* module on your machine.
 
 .. code:: ipython2
 
-    sys.path.append('/Users/ifenty/git_repo/ECCOv4-py')
     import ecco_v4_py as ecco
 
 The syntax *import X package as Y* allows you to access all of the
@@ -118,9 +117,10 @@ directory.
 
 .. code:: ipython2
 
-    data_dir='/Volumes/ECCO_BASE/ECCO_v4r3/nctiles_grid/'    
+    grid_dir='/Volumes/ECCO_BASE/ECCO_v4r3/nctiles_grid/'    
+    
     fname = 'GRID.0003.nc'
-    ds = xr.open_dataset(data_dir + fname)
+    ds = xr.open_dataset(grid_dir + fname)
 
 .. code:: ipython2
 

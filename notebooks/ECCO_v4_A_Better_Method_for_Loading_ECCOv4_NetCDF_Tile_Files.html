@@ -11776,7 +11776,7 @@ div#notebook {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="A-Better-Method-for-Loading-ECCOv4-NetCDF-Tile-Files">A Better Method for Loading ECCOv4 NetCDF Tile Files<a class="anchor-link" href="#A-Better-Method-for-Loading-ECCOv4-NetCDF-Tile-Files">&#182;</a></h1><h2 id="Objectives:">Objectives:<a class="anchor-link" href="#Objectives:">&#182;</a></h2><p>Introduce an alternative method for loading ECCO v4 NetCDF tile files that returns <code>Dataset</code> and <code>DataArray</code> objects with better labelling of variable coordinates with respect to <em>where</em> they are situated on the Arakawa-C grid.</p>
-<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2><p>As we showed in the first tutorial, we can use the <code>open_dataset</code> method from <code>xarray</code> to load a NetCDF tile file into Python as a <code>Dataset</code> object.  <code>open_dataset</code> is very convienent because it automatically parses the NetCDF file and constructs a <code>Dataset</code> object using all of the  dimensions, coordinates, variables, and metadata information.  However, by default the names of the coordinates are pretty generic: <em>i1</em>, <em>i2</em>, <em>i3</em>, etc. We can do a lot better.</p>
+<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2><p>As we showed in the first tutorial, we can use the <code>open_dataset</code> method from <code>xarray</code> to load a NetCDF tile file into Python as a <code>Dataset</code> object.  <code>open_dataset</code> is very convienent because it automatically parses the NetCDF file and constructs a <code>Dataset</code> object using all of the  dimensions, coordinates, variables, and metadata information.  However, by default the names of the coordinates are pretty generic: <strong>i1, i2, i3</strong>, etc. We can do a lot better.</p>
 <p>In the last tutorial we loaded a single ECCOv4 grid tile file and examined its contents.  Let's load it up again and take another look at its coordinates.  This time we'll name the new <code>Dataset</code> object  <code>grid_3_od</code> since we are loading the file using <code>open_dataset</code>.</p>
 
 </div>
@@ -11784,7 +11784,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[68]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="kn">as</span> <span class="nn">plt</span>
@@ -11802,11 +11802,11 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[69]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># point to your local directory holding the nctiles_grid files</span>
-<span class="n">grid_dir</span><span class="o">=</span><span class="s1">&#39;/Users/ifenty/ECCOv4/R3/nctiles_grid/&#39;</span>
+<span class="n">grid_dir</span><span class="o">=</span><span class="s1">&#39;/Volumes/ECCO_BASE/ECCO_v4r3/nctiles_grid/&#39;</span>
 <span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;GRID.0003.nc&#39;</span>
 <span class="n">grid_3_od</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">grid_dir</span> <span class="o">+</span> <span class="n">fname</span><span class="p">)</span>
 </pre></div>
@@ -11818,7 +11818,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[70]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">grid_3_od</span>
@@ -11834,7 +11834,7 @@ div#notebook {
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[3]:</div>
+<div class="prompt output_prompt">Out[70]:</div>
 
 
 
@@ -11908,41 +11908,44 @@ Attributes:
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We see that all of the Data variables in <code>grid_3_od</code> use one of three dimensions, <strong>i1</strong>, <strong>i2</strong>, and <strong>i3</strong>.  As we saw before, some variables are 3D (e.g., hFacC), others are 2D (e.g., XC), and others are 1D (e.g., RF).</p>
-<p>This <code>Dataset</code> object is already quite useful but it falls well short of taking full advantage of the coordinate labeling feature provided by the <code>Dataset</code> objects.  Let's investigate the coordinates of the Arakawa-C grid (hereafter c-grid)</p>
-<h2 id="The-four-horizontal-points-of-the-c-grid">The four horizontal points of the c-grid<a class="anchor-link" href="#The-four-horizontal-points-of-the-c-grid">&#182;</a></h2><p>The c-grid is a staggered grid, model variables are not all co-located in the center of model grid cells.  In the horizontal plane, model variables can be in one of four different categories of point:</p>
-<p><img src="../figures/C-grid-points.png" alt="C-grid-points.png">
-<strong>The four different categories of points used in the staggered Arakawa-C grid (C-grid)</strong></p>
-<h3 id="c-points"><em>c</em> points<a class="anchor-link" href="#c-points">&#182;</a></h3><p>Scalar variables (e.g., T, S, SSH, OBP, sea ice concentration, vertical velocity) are situated at the center of the tracer grid cell in the horizontal plane.  These are $c$ points</p>
-<p>Define the $(i,j)$ coordinate system for the indices of $c$ points.</p>
-<p>In the ECCO v4 NetCDF tile files, $c(0,0)$ is the -x most and -y most tracer grid cell.</p>
+<h3 id="Examining-the-Dataset-object-contents">Examining the Dataset object contents<a class="anchor-link" href="#Examining-the-Dataset-object-contents">&#182;</a></h3><p>We see that all of the Data variables in <code>grid_3_od</code> use one of three dimensions, <strong>i1</strong>, <strong>i2</strong>, and <strong>i3</strong>.  As we saw before, some variables are 3D, $hFacC(i1,i2,i3)$; others are 2D, $XC(i2,i3)$; and others are 1D, $RF(i1)$.</p>
+<p>While this <code>Dataset</code> object is useful, its coordinate names are somewhat ambiguous.  The MITgcm uses the staggered Arakawa-C grid (hereafter c-grid) to discretize the model equations.  Model variables are not co-located in c-grid models; they can fall on one of four different categories of point.  From the above, one cannot distinguish <em>where</em> on the <em>c-grid</em> these different variables are situated.</p>
+<p>To understand this issue better, let's review the c-grid coordinate system.</p>
+<h2 id="The-four-horizontal-points-of-the-c-grid">The four horizontal points of the c-grid<a class="anchor-link" href="#The-four-horizontal-points-of-the-c-grid">&#182;</a></h2><p><img src="../figures/C-grid-points.png" alt="C-grid-points.png">
+<strong>The four different categories of point used in the staggered Arakawa-C grid (C-grid)</strong></p>
+<h3 id="c-points"><em>c</em> points<a class="anchor-link" href="#c-points">&#182;</a></h3><p>Scalar variables (e.g., $T, S, SSH, OBP, SIarea$) and variables associated with vertical velocity (e.g., $WVEL$) are situated at the center of the tracer grid cell in the horizontal plane.  These are $c$ points</p>
+<p>Define the coordinates $(i,j)$ for the discrete indices of $c$ points in the $x$ and $y$ directions, respectively.</p>
+<p>In the ECCO v4 NetCDF files, $c(0,0)$ is the $-x$ most and $-y$ most tracer grid cell.</p>
 <ul>
 <li>In the +$y$ direction, the next $c$ point is $c(0,1)$.</li>
 <li>In the +$x$ direction, the next $c$ point is $c(1,0)$ </li>
 </ul>
 <h3 id="u-points"><em>u</em> points<a class="anchor-link" href="#u-points">&#182;</a></h3><p>Vector variables related to horizontal velocity in the $x$ direction are  staggered along the edges of tracer cells between $c$ points in the horizontal plane. Examples include horizontal velocity in the $x$ direction ($UVEL$) and horizontal advective flux of snow in the $x$ direction ($ADVxSNOW$).  They are situated along the edges (if 2D) or faces (if 3D) of the tracer grid cells in the $x$ direction.</p>
-<p>Define the $(i_g, j)$ coordinate system for $u$ points.  We use $i_g$ as the coordinate in the $x$ direction because $u$ points are situated along the tracer grid cell ed<strong><em>G</em></strong>es.  We use $j$ for its $y$ coordinate because $u$ points and $c$ points fall along the same lines in $y$.</p>
-<p>In the ECCO v4 netCDF tile files, $u(0,0)$ is the -x most and -y most $u$ point.</p>
+<p>Define the coordinates $(i_g,j)$ for the discrete indices of $u$ points in the $x$ and $y$ directions, respectively.</p>
+<p>We use $i_g$ as the coordinate in the $x$ direction because $u$ points are situated along the tracer grid cell ed<strong><em>G</em></strong>es.  We use $j$ for its $y$ coordinate because $u$ points and $c$ points fall along the same lines in $y$.</p>
+<p>In the ECCO v4 netCDF files, $u(0,0)$ is the $-x$ most and $-y$ most $u$ point.</p>
 <h3 id="v-points"><em>v</em> points<a class="anchor-link" href="#v-points">&#182;</a></h3><p>Vector variables related to horizontal velocity in the $y$ direction are  staggered along the edges of tracer cells between $c$ points in the horizontal plane. Examples include horizontal velocity in the $y$ direction ($VVEL$) and horizontal advective flux of snow in the $y$ direction ($ADVySNOW$).  They are situated along the edges (if 2D) or faces (if 3D) of the tracer grid cells in the $y$ direction.</p>
-<p>Define the $(i, j_g)$ coordinate system for $v$ points.  We use $j_g$ as the coordinate in the $y$ direction because $v$ points are situated along the tracer grid cell ed<strong><em>G</em></strong>es.  We use $i$ for its $x$ coordinate because $v$ points and $c$ points fall along the same lines in $x$.</p>
-<p>In the ECCO v4 NetCDF tile files, $v(0,0)$ is the -x most and -y most $v$ point.</p>
+<p>Define the coordinates $(i,j_g)$ for the discrete indices of $v$ points in the $x$ and $y$ directions, respectively.</p>
+<p>We use $j_g$ as the coordinate in the $y$ direction because $v$ points are situated along the tracer grid cell ed<strong><em>G</em></strong>es.  We use $i$ for its $x$ coordinate because $v$ points and $c$ points fall along the same lines in $x$.</p>
+<p>In the ECCO v4 NetCDF files, $v(0,0)$ is the $-x$ most and $-y$ most $v$ point.</p>
 <h3 id="g-points"><em>g</em> points<a class="anchor-link" href="#g-points">&#182;</a></h3><p>Variables that are explictly related to horizontal velocities in the model in both the $x$ and $y$ direction are situated at $g$ points in the horizontal plane.  $g$ points are situated at the corners of tracer grid cells.</p>
-<p>Define the $(i_g, j_g)$ coordinate system for $g$ points following the same reasoning as described above: in both the $x$ and $y$ directions, $g$ points are on the ed<strong><em>G</em></strong>es of tracer grid cells.</p>
-<p>In the ECCO v4 NetCDF tile files, $g(0,0)$ is the -x most and -y most $g$ point.</p>
+<p>Define the coordinates $(i_g,j_g)$ for the discrete indices of $g$ points in the $x$ and $y$ directions, respectively.</p>
+<p>We use $i_g$ and $j_g$ because $g$ points are on the ed<strong><em>G</em></strong>es (corners) of tracer grid cells.</p>
+<p>In the ECCO v4 NetCDF files, $g(0,0)$ is the $-x$ most and $-y$ most $g$ point.</p>
 <h2 id="The-two-vertical-points-of-the-c-grid">The two vertical points of the c-grid<a class="anchor-link" href="#The-two-vertical-points-of-the-c-grid">&#182;</a></h2><p>There are two different coordinates in the vertical $z$ dimension:</p>
 <h3 id="w-points"><em>w</em> points<a class="anchor-link" href="#w-points">&#182;</a></h3><p>Variables related to vertical velocity or vertical fluxes are situated at $w$ points in the vertical direction.  These variables are situated on the upper and lower faces of the tracer grid cell.</p>
-<p>Define the $k_g$ coordinate system for $w$ points by following the same reasoning as we used above: $w$ points fall along the the ed<strong><em>G</em></strong>es of tracer grid cells in the $z$ direction.</p>
-<p>In the ECCO v4 NetCDF tile files, $k_g(0) is the sea surface.</p>
+<p>Define the coordinate $k_g$ for $w$ points using the same reasoning as above: $w$ points fall along the the ed<strong><em>G</em></strong>es of tracer grid cells in the $z$ direction (top and bottom of the grid cells).</p>
+<p>In the ECCO v4 NetCDF files, $k_g(0)$ is the sea surface.</p>
 <h3 id="k-points"><em>k</em> points<a class="anchor-link" href="#k-points">&#182;</a></h3><p>Variables that are not related to vertical velocity or vertical fluxes are situated at $k$ points in the vertical direction.  These variables are situated on the upper and lower faces of the tracer grid cell.</p>
-<p>Define the $k_g$ coordinate system for $w$ points by following the same reasoning as we used above: $w$ points fall along the the ed<strong><em>G</em></strong>es of tracer grid cells in the $z$ direction.</p>
-<p>In the ECCO v4 NetCDF tile files, $k(0) is the middle of the uppermost tracer grid cell.</p>
+<p>Define the coordinate $k$ for points situated in the center of the grid cells.</p>
+<p>In the ECCO v4 NetCDF files, $k(0)$ is the middle of the uppermost tracer grid cell.</p>
 <h2 id="Applying-the-C-grid-coordinates-to-the-variables">Applying the C-grid coordinates to the variables<a class="anchor-link" href="#Applying-the-C-grid-coordinates-to-the-variables">&#182;</a></h2><p>The default coordinate names in the ECCO v4 netcdf tile files do not distinguish distinguish between the four horizontal coordinates, $i, i_g, j, j_g$ and the two vertical coordinates, $k_g$ and $k$, used by our  c-grid model.</p>
 <p>To apply these more descriptive coordinates to the <code>Dataset</code> objects that are created when we load netCDF files, we provide a special routine, <code>load_tile_from_netcdf</code>.</p>
 <h3 id="load_tile_from_netcdf"><code>load_tile_from_netcdf</code><a class="anchor-link" href="#load_tile_from_netcdf">&#182;</a></h3><p>This routine takes four arguments,</p>
 <ol>
 <li><em>data_dir</em>: the directory of the netCDF file</li>
-<li><em>var</em>: the name of the netCDF file without the tile number.</li>
-<li><em>var_type</em>: one of 'c','g','u','v', or 'grid' corresponding with the variables C-grid point type.  'grid' is a special case because <strong>GRID</strong> ECCO v4 tile files are unique in that they contain a mix of 'c','g','u','v','k', and 'w' points.</li>
+<li><em>var</em>: the name of the variable stored in the netCDF file (without the tile number).  Examples include <em>THETA</em>, <em>VVEL</em>, <em>DFxEHFF</em></li>
+<li><em>var_type</em>: one of 'c','g','u','v', or 'grid' corresponding with the variable's c-grid point type.  'grid' is a special case because unlike every other variable NetCDF file, grid files actually contain several variables that are on different c-grid points.</li>
 <li><em>tile_index</em>: the tile number [1 .. 13]</li>
 </ol>
 
@@ -11953,23 +11956,20 @@ Attributes:
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Loading-an-ECCO-v4-netCDF-tile-file-using--load_tile_from_netcdf">Loading an ECCO v4 netCDF tile file using  <code>load_tile_from_netcdf</code><a class="anchor-link" href="#Loading-an-ECCO-v4-netCDF-tile-file-using--load_tile_from_netcdf">&#182;</a></h3><p>Let's use <code>load_tile_from_netcdf</code> to load grid tile 3 again. This time we'll call the new <code>Dataset</code> object <code>grid_3_new</code></p>
+<h3 id="Loading-an-ECCO-v4-netCDF-grid-tile-file-using--load_tile_from_netcdf">Loading an ECCO v4 netCDF grid tile file using  <code>load_tile_from_netcdf</code><a class="anchor-link" href="#Loading-an-ECCO-v4-netCDF-grid-tile-file-using--load_tile_from_netcdf">&#182;</a></h3><p>Let's use <code>load_tile_from_netcdf</code> to load grid tile 3 again. This time we'll call the new <code>Dataset</code> object <code>grid_3_new</code></p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[71]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">var</span> <span class="o">=</span> <span class="s1">&#39;GRID&#39;</span>
 <span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;grid&#39;</span>
 <span class="n">tile_index</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="n">grid_3_new</span> <span class="o">=</span> <span class="n">ecco</span><span class="o">.</span><span class="n">load_tile_from_netcdf</span><span class="p">(</span><span class="n">grid_dir</span><span class="p">,</span> 
-                                         <span class="n">var</span><span class="p">,</span> 
-                                         <span class="n">var_type</span><span class="p">,</span> 
-                                         <span class="n">tile_index</span><span class="p">)</span>
+<span class="n">grid_3_new</span> <span class="o">=</span> <span class="n">ecco</span><span class="o">.</span><span class="n">load_tile_from_netcdf</span><span class="p">(</span><span class="n">grid_dir</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">var_type</span><span class="p">,</span> <span class="n">tile_index</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11986,7 +11986,7 @@ Attributes:
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>loading /Users/ifenty/ECCOv4/R3/nctiles_grid/GRID.0003.nc
+<pre>loading /Volumes/ECCO_BASE/ECCO_v4r3/nctiles_grid/GRID.0003.nc
 </pre>
 </div>
 </div>
@@ -11997,7 +11997,7 @@ Attributes:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[72]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">grid_3_new</span>
@@ -12013,14 +12013,14 @@ Attributes:
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[5]:</div>
+<div class="prompt output_prompt">Out[72]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
 <pre>&lt;xarray.Dataset&gt;
-Dimensions:  (i: 90, i_g: 90, j: 90, j_g: 90, k: 50, k_l: 50, k_u: 50)
+Dimensions:  (i: 90, i_g: 90, j: 90, j_g: 90, k: 50, k_g: 50)
 Coordinates:
     tile     int64 3
   * k        (k) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
@@ -12028,8 +12028,7 @@ Coordinates:
   * j        (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
   * i_g      (i_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
   * j_g      (j_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
-  * k_u      (k_u) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
-  * k_l      (k_l) int64 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 ...
+  * k_g      (k_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
 Data variables:
     XC       (j, i) float64 ...
     YC       (j, i) float64 ...
@@ -12050,11 +12049,10 @@ Data variables:
     DXG      (j_g, i) float64 ...
     hFacS    (k, j_g, i) float64 ...
     land_v   (k, j_g, i) float64 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 ...
-    RF       (k_u) float64 ...
-    DRC      (k_u) float64 ...
+    RF       (k_g) float64 ...
+    DRC      (k_g) float64 ...
     RC       (k) float64 ...
     DRF      (k) float64 ...
-    RB       (k_l) float64 -10.0 -20.0 -30.0 -40.0 -50.0 -60.0 -70.0 -80.01 ...
 Attributes:
     description:    C-grid parameters (see MITgcm documentation for details)....
     A:              :Format      = native grid (nctiles w. 13 tiles)
@@ -12091,6 +12089,817 @@ Attributes:
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Examining-the-Dataset-object-contents">Examining the Dataset object contents<a class="anchor-link" href="#Examining-the-Dataset-object-contents">&#182;</a></h3><h4 id="1.-Dimensions">1. Dimensions<a class="anchor-link" href="#1.-Dimensions">&#182;</a></h4><p><code>Dimensions:  (i: 90, i_g: 90, j: 90, j_g: 90, k: 50, k_g: 50)</code></p>
+<p>The <em>Dimensions</em> list now lists the six different coordinates and their dimension used by variables stored in this new grid tile <code>Dataset</code> object.</p>
+<h4 id="2.-Coordinates">2. Coordinates<a class="anchor-link" href="#2.-Coordinates">&#182;</a></h4>
+<pre><code>Coordinates:
+    tile     int64 3
+  * k        (k) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+  * i        (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+  * j        (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+  * i_g      (i_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
+  * j_g      (j_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
+  * k_g      (k_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...</code></pre>
+<p>Each of the 6 dimensions has a corresponding set of coordinate labels.</p>
+<h4 id="3.-Data-Variables">3. Data Variables<a class="anchor-link" href="#3.-Data-Variables">&#182;</a></h4>
+<pre><code>Data variables:
+    XC       (j, i) float64 ...
+    hFacC    (k, j, i) float64 ...
+    XG       (j_g, i_g) float64 ...
+    DXC      (j, i_g) float64 ...
+    hFacW    (k, j, i_g) float64 ...
+    DYC      (j_g, i) float64 ...
+    hFacS    (k, j_g, i) float64 ...
+    RF       (k_g) float64 ...
+    RC       (k) float64 ...</code></pre>
+<p>We now see that each <em>data variable</em> is now described with its proper coordinates.
+For example, XC, the longitude of the tracer grid cell center uses $i,j$ coordiantes while   XG, the longitude grid cell corners, now has $i_g, j_g$ coordinates.  DXC, the distance between adjacent cell centers, uses $i_g, j$ coordiantes: consistent with the notion that distances between cell centers in $x$ are situated halfway between cell centers.</p>
+<blockquote><p><strong>Note:</strong> The ordering of arrays is not (x,y,z) but (z,y,x).</p>
+</blockquote>
+<p>In addition to the variables now having more descriptive coordinates, the <code>load_tile_from_netcdf</code> routine also adds 3 new three-dimensional land masks, one each for grid cell at the 'u' (land_u), 'c' (land_c), and 'v' (land_v) points.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="A-closer-look-at-the-DataArray-after-loading-with-load_tile_from_netcdf">A closer look at the DataArray after loading with <code>load_tile_from_netcdf</code><a class="anchor-link" href="#A-closer-look-at-the-DataArray-after-loading-with-load_tile_from_netcdf">&#182;</a></h2><p>Let's take a quick look at one of the variables loaded using the <code>load_tile_from_netcdf</code> routine:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[73]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">grid_3_new</span><span class="o">.</span><span class="n">XC</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[73]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;xarray.DataArray &#39;XC&#39; (j: 90, i: 90)&gt;
+array([[-37.5     , -36.5     , -35.5     , ...,  49.5     ,  50.5     ,  51.5     ],
+       [-37.5     , -36.5     , -35.5     , ...,  49.5     ,  50.5     ,  51.5     ],
+       [-37.5     , -36.5     , -35.5     , ...,  49.5     ,  50.5     ,  51.5     ],
+       ..., 
+       [-37.730072, -37.178291, -36.597565, ...,  50.597565,  51.178291,
+         51.730072],
+       [-37.771988, -37.291943, -36.764027, ...,  50.764027,  51.291943,
+         51.771988],
+       [-37.837925, -37.44421 , -36.968143, ...,  50.968143,  51.44421 ,
+         51.837925]])
+Coordinates:
+    tile     int64 3
+  * i        (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+  * j        (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+Attributes:
+    long_name:          longitude
+    units:              degrees_east
+    rotated_to_latlon:  False</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The <code>load_tile_from_netcdf</code> routine adds a new coordinate to the variables, <em>tile</em>.   This will be helpful when loading and combining multiple tiles.</p>
+<p>Finally, we see a new attribute: <em>rotated_to_latlon</em>.  This attribute is a flag telling us that the arrays are in the original lat-lon-cap tile layout.  We'll discuss this later.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Loading-non-grid-ECCO-variables-using-load_tile_from_netcdf">Loading non-grid ECCO variables using <code>load_tile_from_netcdf</code><a class="anchor-link" href="#Loading-non-grid-ECCO-variables-using-load_tile_from_netcdf">&#182;</a></h2><p>So far we've only looked at ECCO v4 grid tile files.  With the <code>load_tile_from_netcdf</code> routine you can assign the proper coordinates to any variable by specifying its c-grid point category.</p>
+<p>We'll demonstrate by loading three variables, one each that are on 'c','u', and 'v' points</p>
+<h3 id="A-'c'-point-variable:-SSH">A 'c' point variable: SSH<a class="anchor-link" href="#A-'c'-point-variable:-SSH">&#182;</a></h3><p>Let's load tile 3 of the 'c' point sea surface height (SSH) variable.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[74]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;/Volumes/ECCO_BASE/ECCO_v4r3/nctiles_monthly/SSH/&#39;</span>    
+<span class="n">var</span> <span class="o">=</span> <span class="s1">&#39;SSH&#39;</span>
+<span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;c&#39;</span>
+<span class="n">tile_index</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">ssh_tile_3</span> <span class="o">=</span> <span class="n">ecco</span><span class="o">.</span><span class="n">load_tile_from_netcdf</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">var_type</span><span class="p">,</span> <span class="n">tile_index</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>loading /Volumes/ECCO_BASE/ECCO_v4r3/nctiles_monthly/SSH/SSH.0003.nc
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Since this is the first time we're loading an output variable from the state estimate let's closely examine <code>ssh_tile_3</code>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[75]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">ssh_tile_3</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[75]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;xarray.Dataset&gt;
+Dimensions:   (i: 90, j: 90, tile: 1, time: 288)
+Coordinates:
+  * time      (time) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
+  * j         (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+  * i         (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+    lon_c     (j, i) float64 -37.5 -36.5 -35.5 -34.5 -33.5 -32.5 -31.5 -30.5 ...
+    lat_c     (j, i) float64 10.46 10.46 10.46 10.46 10.46 10.46 10.46 10.46 ...
+    tim       (time) datetime64[ns] ...
+  * tile      (tile) int64 3
+    timestep  (time) float64 732.0 1.428e+03 2.172e+03 2.892e+03 3.636e+03 ...
+Data variables:
+    SSH       (time, tile, j, i) float64 0.0576 0.05474 0.05277 0.05157 ...
+Attributes:
+    description:    SSH -- ECCO v4 ocean state estimate, release 3 -- 1992-2015
+    A:              :Format      = native grid (nctiles w. 13 tiles)
+    B:              :source      = ECCO consortium (http://ecco-group.org/)
+    C:              :institution = JPL/UT/MIT/AER
+    D:              :history     = files revision history :
+    E:                                 05/02/2017: adjust SSH and OBP with gl...
+    F:                                 05/02/2017: adjust SSH with sea-ice lo...
+    G:                                 04/20/2017: fill in geometry info for ...
+    H:                                 11/06/2016: third release of ECCO v4 (...
+    I:                             estimates revision history (from second re...
+    J:                                 employs bi-harmonic viscosity (enhance...
+    K:                                 sea-ice parameters, updated or novel o...
+    L:                                 GRACE OBP, Aquarius SSS, global mean s...
+    M:                                 time-series, extended and/or expanded ...
+    N:                                 revised weights including data and con...
+    O:                                 to account for grid-size variation and...
+    P:                                 separate time-mean and time-variable d...
+    Q:                                 and controls, sea-ice costs, and initi...
+    R:                                 additional controls.\n 
+    S:              :references  = Forget, G., J.-M. Campin, P. Heimbach, C. ...
+    T:                              and C. Wunsch, 2015: ECCO version 4: an i...
+    U:                              non-linear inverse modeling and global oc...
+    V:                              Geoscientific Model Development, 8, 3071-...
+    W:                             Forget, G., J.-M. Campin, P. Heimbach, C. ...
+    X:                              ECCO version 4: Second Release, 2016, htt...
+    Y:              file created using gcmfaces_IO/write2nctiles.m
+    date:           02-May-2017
+    Conventions:    CF-1.6
+    _FillValue:     nan
+    missing_value:  nan</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Notice that unlike the grid files that we've loaded up until now, the <code>ssh_tile_3</code> <code>Dataset</code> object only has one <em>Data variable</em>, $SSH$.  Non-grid ECCO v4 NetCDF tile files only ever store <em>one</em> physical variable. Consequently, the <em>dimensions</em> of the <code>Dataset</code> will be the same as the <em>dimensions</em> of the single <em>data variable</em>.    Let's take a look at the $SSH$ <code>DataArary</code>:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[76]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">ssh_tile_3</span><span class="o">.</span><span class="n">SSH</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[76]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;xarray.DataArray &#39;SSH&#39; (time: 288, tile: 1, j: 90, i: 90)&gt;
+array([[[[ 0.0576  , ...,  0.383994],
+         ..., 
+         [      nan, ...,       nan]]],
+
+
+       ..., 
+       [[[ 0.075663, ...,  0.458817],
+         ..., 
+         [      nan, ...,       nan]]]])
+Coordinates:
+  * time      (time) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
+  * j         (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+  * i         (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+    lon_c     (j, i) float64 -37.5 -36.5 -35.5 -34.5 -33.5 -32.5 -31.5 -30.5 ...
+    lat_c     (j, i) float64 10.46 10.46 10.46 10.46 10.46 10.46 10.46 10.46 ...
+    tim       (time) datetime64[ns] ...
+  * tile      (tile) int64 3
+    timestep  (time) float64 732.0 1.428e+03 2.172e+03 2.892e+03 3.636e+03 ...
+Attributes:
+    long_name:          Surface Height Anomaly adjusted with global steric he...
+    units:              m
+    rotated_to_latlon:  False</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Dimensional-coordinates">Dimensional coordinates<a class="anchor-link" href="#Dimensional-coordinates">&#182;</a></h4><p>As expected, the <code>SSH</code> <code>DataArray</code> uses <strong>i, j</strong> coordinates for its horizontal dimensions.  We also see a <strong>tile</strong> and <strong>time</strong> coordinates.  The ordering of the $SSH$ dimensions is <strong>time, tile, j, i</strong> with the logic being that <strong>tile</strong> is a kind of space coordinate.</p>
+<p>We find 288 records in the <strong>time</strong> dimensions.  One for each month of the 1992-2015 state estimate.  There is one record in the <strong>tile</strong> dimensions because we have only loaded a single tile file so far.</p>
+<h4 id="Non-dimensional-coordinates">Non-dimensional coordinates<a class="anchor-link" href="#Non-dimensional-coordinates">&#182;</a></h4><p>Notice the four <em>Coordinates</em> that do not have an "*" in front of their names.  These are so-called <a href="http://xarray.pydata.org/en/stable/data-structures.html#coordinates">non-dimensional coordinates</a>.  Think of non-dimensional coordinates as helpful extra coordinate labels.  Here, the non-dimensional coordinates include two for the <strong>time</strong> dimension: <strong>tim</strong> and <strong>timestep</strong>, and two for the space dimensions: <strong>lon_c, lat_c</strong>.</p>
+<h5 id="The-time-non-dimensional-coordinates">The time non-dimensional coordinates<a class="anchor-link" href="#The-time-non-dimensional-coordinates">&#182;</a></h5>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[77]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">ssh_tile_3</span><span class="o">.</span><span class="n">time</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[77]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;xarray.DataArray &#39;time&#39; (time: 288)&gt;
+array([   1.,    2.,    3., ...,  286.,  287.,  288.])
+Coordinates:
+  * time      (time) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
+    tim       (time) datetime64[ns] ...
+    timestep  (time) float64 732.0 1.428e+03 2.172e+03 2.892e+03 3.636e+03 ...
+Attributes:
+    long_name:  array index 1
+    units:      1</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The <strong>tim</strong> non-dimensional coordinate provides the calendar date (centered in the month) for the <strong>time</strong> monthly index and the <strong>timestep</strong> non-dimensional coordinate provides the the timestep number corresponding to each month (the ECCO v4 simulation uses 1-hourly timesteps).</p>
+<h5 id="The-space-non-dimensional-coordinates">The space non-dimensional coordinates<a class="anchor-link" href="#The-space-non-dimensional-coordinates">&#182;</a></h5><p><strong>lon_c</strong> and <strong>lat_c</strong> non-dimensional coordinates provide the longitude and latitude for each of the 'c' points of $SSH$.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[78]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">ssh_tile_3</span><span class="o">.</span><span class="n">lon_c</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[78]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;xarray.DataArray &#39;lon_c&#39; (j: 90, i: 90)&gt;
+array([[-37.5     , -36.5     , -35.5     , ...,  49.5     ,  50.5     ,  51.5     ],
+       [-37.5     , -36.5     , -35.5     , ...,  49.5     ,  50.5     ,  51.5     ],
+       [-37.5     , -36.5     , -35.5     , ...,  49.5     ,  50.5     ,  51.5     ],
+       ..., 
+       [-37.730072, -37.178291, -36.597565, ...,  50.597565,  51.178291,
+         51.730072],
+       [-37.771988, -37.291943, -36.764027, ...,  50.764027,  51.291943,
+         51.771988],
+       [-37.837925, -37.44421 , -36.968143, ...,  50.968143,  51.44421 ,
+         51.837925]])
+Coordinates:
+  * j        (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+  * i        (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+    lon_c    (j, i) float64 -37.5 -36.5 -35.5 -34.5 -33.5 -32.5 -31.5 -30.5 ...
+    lat_c    (j, i) float64 10.46 10.46 10.46 10.46 10.46 10.46 10.46 10.46 ...
+Attributes:
+    units:          degrees_east
+    standard_name:  longitude</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="A-'u'-point-variable:-UVEL">A 'u' point variable: UVEL<a class="anchor-link" href="#A-'u'-point-variable:-UVEL">&#182;</a></h3><p>Let's load tile 3 of the 'u' point horizontal velocity in the local $x$ direction variable, $UVEL$.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[79]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;/Volumes/ECCO_BASE/ECCO_v4r3/nctiles_monthly/UVEL/&#39;</span>    
+<span class="n">var</span> <span class="o">=</span> <span class="s1">&#39;UVEL&#39;</span>
+<span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;u&#39;</span>
+<span class="n">tile_index</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">uvel_tile_3</span> <span class="o">=</span> <span class="n">ecco</span><span class="o">.</span><span class="n">load_tile_from_netcdf</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">var_type</span><span class="p">,</span> <span class="n">tile_index</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>loading /Volumes/ECCO_BASE/ECCO_v4r3/nctiles_monthly/UVEL/UVEL.0003.nc
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's look at <code>uvel_tile_3</code>.  This time let's also remove some of the descriptive NetCDF file <em>Attributes</em> using a little routine called <code>minimal_metadata</code>.  We've already seen these attributes a number of times.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[80]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">ecco</span><span class="o">.</span><span class="n">minimal_metadata</span><span class="p">(</span><span class="n">uvel_tile_3</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Removing Dataset Attributes A-Z
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[81]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">uvel_tile_3</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[81]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;xarray.Dataset&gt;
+Dimensions:   (i_g: 90, j: 90, k: 50, tile: 1, time: 288)
+Coordinates:
+  * time      (time) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
+  * k         (k) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+  * j         (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+  * i_g       (i_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
+    lon_u     (j, i_g) float64 -38.0 -37.0 -36.0 -35.0 -34.0 -33.0 -32.0 ...
+    lat_u     (j, i_g) float64 10.46 10.46 10.46 10.46 10.46 10.46 10.46 ...
+    dep       (k) float64 ...
+    tim       (time) datetime64[ns] ...
+  * tile      (tile) int64 3
+    timestep  (time) float64 732.0 1.428e+03 2.172e+03 2.892e+03 3.636e+03 ...
+Data variables:
+    UVEL      (time, tile, k, j, i_g) float64 -0.02911 -0.02432 -0.02008 ...
+Attributes:
+    description:    UVEL -- ECCO v4 ocean state estimate, release 3 -- 1992-2015
+    date:           03-Nov-2017
+    Conventions:    CF-1.6
+    _FillValue:     nan
+    missing_value:  nan</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>uvel_tile_3</code> has one <em>Data variable</em>, $UVEL$.  Let's take a look at the $UVEL$ <code>DataArary</code>:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[82]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">uvel_tile_3</span><span class="o">.</span><span class="n">UVEL</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[82]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;xarray.DataArray &#39;UVEL&#39; (time: 288, tile: 1, k: 50, j: 90, i_g: 90)&gt;
+array([[[[[-0.029109, ...,       nan],
+          ..., 
+          [      nan, ...,       nan]],
+
+         ..., 
+         [[      nan, ...,       nan],
+          ..., 
+          [      nan, ...,       nan]]]],
+
+
+
+       ..., 
+       [[[[-0.050949, ...,       nan],
+          ..., 
+          [      nan, ...,       nan]],
+
+         ..., 
+         [[      nan, ...,       nan],
+          ..., 
+          [      nan, ...,       nan]]]]])
+Coordinates:
+  * time      (time) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
+  * k         (k) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+  * j         (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+  * i_g       (i_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
+    lon_u     (j, i_g) float64 -38.0 -37.0 -36.0 -35.0 -34.0 -33.0 -32.0 ...
+    lat_u     (j, i_g) float64 10.46 10.46 10.46 10.46 10.46 10.46 10.46 ...
+    dep       (k) float64 ...
+    tim       (time) datetime64[ns] ...
+  * tile      (tile) int64 3
+    timestep  (time) float64 732.0 1.428e+03 2.172e+03 2.892e+03 3.636e+03 ...
+Attributes:
+    long_name:          Zonal Component of Velocity (m/s)
+    units:              m/s
+    rotated_to_latlon:  False</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Dimensional-coordinates">Dimensional coordinates<a class="anchor-link" href="#Dimensional-coordinates">&#182;</a></h4><p>As expected, $UVEL$ uses the <strong>i_g, j</strong> coordinates for its horizontal dimensions. Unlike $SSH$, $UVEL$ has three-dimensions in space so we find a <strong>k</strong> coordinate.  The ordering of the three-dimensional ECCO v4 output is <strong>time, tile, k, j, i</strong>.</p>
+<h4 id="Non-dimensional-coordinates">Non-dimensional coordinates<a class="anchor-link" href="#Non-dimensional-coordinates">&#182;</a></h4><p>$UVEL$ has one new non-dimensional coordinate for <strong>k</strong>: <strong>dep</strong> and two new non-dimensional coordinates for space: <strong>lon_u, lat_u</strong></p>
+<h5 id="The-dep-non-dimensional-coordinates">The <strong>dep</strong> non-dimensional coordinates<a class="anchor-link" href="#The-dep-non-dimensional-coordinates">&#182;</a></h5><p><strong>dep</strong> is the depth of the center of the tracer grid cell in meters:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[83]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">uvel_tile_3</span><span class="o">.</span><span class="n">dep</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[83]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;xarray.DataArray &#39;dep&#39; (k: 50)&gt;
+array([  5.000000e+00,   1.500000e+01,   2.500000e+01,   3.500000e+01,
+         4.500000e+01,   5.500000e+01,   6.500000e+01,   7.500500e+01,
+         8.502500e+01,   9.509500e+01,   1.053100e+02,   1.158700e+02,
+         1.271500e+02,   1.397400e+02,   1.544700e+02,   1.724000e+02,
+         1.947350e+02,   2.227100e+02,   2.574700e+02,   2.999300e+02,
+         3.506800e+02,   4.099300e+02,   4.774700e+02,   5.527100e+02,
+         6.347350e+02,   7.224000e+02,   8.144700e+02,   9.097400e+02,
+         1.007155e+03,   1.105905e+03,   1.205535e+03,   1.306205e+03,
+         1.409150e+03,   1.517095e+03,   1.634175e+03,   1.765135e+03,
+         1.914150e+03,   2.084035e+03,   2.276225e+03,   2.491250e+03,
+         2.729250e+03,   2.990250e+03,   3.274250e+03,   3.581250e+03,
+         3.911250e+03,   4.264250e+03,   4.640250e+03,   5.039250e+03,
+         5.461250e+03,   5.906250e+03])
+Coordinates:
+  * k        (k) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+    dep      (k) float64 5.0 15.0 25.0 35.0 45.0 55.0 65.0 75.0 85.03 95.1 ...
+Attributes:
+    units:          m
+    standard_name:  depth</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h5 id="The-space-non-dimensional-coordinates">The space non-dimensional coordinates<a class="anchor-link" href="#The-space-non-dimensional-coordinates">&#182;</a></h5><p><strong>lon_u</strong> and <strong>lat_u</strong> provide the longitude and latitude for each <strong>i_g,j</strong> point.</p>
+<h3 id="A-'v'-point-variable:-VVEL">A 'v' point variable: VVEL<a class="anchor-link" href="#A-'v'-point-variable:-VVEL">&#182;</a></h3><p>Let's load tile 3 of the 'v' point horizontal velocity in the local $x$ direction variable, $VVEL$.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[84]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">data_dir</span><span class="o">=</span><span class="s1">&#39;/Volumes/ECCO_BASE/ECCO_v4r3/nctiles_monthly/VVEL/&#39;</span>    
+<span class="n">var</span> <span class="o">=</span> <span class="s1">&#39;VVEL&#39;</span>
+<span class="n">var_type</span> <span class="o">=</span> <span class="s1">&#39;v&#39;</span>
+<span class="n">tile_index</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">vvel_tile_3</span> <span class="o">=</span> <span class="n">ecco</span><span class="o">.</span><span class="n">load_tile_from_netcdf</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">var_type</span><span class="p">,</span> <span class="n">tile_index</span><span class="p">)</span>
+<span class="n">ecco</span><span class="o">.</span><span class="n">minimal_metadata</span><span class="p">(</span><span class="n">vvel_tile_3</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>loading /Volumes/ECCO_BASE/ECCO_v4r3/nctiles_monthly/VVEL/VVEL.0003.nc
+Removing Dataset Attributes A-Z
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's look at the <em>Coordinates</em> of $VVEL$.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[85]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">vvel_tile_3</span><span class="o">.</span><span class="n">coords</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[85]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Coordinates:
+  * time      (time) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
+  * k         (k) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+  * j_g       (j_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 ...
+  * i         (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
+    lon_v     (j_g, i) float64 -37.5 -36.5 -35.5 -34.5 -33.5 -32.5 -31.5 ...
+    lat_v     (j_g, i) float64 9.97 9.97 9.97 9.97 9.97 9.97 9.97 9.97 9.97 ...
+    dep       (k) float64 ...
+    tim       (time) datetime64[ns] ...
+  * tile      (tile) int64 3
+    timestep  (time) float64 732.0 1.428e+03 2.172e+03 2.892e+03 3.636e+03 ...</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Dimensional-coordinates">Dimensional coordinates<a class="anchor-link" href="#Dimensional-coordinates">&#182;</a></h4><p>As expected, <code>vvel_tile_3</code> uses the <strong>i, j_g</strong> coordinates for its horizontal dimensions.</p>
+<h4 id="Non-dimensional-coordinates">Non-dimensional coordinates<a class="anchor-link" href="#Non-dimensional-coordinates">&#182;</a></h4><p>$VVEL$ has two new non-dimensional coordinates for space: <strong>lon_v, lat_v</strong>.  As you might expect, these are the longitude and latitude of this v-point variable.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">&#182;</a></h2><p>Now you know how to load variables so that their coordinates correspond with their location on the c-grid.</p>
+
+</div>
+</div>
 </div>
     </div>
   </div>
