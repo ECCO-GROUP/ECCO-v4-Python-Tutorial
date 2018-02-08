@@ -1,14 +1,6 @@
-**************************************
+######################################
 Downloading the ECCO v4 State Estimate
-**************************************
-
-ECCO Version 4 Release 3 is the most recent edition of the
-global ocean state estimate and estimation system described by Forget et al. (2015b, 2016).  
-
-A brief synopsis describing Release 3 can be found here:  ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_summary.pdf
-
-A high-level analysis of the state estimate can be found here:
-ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_depiction.pdf
+######################################
 
 
 .. _in-ftp-site:
@@ -20,37 +12,57 @@ The ECCO v4 r3 state estimate is hosted on ftp://ecco.jpl.nasa.gov/Version4/Rele
 The directory layout of the ftp site is described in the following document,
 ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_overview.pdf
 
-.. _in-layout:
-The geographical layout of the fields
-=====================================
-
-Each variable of the state estimate and the model grid parameters are provided as a set of 13 "tiles".  These 13 tiles map the spherical Earth into a Cartesian curvilinear coordinate system - a requirement of the model.  Each tile is comprised of 90x90 horizontal grid cells.  The model has 50 vertical levels.  Between 70°S and ~57°N and the model grid is approximately latitude-longitude in geometry.  A special Arctic "Cap" is found north of ~57°N (Forget et al., 2015). Together, the 13 tiles of 90x90 horizontal grid cells in the latitude-longitude geometry plus the Arctic "Cap" give us the so-called "LLC90" grid.
-
-The horizontal resolution of model grid cells varies spatially from 22km to 110km, with the highest resolution in high latitudes and lowest resolution in mid latitudes. The deepest ocean bottom is set to 6145m below the surface, with the vertical grid spacing increasing 
-
-
 .. _in-grid:
-Model Grid Fields
-=================
-Analysis of the state estimate requires knowledge of the geometric parameters that describe the model's LLC90 (Lat-Lon-Cap 90) grid.  
-These parameters are found in the *nctiles_grid/* directory.
+lat-lon-cap 90 fields
+=====================
+
+geometric model grid parameters
+-------------------------------
+
+Calculations involving the state estimate variables often require the geometric model grid parameters.  These parameters are packaged together as 13 grid NetCDF files, one for each llc tile, in the *nctiles_grid/* directory.
 
 .. _in-monthly:
-Monthly-Averaged Model fields
-=============================
-The nominal output of the state estimate is in the form of monthly-averaged fields (found in the subdirectory *nctiles_monthly/*). Each subdirectory inside *nctiles_monthly* contains netCDF files for a particular variable, as indicated by the name of the subdirectory, split into 13 tile files as described above.  Some of the most commonly used fields, like velocity components, potential temperature, salinity, sea surface height, and ocean bottom pressure are UVEL, VVEL, THETA, SALT, SSH, and OBP, respectively
+monthly-averaged ocean and sea-ice variables
+--------------------------------------------
+Monthly-averaged ocean and sea-ice fields are in provided in subdirectories of *nctiles_monthly/*. Each subdirectory corresponds to a single variable and contains 13 NetCDF files, one for each different llc tile.
 
 .. _in-daily:
-Daily-Averaged Model fields
-===========================
-Daily averages are also provided for the following variables in the directory nctiles_daily to facilitate studies of the ocean’s high-frequency variations: SSH, OBP, sea surface temperature (SST), sea surface salinity (SSS), sea-ice concentration (SIarea), mean sea-ice thickness (SIheff), mean snow thickness (SIhsnow), and sea-ice and snow loading [kg/m^2] (sIceLoad).
-surface to 457m near the ocean bottom.
+daily-averaged ocean and sea-ice variables
+--------------------------------------------
+Daily-averaged ocean and sea-ice fields are in the subdirectories of *nctiles_daily/*. Each subdirectory corresponds to a single variable and contains 13 NetCDF files, one for each llc tile.
+
+
+6-hourly atmosphere variables
+-----------------------------
+6-hourly atmospheric fields that can be used as atmospheric boundary conditions for the model are provided in *input_forcing/*. Each atmospheric state variable is divided by year.  These files are *not* divided into 13 tiles but are instead provided in the special *native* lat-lon-cap flat binary format required by the model.  Tools for reading and plotting files in llc binary format are provided in this tutorial.
+
+For reference, these are the atmospheric state fields provided in *input_forcing*
+
+::
+  eccov4r3_dlw_YYYY                 downward longwave radiation
+  eccov4r3_dsw_YYYY                 downward shortwave radiation
+  eccov4r3_rain_YYYY                precipitation
+  eccov4r3_spfh2m_YYYY              2m near-surface atmospheric specific humidity
+  eccov4r3_tmp2m_degC_YYYY          2m near-surface air temperature
+  eccov4r3_ustr_YYYY                zonal wind stress
+  eccov4r3_vstr_YYYY                meridional wind stress
+  eccov4r3_wspeed_YYYY              near-surface wind speed
+
+
+monthly-averaged *interpolated* 1° x 1° latitude-longitude variables
+====================================================================
+
+Monthly-averaged ocean, sea ice, and air-sea flux terms are in the subdirectory *interp_monthly/*. Each NetCDF file in *interp_monthly* corresponds to a single variable.
 
 
 Downloading the State Estimate
 ==============================
 
-There are many ways of downloading files from an ftp site.   The simplest is with the `wget command`.  To download the model grid, and  monthly-averaged sea surface height, ocean bottom pressure, temperature, and salinity fields use the following commands.
+There are many ways of downloading files from the ecco v4 r3 ftp site.   
+
+On windows machine, I typically use an ftp client.
+
+On linux machines, I use *wget*.  To download the model grid, and monthly-averaged sea surface height, ocean bottom pressure, temperature, and salinity fields use the following:
 
 .. code-block:: bash
 
@@ -59,5 +71,17 @@ There are many ways of downloading files from an ftp site.   The simplest is wit
     wget -r ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/OBP/
     wget -r ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/THETA/
     wget -r ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/SALT/
+
+
+On osx machines, use the *curl* command:
+
+.. code-block:: bash
+
+    curl ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_grid/
+    curl ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/SSH/
+    curl ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/OBP/
+    curl ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/THETA/
+    curl ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/SALT/
+
 
 Take note of the location of your files.  You'll need to specify their path location to load them in the tutorial.

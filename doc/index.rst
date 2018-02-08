@@ -13,6 +13,7 @@ This website contains a set of tutorials to how to analyze the ECCO Central Prod
    :caption: Getting Started
 
    intro
+   fields
    Installing_Python_and_Python_Packages
    Downloading_the_ECCO_v4_state_estimate
 
