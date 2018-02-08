@@ -13,8 +13,8 @@ The directory layout of the ftp site is described in the following document,
 ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_overview.pdf
 
 .. _in-grid:
-lat-lon-cap 90 fields
-=====================
+fields on the 13-tile lat-lon-cap (llc) *native* model grid
+========================================================
 
 geometric model grid parameters
 -------------------------------
@@ -49,7 +49,7 @@ For reference, these are the atmospheric state fields provided in *input_forcing
   eccov4r3_wspeed_YYYY              near-surface wind speed
 
 
-monthly-averaged *interpolated* 1° x 1° latitude-longitude variables
+monthly-averaged *interpolated* 0.5° x 0.5° latitude-longitude variables
 ====================================================================
 
 Monthly-averaged ocean, sea ice, and air-sea flux terms are in the subdirectory *interp_monthly/*. Each NetCDF file in *interp_monthly* corresponds to a single variable.
