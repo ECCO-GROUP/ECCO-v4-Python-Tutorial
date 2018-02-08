@@ -31,7 +31,7 @@ This website contains a set of tutorials to how to analyze the ECCO Central Prod
    :maxdepth: 2
    :caption: ECCO v4 Python code
 
-   _static/modules
+   source/modules
 
 
 .. toctree::
