@@ -10,6 +10,15 @@ The Estimating the Circulation and Climate of the Ocean (ECCO) Central Productio
 
 The ECCO CP state estimate has two defining features: (1) it reproduces a large set of remote sensing and in-situ observational data within their prior quantified uncertainties and (2) the dynamical evolution of its ocean circulation, hydrography, and sea-ice through time perfectly satisfies the laws of physics and thermodynamics.  The state estimate is the solution of a free-running ocean and sea-ice general circulation model and consequently can be used to assess budgets of quantities like heat, salt and vorticity.
 
+ECCO Version 4 Release 3 is the most recent edition of the
+global ocean state estimate and estimation system described by Forget et al. (2015b, 2016).  
+
+A brief synopsis describing Release 3 can be found here:  
+ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_estimation_synopsis.pdf
+
+A high-level analysis of the state estimate can be found here:
+ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_overview_plots.pdf
+
 Relation to other ocean reanalyses
 ==================================
 
@@ -28,54 +37,6 @@ The ECCO ocean reanalysis system is a mature, state-of-the-art data tool for syn
 
 By simultaneously integrating numerous diverse and heterogeneous data streams into the dynamically-consistent framework of the physical model we make optimal use of the data [Munk and Wunsch 1982].  Users of the ECCO reanalysis are not only provided a comprehensive description of the Earth’s changing ocean and sea-ice states but also information about the underlying physical processes responsible for driving those changes.
 
-
-*************************
-What fields are provided? 
-*************************
-
-The complete state estimate consists of a 53 ocean, 13 sea-ice variables, and 8 atmosphere state variables that are the output from a free-running ocean and sea-ice general circulation model.  These variables have been packaged as NetCDF files.
-
-Temporal Frequency
-==================
-
-All three-dimensional ocean and sea-ice fields are provided as monthly averages and a select number of two-dimensional ocean and sea-ice fields are provided as daily averages.  Atmospheric state fields are provided as 6-hourly records.  In addition, potential temperature (theta), salinity, and free surface height anomaly at the ocean/sea-ice interface (etan) are provided as monthly snapshots to support budget closure calculations.
-
-Spatial Layout 
-==============
-
-Ocean, sea-ice, and atmosphere fields are provided in two spatial layouts:
-1. The 13-tile *native* lat-lon-cap 90 (llc90) grid
-1. A 1° x 1° latitude and longitude grid
-
-13-tile *native* lat-lon-cap 90 grid
-------------------------------------
-
-The lat-lon-cap (llc) is the decomposition of the spherical Earth into a Cartesian curvilinear coordinate system required by the ocean model.  It is a topologically non-trivial cubed-sphere rendering in the northern hemisphere and a dipolar grid in the southern hemisphere.
-This decomposition consists of 13 tiles, each with 90x90 grid cells in the horizontal and 50 vertical levels.  The effective resolution of the llc90 grid is 1°.
-
-.. figure:: ../figures/llc90.png
-    :width: 200px
-    :align: center
-    :height: 100px
-    :alt: alternate text
-    :figclass: align-center
-
-
-llc90 monthly-averaged ocean and sea-ice fields: ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/README
-
-llc90 monthly-snapshot ocean and sea-ice fields: ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly_snapshots/README
-
-llc90 daily-averaged ocean and sea-ice fields: ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_daily/README
-
-llc90 6-hourly atmosphere fields: ftp://ecco.jpl.nasa.gov/Version4/Release3/input_forcing/README
-
-
-*interpolated* 1° x 1° latitude-longitude
------------------------------------------
-
-Select monthly-average fields from the *native* lat-lon-cap model output have been interpolated to a more user-friendly 1° latitude-longitude grid.  
-
-1° x 1° monthly-averaged ocean, sea-ice, and atmosphere fields: 
-ftp://ecco.jpl.nasa.gov/Version4/Release3/interp_monthly/README
-
+For a list of the input data used to contrain the ECCO Version 4 Release 3 state estimate see:
+ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_input_data.pdf
 
