@@ -16,11 +16,21 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
+import os
+import sys
 # sys.path.insert(0, os.path.abspath('.'))
 #import cloud_sptheme as csp
 import sphinx_rtd_theme
+
+## no autodoc
+import mock
+
+MOCK_MODULES = ['numpy', 'scipy', 'sklearn', 'matplotlib', 'matplotlib.pyplot', 'scipy.interpolate', 'scipy.special', 'math', '__future__', 'toolboxutilities','ecco_v4_py']
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
+sys.path.insert(0, os.path.abspath('../..'))
+
+## end no autodoc.
 
 # -- General configuration ------------------------------------------------
 
