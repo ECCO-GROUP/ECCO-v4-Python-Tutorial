@@ -11,6 +11,7 @@ Geographical layout
 *******************
 
 Ocean, sea-ice, air-sea flux, and atmosphere fields are provided in two spatial layouts:
+
 1. The 13-tile *native* lat-lon-cap 90 (llc90) grid
 1. A 1° x 1° latitude and longitude grid
 
@@ -21,7 +22,7 @@ The lat-lon-cap (llc) is the decomposition of the spherical Earth into a Cartesi
 
 The Cartesian curvilinear coordinate system is divided into 13 tiles, each consisting of 90x90 grid cells in the horizontal and 50 vertical levels.  Horizontal model grid resolution varies spatially from 22km to 110km, with the highest resolutions at high latitudes and lowest resolution in mid latitudes. Vertical grid spacing increases with depth from 10m to 456.5m.  The bottom of the deepest model grid cell is 6145m below the surface.
 
-The Cartesian (x,y) coordinates of llc tiles do not coorespond to longitude and latitude.  Horizontal velocities are defined relative to the local orientation of x and y in the tile.  Positive velocities in the positive 'x' direction of a tile are defined 'u'.  Positive velocities in the positive 'y' direction of a tile are defined 'v'
+The Cartesian (x,y) coordinates of llc tiles do not coorespond to longitude and latitude.  Horizontal velocities are defined relative to the **local orientation** of x and y in the tile.  Velocities in the positive *x* direction are defined as positive *u*  Velocities in the positive *y* direction are defined as positive *v*.
 
 .. figure:: ../figures/llc90.png
     :align: center

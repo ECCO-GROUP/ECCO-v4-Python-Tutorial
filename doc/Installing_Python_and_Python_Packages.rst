@@ -64,11 +64,13 @@ Using the termnal, the following packages must be installed: *xarray*, *netcdf4*
 
 The development version of the *ecco_v4_py* can be found on the `github project page`_ 
 
-From there you have two options:
+From there you have three options:
 
-1. Download https://github.com/ECCO-GROUP/ECCOv4-py/archive/master.zip
+1. [RECOMMENDED] pip install ecco_v4_py
 
-2. Use `git` to clone the project:
+2. Download https://github.com/ECCO-GROUP/ECCOv4-py/archive/master.zip
+
+3. Use `git` to clone the project:
 
 .. code-block:: bash
 	
@@ -76,4 +78,4 @@ From there you have two options:
 
 .. _github project page: https://github.com/ECCO-GROUP/ECCOv4-py/tree/master/ecco_v4_py
 
-Take note of the location of your *ecco_v4_py* directory.  You'll need to specify its location during the *import* header of your Python programs.  
+If you use Method 1 (pip install) then the *ecco_v4_py* library will be automatically installed and will be ready to import into your Python program.  If you use Methods 2 or 3 you'll need to take note of the location of your *ecco_v4_py* directory and add its path so that you can import the library into your Python programs.  
