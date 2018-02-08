@@ -38,7 +38,7 @@ Daily-averaged ocean and sea-ice fields are in the subdirectories of *nctiles_da
 
 For reference, these are the atmospheric state fields provided in *input_forcing*
 
-::
+.. code-block:: bash
   eccov4r3_dlw_YYYY                 downward longwave radiation
   eccov4r3_dsw_YYYY                 downward shortwave radiation
   eccov4r3_rain_YYYY                precipitation
