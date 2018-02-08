@@ -308,85 +308,85 @@ its coordinates. This time we'll name the new \texttt{Dataset} object
 \texttt{open\_dataset}.
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}68}]:} \PY{k+kn}{import} \PY{n+nn}{matplotlib.pylab} \PY{k+kn}{as} \PY{n+nn}{plt}
-         \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k+kn}{as} \PY{n+nn}{np}
-         \PY{k+kn}{import} \PY{n+nn}{sys}
-         \PY{k+kn}{import} \PY{n+nn}{xarray} \PY{k+kn}{as} \PY{n+nn}{xr}
-         \PY{k+kn}{from} \PY{n+nn}{copy} \PY{k+kn}{import} \PY{n}{deepcopy} 
-         \PY{k+kn}{import} \PY{n+nn}{ecco\PYZus{}v4\PYZus{}py} \PY{k+kn}{as} \PY{n+nn}{ecco}
+{\color{incolor}In [{\color{incolor}1}]:} \PY{k+kn}{import} \PY{n+nn}{matplotlib.pylab} \PY{k+kn}{as} \PY{n+nn}{plt}
+        \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k+kn}{as} \PY{n+nn}{np}
+        \PY{k+kn}{import} \PY{n+nn}{sys}
+        \PY{k+kn}{import} \PY{n+nn}{xarray} \PY{k+kn}{as} \PY{n+nn}{xr}
+        \PY{k+kn}{from} \PY{n+nn}{copy} \PY{k+kn}{import} \PY{n}{deepcopy} 
+        \PY{k+kn}{import} \PY{n+nn}{ecco\PYZus{}v4\PYZus{}py} \PY{k+kn}{as} \PY{n+nn}{ecco}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}69}]:} \PY{c+c1}{\PYZsh{} point to your local directory holding the nctiles\PYZus{}grid files}
-         \PY{n}{grid\PYZus{}dir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/Volumes/ECCO\PYZus{}BASE/ECCO\PYZus{}v4r3/nctiles\PYZus{}grid/}\PY{l+s+s1}{\PYZsq{}}
-         \PY{n}{fname} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{GRID.0003.nc}\PY{l+s+s1}{\PYZsq{}}
-         \PY{n}{grid\PYZus{}3\PYZus{}od} \PY{o}{=} \PY{n}{xr}\PY{o}{.}\PY{n}{open\PYZus{}dataset}\PY{p}{(}\PY{n}{grid\PYZus{}dir} \PY{o}{+} \PY{n}{fname}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}2}]:} \PY{c+c1}{\PYZsh{} point to your local directory holding the nctiles\PYZus{}grid files}
+        \PY{n}{grid\PYZus{}dir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/Volumes/ECCO\PYZus{}BASE/ECCO\PYZus{}v4r3/nctiles\PYZus{}grid/}\PY{l+s+s1}{\PYZsq{}}
+        \PY{n}{fname} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{GRID.0003.nc}\PY{l+s+s1}{\PYZsq{}}
+        \PY{n}{grid\PYZus{}3\PYZus{}od} \PY{o}{=} \PY{n}{xr}\PY{o}{.}\PY{n}{open\PYZus{}dataset}\PY{p}{(}\PY{n}{grid\PYZus{}dir} \PY{o}{+} \PY{n}{fname}\PY{p}{)}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}70}]:} \PY{n}{grid\PYZus{}3\PYZus{}od}
+{\color{incolor}In [{\color{incolor}3}]:} \PY{n}{grid\PYZus{}3\PYZus{}od}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}70}]:} <xarray.Dataset>
-         Dimensions:  (i1: 50, i2: 90, i3: 90)
-         Coordinates:
-           * i1       (i1) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
-           * i2       (i2) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
-           * i3       (i3) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
-         Data variables:
-             hFacC    (i1, i2, i3) float64 {\ldots}
-             hFacW    (i1, i2, i3) float64 {\ldots}
-             hFacS    (i1, i2, i3) float64 {\ldots}
-             XC       (i2, i3) float64 {\ldots}
-             YC       (i2, i3) float64 {\ldots}
-             XG       (i2, i3) float64 {\ldots}
-             YG       (i2, i3) float64 {\ldots}
-             RAC      (i2, i3) float64 {\ldots}
-             RAZ      (i2, i3) float64 {\ldots}
-             DXC      (i2, i3) float64 {\ldots}
-             DYC      (i2, i3) float64 {\ldots}
-             DXG      (i2, i3) float64 {\ldots}
-             DYG      (i2, i3) float64 {\ldots}
-             Depth    (i2, i3) float64 {\ldots}
-             AngleCS  (i2, i3) float64 {\ldots}
-             AngleSN  (i2, i3) float64 {\ldots}
-             RC       (i1) float64 {\ldots}
-             RF       (i1) float64 {\ldots}
-             DRC      (i1) float64 {\ldots}
-             DRF      (i1) float64 {\ldots}
-         Attributes:
-             description:    C-grid parameters (see MITgcm documentation for details){\ldots}
-             A:              :Format      = native grid (nctiles w. 13 tiles)
-             B:              :source      = ECCO consortium (http://ecco-group.org/)
-             C:              :institution = JPL/UT/MIT/AER
-             D:              :history     = files revision history :
-             E:                                 04/20/2017: fill in geometry info for {\ldots}
-             F:                                 11/06/2016: third release of ECCO v4 ({\ldots}
-             G:                             estimates revision history (from second re{\ldots}
-             H:                                 employs bi-harmonic viscosity (enhance{\ldots}
-             I:                                 sea-ice parameters, updated or novel o{\ldots}
-             J:                                 GRACE OBP, Aquarius SSS, global mean s{\ldots}
-             K:                                 time-series, extended and/or expanded {\ldots}
-             L:                                 revised weights including data and con{\ldots}
-             M:                                 to account for grid-size variation and{\ldots}
-             N:                                 separate time-mean and time-variable d{\ldots}
-             O:                                 and controls, sea-ice costs, and initi{\ldots}
-             P:                                 additional controls.\textbackslash{}n 
-             Q:              :references  = Forget, G., J.-M. Campin, P. Heimbach, C. {\ldots}
-             R:                              and C. Wunsch, 2015: ECCO version 4: an i{\ldots}
-             S:                              non-linear inverse modeling and global oc{\ldots}
-             T:                              Geoscientific Model Development, 8, 3071-{\ldots}
-             U:                             Forget, G., J.-M. Campin, P. Heimbach, C. {\ldots}
-             V:                              ECCO version 4: Second Release, 2016, htt{\ldots}
-             W:              file created using gcmfaces\_IO/write2nctiles.m
-             date:           21-Apr-2017
-             Conventions:    CF-1.6
-             \_FillValue:     nan
-             missing\_value:  nan
+{\color{outcolor}Out[{\color{outcolor}3}]:} <xarray.Dataset>
+        Dimensions:  (i1: 50, i2: 90, i3: 90)
+        Coordinates:
+          * i1       (i1) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
+          * i2       (i2) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
+          * i3       (i3) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
+        Data variables:
+            hFacC    (i1, i2, i3) float64 {\ldots}
+            hFacW    (i1, i2, i3) float64 {\ldots}
+            hFacS    (i1, i2, i3) float64 {\ldots}
+            XC       (i2, i3) float64 {\ldots}
+            YC       (i2, i3) float64 {\ldots}
+            XG       (i2, i3) float64 {\ldots}
+            YG       (i2, i3) float64 {\ldots}
+            RAC      (i2, i3) float64 {\ldots}
+            RAZ      (i2, i3) float64 {\ldots}
+            DXC      (i2, i3) float64 {\ldots}
+            DYC      (i2, i3) float64 {\ldots}
+            DXG      (i2, i3) float64 {\ldots}
+            DYG      (i2, i3) float64 {\ldots}
+            Depth    (i2, i3) float64 {\ldots}
+            AngleCS  (i2, i3) float64 {\ldots}
+            AngleSN  (i2, i3) float64 {\ldots}
+            RC       (i1) float64 {\ldots}
+            RF       (i1) float64 {\ldots}
+            DRC      (i1) float64 {\ldots}
+            DRF      (i1) float64 {\ldots}
+        Attributes:
+            description:    C-grid parameters (see MITgcm documentation for details){\ldots}
+            A:              :Format      = native grid (nctiles w. 13 tiles)
+            B:              :source      = ECCO consortium (http://ecco-group.org/)
+            C:              :institution = JPL/UT/MIT/AER
+            D:              :history     = files revision history :
+            E:                                 04/20/2017: fill in geometry info for {\ldots}
+            F:                                 11/06/2016: third release of ECCO v4 ({\ldots}
+            G:                             estimates revision history (from second re{\ldots}
+            H:                                 employs bi-harmonic viscosity (enhance{\ldots}
+            I:                                 sea-ice parameters, updated or novel o{\ldots}
+            J:                                 GRACE OBP, Aquarius SSS, global mean s{\ldots}
+            K:                                 time-series, extended and/or expanded {\ldots}
+            L:                                 revised weights including data and con{\ldots}
+            M:                                 to account for grid-size variation and{\ldots}
+            N:                                 separate time-mean and time-variable d{\ldots}
+            O:                                 and controls, sea-ice costs, and initi{\ldots}
+            P:                                 additional controls.\textbackslash{}n 
+            Q:              :references  = Forget, G., J.-M. Campin, P. Heimbach, C. {\ldots}
+            R:                              and C. Wunsch, 2015: ECCO version 4: an i{\ldots}
+            S:                              non-linear inverse modeling and global oc{\ldots}
+            T:                              Geoscientific Model Development, 8, 3071-{\ldots}
+            U:                             Forget, G., J.-M. Campin, P. Heimbach, C. {\ldots}
+            V:                              ECCO version 4: Second Release, 2016, htt{\ldots}
+            W:              file created using gcmfaces\_IO/write2nctiles.m
+            date:           21-Apr-2017
+            Conventions:    CF-1.6
+            \_FillValue:     nan
+            missing\_value:  nan
 \end{Verbatim}
             
     \subsubsection{Examining the Dataset object
@@ -560,10 +560,10 @@ This time we'll call the new \texttt{Dataset} object
 \texttt{grid\_3\_new}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}71}]:} \PY{n}{var} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{GRID}\PY{l+s+s1}{\PYZsq{}}
-         \PY{n}{var\PYZus{}type} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{grid}\PY{l+s+s1}{\PYZsq{}}
-         \PY{n}{tile\PYZus{}index} \PY{o}{=} \PY{l+m+mi}{3}
-         \PY{n}{grid\PYZus{}3\PYZus{}new} \PY{o}{=} \PY{n}{ecco}\PY{o}{.}\PY{n}{load\PYZus{}tile\PYZus{}from\PYZus{}netcdf}\PY{p}{(}\PY{n}{grid\PYZus{}dir}\PY{p}{,} \PY{n}{var}\PY{p}{,} \PY{n}{var\PYZus{}type}\PY{p}{,} \PY{n}{tile\PYZus{}index}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}4}]:} \PY{n}{var} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{GRID}\PY{l+s+s1}{\PYZsq{}}
+        \PY{n}{var\PYZus{}type} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{grid}\PY{l+s+s1}{\PYZsq{}}
+        \PY{n}{tile\PYZus{}index} \PY{o}{=} \PY{l+m+mi}{3}
+        \PY{n}{grid\PYZus{}3\PYZus{}new} \PY{o}{=} \PY{n}{ecco}\PY{o}{.}\PY{n}{load\PYZus{}tile\PYZus{}from\PYZus{}netcdf}\PY{p}{(}\PY{n}{grid\PYZus{}dir}\PY{p}{,} \PY{n}{var}\PY{p}{,} \PY{n}{var\PYZus{}type}\PY{p}{,} \PY{n}{tile\PYZus{}index}\PY{p}{)}
 \end{Verbatim}
 
 
@@ -573,74 +573,74 @@ loading /Volumes/ECCO\_BASE/ECCO\_v4r3/nctiles\_grid/GRID.0003.nc
     \end{Verbatim}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}72}]:} \PY{n}{grid\PYZus{}3\PYZus{}new}
+{\color{incolor}In [{\color{incolor}5}]:} \PY{n}{grid\PYZus{}3\PYZus{}new}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}72}]:} <xarray.Dataset>
-         Dimensions:  (i: 90, i\_g: 90, j: 90, j\_g: 90, k: 50, k\_g: 50)
-         Coordinates:
-             tile     int64 3
-           * k        (k) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
-           * i        (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
-           * j        (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
-           * i\_g      (i\_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
-           * j\_g      (j\_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
-           * k\_g      (k\_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
-         Data variables:
-             XC       (j, i) float64 {\ldots}
-             YC       (j, i) float64 {\ldots}
-             RAC      (j, i) float64 {\ldots}
-             Depth    (j, i) float64 {\ldots}
-             AngleCS  (j, i) float64 {\ldots}
-             AngleSN  (j, i) float64 {\ldots}
-             hFacC    (k, j, i) float64 {\ldots}
-             land\_c   (k, j, i) float64 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 {\ldots}
-             XG       (j\_g, i\_g) float64 {\ldots}
-             YG       (j\_g, i\_g) float64 {\ldots}
-             RAZ      (j\_g, i\_g) float64 {\ldots}
-             DXC      (j, i\_g) float64 {\ldots}
-             DYG      (j, i\_g) float64 {\ldots}
-             hFacW    (k, j, i\_g) float64 {\ldots}
-             land\_u   (k, j, i\_g) float64 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 {\ldots}
-             DYC      (j\_g, i) float64 {\ldots}
-             DXG      (j\_g, i) float64 {\ldots}
-             hFacS    (k, j\_g, i) float64 {\ldots}
-             land\_v   (k, j\_g, i) float64 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 {\ldots}
-             RF       (k\_g) float64 {\ldots}
-             DRC      (k\_g) float64 {\ldots}
-             RC       (k) float64 {\ldots}
-             DRF      (k) float64 {\ldots}
-         Attributes:
-             description:    C-grid parameters (see MITgcm documentation for details){\ldots}
-             A:              :Format      = native grid (nctiles w. 13 tiles)
-             B:              :source      = ECCO consortium (http://ecco-group.org/)
-             C:              :institution = JPL/UT/MIT/AER
-             D:              :history     = files revision history :
-             E:                                 04/20/2017: fill in geometry info for {\ldots}
-             F:                                 11/06/2016: third release of ECCO v4 ({\ldots}
-             G:                             estimates revision history (from second re{\ldots}
-             H:                                 employs bi-harmonic viscosity (enhance{\ldots}
-             I:                                 sea-ice parameters, updated or novel o{\ldots}
-             J:                                 GRACE OBP, Aquarius SSS, global mean s{\ldots}
-             K:                                 time-series, extended and/or expanded {\ldots}
-             L:                                 revised weights including data and con{\ldots}
-             M:                                 to account for grid-size variation and{\ldots}
-             N:                                 separate time-mean and time-variable d{\ldots}
-             O:                                 and controls, sea-ice costs, and initi{\ldots}
-             P:                                 additional controls.\textbackslash{}n 
-             Q:              :references  = Forget, G., J.-M. Campin, P. Heimbach, C. {\ldots}
-             R:                              and C. Wunsch, 2015: ECCO version 4: an i{\ldots}
-             S:                              non-linear inverse modeling and global oc{\ldots}
-             T:                              Geoscientific Model Development, 8, 3071-{\ldots}
-             U:                             Forget, G., J.-M. Campin, P. Heimbach, C. {\ldots}
-             V:                              ECCO version 4: Second Release, 2016, htt{\ldots}
-             W:              file created using gcmfaces\_IO/write2nctiles.m
-             date:           21-Apr-2017
-             Conventions:    CF-1.6
-             \_FillValue:     nan
-             missing\_value:  nan
+{\color{outcolor}Out[{\color{outcolor}5}]:} <xarray.Dataset>
+        Dimensions:  (i: 90, i\_g: 90, j: 90, j\_g: 90, k: 50, k\_g: 50)
+        Coordinates:
+            tile     int64 3
+          * k        (k) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
+          * i        (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
+          * j        (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
+          * i\_g      (i\_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
+          * j\_g      (j\_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
+          * k\_g      (k\_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
+        Data variables:
+            XC       (j, i) float64 {\ldots}
+            YC       (j, i) float64 {\ldots}
+            RAC      (j, i) float64 {\ldots}
+            Depth    (j, i) float64 {\ldots}
+            AngleCS  (j, i) float64 {\ldots}
+            AngleSN  (j, i) float64 {\ldots}
+            hFacC    (k, j, i) float64 {\ldots}
+            land\_c   (k, j, i) float64 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 {\ldots}
+            XG       (j\_g, i\_g) float64 {\ldots}
+            YG       (j\_g, i\_g) float64 {\ldots}
+            RAZ      (j\_g, i\_g) float64 {\ldots}
+            DXC      (j, i\_g) float64 {\ldots}
+            DYG      (j, i\_g) float64 {\ldots}
+            hFacW    (k, j, i\_g) float64 {\ldots}
+            land\_u   (k, j, i\_g) float64 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 {\ldots}
+            DYC      (j\_g, i) float64 {\ldots}
+            DXG      (j\_g, i) float64 {\ldots}
+            hFacS    (k, j\_g, i) float64 {\ldots}
+            land\_v   (k, j\_g, i) float64 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 {\ldots}
+            RF       (k\_g) float64 {\ldots}
+            DRC      (k\_g) float64 {\ldots}
+            RC       (k) float64 {\ldots}
+            DRF      (k) float64 {\ldots}
+        Attributes:
+            description:    C-grid parameters (see MITgcm documentation for details){\ldots}
+            A:              :Format      = native grid (nctiles w. 13 tiles)
+            B:              :source      = ECCO consortium (http://ecco-group.org/)
+            C:              :institution = JPL/UT/MIT/AER
+            D:              :history     = files revision history :
+            E:                                 04/20/2017: fill in geometry info for {\ldots}
+            F:                                 11/06/2016: third release of ECCO v4 ({\ldots}
+            G:                             estimates revision history (from second re{\ldots}
+            H:                                 employs bi-harmonic viscosity (enhance{\ldots}
+            I:                                 sea-ice parameters, updated or novel o{\ldots}
+            J:                                 GRACE OBP, Aquarius SSS, global mean s{\ldots}
+            K:                                 time-series, extended and/or expanded {\ldots}
+            L:                                 revised weights including data and con{\ldots}
+            M:                                 to account for grid-size variation and{\ldots}
+            N:                                 separate time-mean and time-variable d{\ldots}
+            O:                                 and controls, sea-ice costs, and initi{\ldots}
+            P:                                 additional controls.\textbackslash{}n 
+            Q:              :references  = Forget, G., J.-M. Campin, P. Heimbach, C. {\ldots}
+            R:                              and C. Wunsch, 2015: ECCO version 4: an i{\ldots}
+            S:                              non-linear inverse modeling and global oc{\ldots}
+            T:                              Geoscientific Model Development, 8, 3071-{\ldots}
+            U:                             Forget, G., J.-M. Campin, P. Heimbach, C. {\ldots}
+            V:                              ECCO version 4: Second Release, 2016, htt{\ldots}
+            W:              file created using gcmfaces\_IO/write2nctiles.m
+            date:           21-Apr-2017
+            Conventions:    CF-1.6
+            \_FillValue:     nan
+            missing\_value:  nan
 \end{Verbatim}
             
     \subsubsection{Examining the Dataset object
@@ -709,30 +709,30 @@ Let's take a quick look at one of the variables loaded using the
 \texttt{load\_tile\_from\_netcdf} routine:
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}73}]:} \PY{n}{grid\PYZus{}3\PYZus{}new}\PY{o}{.}\PY{n}{XC}
+{\color{incolor}In [{\color{incolor}6}]:} \PY{n}{grid\PYZus{}3\PYZus{}new}\PY{o}{.}\PY{n}{XC}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}73}]:} <xarray.DataArray 'XC' (j: 90, i: 90)>
-         array([[-37.5     , -36.5     , -35.5     , {\ldots},  49.5     ,  50.5     ,  51.5     ],
-                [-37.5     , -36.5     , -35.5     , {\ldots},  49.5     ,  50.5     ,  51.5     ],
-                [-37.5     , -36.5     , -35.5     , {\ldots},  49.5     ,  50.5     ,  51.5     ],
-                {\ldots}, 
-                [-37.730072, -37.178291, -36.597565, {\ldots},  50.597565,  51.178291,
-                  51.730072],
-                [-37.771988, -37.291943, -36.764027, {\ldots},  50.764027,  51.291943,
-                  51.771988],
-                [-37.837925, -37.44421 , -36.968143, {\ldots},  50.968143,  51.44421 ,
-                  51.837925]])
-         Coordinates:
-             tile     int64 3
-           * i        (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
-           * j        (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
-         Attributes:
-             long\_name:          longitude
-             units:              degrees\_east
-             rotated\_to\_latlon:  False
+{\color{outcolor}Out[{\color{outcolor}6}]:} <xarray.DataArray 'XC' (j: 90, i: 90)>
+        array([[-37.5     , -36.5     , -35.5     , {\ldots},  49.5     ,  50.5     ,  51.5     ],
+               [-37.5     , -36.5     , -35.5     , {\ldots},  49.5     ,  50.5     ,  51.5     ],
+               [-37.5     , -36.5     , -35.5     , {\ldots},  49.5     ,  50.5     ,  51.5     ],
+               {\ldots}, 
+               [-37.730072, -37.178291, -36.597565, {\ldots},  50.597565,  51.178291,
+                 51.730072],
+               [-37.771988, -37.291943, -36.764027, {\ldots},  50.764027,  51.291943,
+                 51.771988],
+               [-37.837925, -37.44421 , -36.968143, {\ldots},  50.968143,  51.44421 ,
+                 51.837925]])
+        Coordinates:
+            tile     int64 3
+          * i        (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
+          * j        (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
+        Attributes:
+            long\_name:          longitude
+            units:              degrees\_east
+            rotated\_to\_latlon:  False
 \end{Verbatim}
             
     The \texttt{load\_tile\_from\_netcdf} routine adds a new coordinate to
@@ -758,11 +758,11 @@ We'll demonstrate by loading three variables, one each that are on
 Let's load tile 3 of the 'c' point sea surface height (SSH) variable.
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}74}]:} \PY{n}{data\PYZus{}dir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/Volumes/ECCO\PYZus{}BASE/ECCO\PYZus{}v4r3/nctiles\PYZus{}monthly/SSH/}\PY{l+s+s1}{\PYZsq{}}    
-         \PY{n}{var} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{SSH}\PY{l+s+s1}{\PYZsq{}}
-         \PY{n}{var\PYZus{}type} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{c}\PY{l+s+s1}{\PYZsq{}}
-         \PY{n}{tile\PYZus{}index} \PY{o}{=} \PY{l+m+mi}{3}
-         \PY{n}{ssh\PYZus{}tile\PYZus{}3} \PY{o}{=} \PY{n}{ecco}\PY{o}{.}\PY{n}{load\PYZus{}tile\PYZus{}from\PYZus{}netcdf}\PY{p}{(}\PY{n}{data\PYZus{}dir}\PY{p}{,} \PY{n}{var}\PY{p}{,} \PY{n}{var\PYZus{}type}\PY{p}{,} \PY{n}{tile\PYZus{}index}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}7}]:} \PY{n}{data\PYZus{}dir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/Volumes/ECCO\PYZus{}BASE/ECCO\PYZus{}v4r3/nctiles\PYZus{}monthly/SSH/}\PY{l+s+s1}{\PYZsq{}}    
+        \PY{n}{var} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{SSH}\PY{l+s+s1}{\PYZsq{}}
+        \PY{n}{var\PYZus{}type} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{c}\PY{l+s+s1}{\PYZsq{}}
+        \PY{n}{tile\PYZus{}index} \PY{o}{=} \PY{l+m+mi}{3}
+        \PY{n}{ssh\PYZus{}tile\PYZus{}3} \PY{o}{=} \PY{n}{ecco}\PY{o}{.}\PY{n}{load\PYZus{}tile\PYZus{}from\PYZus{}netcdf}\PY{p}{(}\PY{n}{data\PYZus{}dir}\PY{p}{,} \PY{n}{var}\PY{p}{,} \PY{n}{var\PYZus{}type}\PY{p}{,} \PY{n}{tile\PYZus{}index}\PY{p}{)}
 \end{Verbatim}
 
 
@@ -775,55 +775,55 @@ loading /Volumes/ECCO\_BASE/ECCO\_v4r3/nctiles\_monthly/SSH/SSH.0003.nc
 state estimate let's closely examine \texttt{ssh\_tile\_3}.
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}75}]:} \PY{n}{ssh\PYZus{}tile\PYZus{}3}
+{\color{incolor}In [{\color{incolor}8}]:} \PY{n}{ssh\PYZus{}tile\PYZus{}3}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}75}]:} <xarray.Dataset>
-         Dimensions:   (i: 90, j: 90, tile: 1, time: 288)
-         Coordinates:
-           * time      (time) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
-           * j         (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
-           * i         (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
-             lon\_c     (j, i) float64 -37.5 -36.5 -35.5 -34.5 -33.5 -32.5 -31.5 -30.5 {\ldots}
-             lat\_c     (j, i) float64 10.46 10.46 10.46 10.46 10.46 10.46 10.46 10.46 {\ldots}
-             tim       (time) datetime64[ns] {\ldots}
-           * tile      (tile) int64 3
-             timestep  (time) float64 732.0 1.428e+03 2.172e+03 2.892e+03 3.636e+03 {\ldots}
-         Data variables:
-             SSH       (time, tile, j, i) float64 0.0576 0.05474 0.05277 0.05157 {\ldots}
-         Attributes:
-             description:    SSH -- ECCO v4 ocean state estimate, release 3 -- 1992-2015
-             A:              :Format      = native grid (nctiles w. 13 tiles)
-             B:              :source      = ECCO consortium (http://ecco-group.org/)
-             C:              :institution = JPL/UT/MIT/AER
-             D:              :history     = files revision history :
-             E:                                 05/02/2017: adjust SSH and OBP with gl{\ldots}
-             F:                                 05/02/2017: adjust SSH with sea-ice lo{\ldots}
-             G:                                 04/20/2017: fill in geometry info for {\ldots}
-             H:                                 11/06/2016: third release of ECCO v4 ({\ldots}
-             I:                             estimates revision history (from second re{\ldots}
-             J:                                 employs bi-harmonic viscosity (enhance{\ldots}
-             K:                                 sea-ice parameters, updated or novel o{\ldots}
-             L:                                 GRACE OBP, Aquarius SSS, global mean s{\ldots}
-             M:                                 time-series, extended and/or expanded {\ldots}
-             N:                                 revised weights including data and con{\ldots}
-             O:                                 to account for grid-size variation and{\ldots}
-             P:                                 separate time-mean and time-variable d{\ldots}
-             Q:                                 and controls, sea-ice costs, and initi{\ldots}
-             R:                                 additional controls.\textbackslash{}n 
-             S:              :references  = Forget, G., J.-M. Campin, P. Heimbach, C. {\ldots}
-             T:                              and C. Wunsch, 2015: ECCO version 4: an i{\ldots}
-             U:                              non-linear inverse modeling and global oc{\ldots}
-             V:                              Geoscientific Model Development, 8, 3071-{\ldots}
-             W:                             Forget, G., J.-M. Campin, P. Heimbach, C. {\ldots}
-             X:                              ECCO version 4: Second Release, 2016, htt{\ldots}
-             Y:              file created using gcmfaces\_IO/write2nctiles.m
-             date:           02-May-2017
-             Conventions:    CF-1.6
-             \_FillValue:     nan
-             missing\_value:  nan
+{\color{outcolor}Out[{\color{outcolor}8}]:} <xarray.Dataset>
+        Dimensions:   (i: 90, j: 90, tile: 1, time: 288)
+        Coordinates:
+          * time      (time) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
+          * j         (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
+          * i         (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
+            lon\_c     (j, i) float64 -37.5 -36.5 -35.5 -34.5 -33.5 -32.5 -31.5 -30.5 {\ldots}
+            lat\_c     (j, i) float64 10.46 10.46 10.46 10.46 10.46 10.46 10.46 10.46 {\ldots}
+            tim       (time) datetime64[ns] {\ldots}
+          * tile      (tile) int64 3
+            timestep  (time) float64 732.0 1.428e+03 2.172e+03 2.892e+03 3.636e+03 {\ldots}
+        Data variables:
+            SSH       (time, tile, j, i) float64 0.0576 0.05474 0.05277 0.05157 {\ldots}
+        Attributes:
+            description:    SSH -- ECCO v4 ocean state estimate, release 3 -- 1992-2015
+            A:              :Format      = native grid (nctiles w. 13 tiles)
+            B:              :source      = ECCO consortium (http://ecco-group.org/)
+            C:              :institution = JPL/UT/MIT/AER
+            D:              :history     = files revision history :
+            E:                                 05/02/2017: adjust SSH and OBP with gl{\ldots}
+            F:                                 05/02/2017: adjust SSH with sea-ice lo{\ldots}
+            G:                                 04/20/2017: fill in geometry info for {\ldots}
+            H:                                 11/06/2016: third release of ECCO v4 ({\ldots}
+            I:                             estimates revision history (from second re{\ldots}
+            J:                                 employs bi-harmonic viscosity (enhance{\ldots}
+            K:                                 sea-ice parameters, updated or novel o{\ldots}
+            L:                                 GRACE OBP, Aquarius SSS, global mean s{\ldots}
+            M:                                 time-series, extended and/or expanded {\ldots}
+            N:                                 revised weights including data and con{\ldots}
+            O:                                 to account for grid-size variation and{\ldots}
+            P:                                 separate time-mean and time-variable d{\ldots}
+            Q:                                 and controls, sea-ice costs, and initi{\ldots}
+            R:                                 additional controls.\textbackslash{}n 
+            S:              :references  = Forget, G., J.-M. Campin, P. Heimbach, C. {\ldots}
+            T:                              and C. Wunsch, 2015: ECCO version 4: an i{\ldots}
+            U:                              non-linear inverse modeling and global oc{\ldots}
+            V:                              Geoscientific Model Development, 8, 3071-{\ldots}
+            W:                             Forget, G., J.-M. Campin, P. Heimbach, C. {\ldots}
+            X:                              ECCO version 4: Second Release, 2016, htt{\ldots}
+            Y:              file created using gcmfaces\_IO/write2nctiles.m
+            date:           02-May-2017
+            Conventions:    CF-1.6
+            \_FillValue:     nan
+            missing\_value:  nan
 \end{Verbatim}
             
     Notice that unlike the grid files that we've loaded up until now, the
@@ -835,34 +835,34 @@ variable}, \(SSH\). Non-grid ECCO v4 NetCDF tile files only ever store
 \texttt{DataArary}:
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}76}]:} \PY{n}{ssh\PYZus{}tile\PYZus{}3}\PY{o}{.}\PY{n}{SSH}
+{\color{incolor}In [{\color{incolor}9}]:} \PY{n}{ssh\PYZus{}tile\PYZus{}3}\PY{o}{.}\PY{n}{SSH}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}76}]:} <xarray.DataArray 'SSH' (time: 288, tile: 1, j: 90, i: 90)>
-         array([[[[ 0.0576  , {\ldots},  0.383994],
-                  {\ldots}, 
-                  [      nan, {\ldots},       nan]]],
-         
-         
-                {\ldots}, 
-                [[[ 0.075663, {\ldots},  0.458817],
-                  {\ldots}, 
-                  [      nan, {\ldots},       nan]]]])
-         Coordinates:
-           * time      (time) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
-           * j         (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
-           * i         (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
-             lon\_c     (j, i) float64 -37.5 -36.5 -35.5 -34.5 -33.5 -32.5 -31.5 -30.5 {\ldots}
-             lat\_c     (j, i) float64 10.46 10.46 10.46 10.46 10.46 10.46 10.46 10.46 {\ldots}
-             tim       (time) datetime64[ns] {\ldots}
-           * tile      (tile) int64 3
-             timestep  (time) float64 732.0 1.428e+03 2.172e+03 2.892e+03 3.636e+03 {\ldots}
-         Attributes:
-             long\_name:          Surface Height Anomaly adjusted with global steric he{\ldots}
-             units:              m
-             rotated\_to\_latlon:  False
+{\color{outcolor}Out[{\color{outcolor}9}]:} <xarray.DataArray 'SSH' (time: 288, tile: 1, j: 90, i: 90)>
+        array([[[[ 0.0576  , {\ldots},  0.383994],
+                 {\ldots}, 
+                 [      nan, {\ldots},       nan]]],
+        
+        
+               {\ldots}, 
+               [[[ 0.075663, {\ldots},  0.458817],
+                 {\ldots}, 
+                 [      nan, {\ldots},       nan]]]])
+        Coordinates:
+          * time      (time) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
+          * j         (j) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
+          * i         (i) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
+            lon\_c     (j, i) float64 -37.5 -36.5 -35.5 -34.5 -33.5 -32.5 -31.5 -30.5 {\ldots}
+            lat\_c     (j, i) float64 10.46 10.46 10.46 10.46 10.46 10.46 10.46 10.46 {\ldots}
+            tim       (time) datetime64[ns] {\ldots}
+          * tile      (tile) int64 3
+            timestep  (time) float64 732.0 1.428e+03 2.172e+03 2.892e+03 3.636e+03 {\ldots}
+        Attributes:
+            long\_name:          Surface Height Anomaly adjusted with global steric he{\ldots}
+            units:              m
+            rotated\_to\_latlon:  False
 \end{Verbatim}
             
     \paragraph{Dimensional coordinates}\label{dimensional-coordinates}
@@ -893,12 +893,12 @@ for the space dimensions: \textbf{lon\_c, lat\_c}.
 coordinates}\label{the-time-non-dimensional-coordinates}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}77}]:} \PY{n}{ssh\PYZus{}tile\PYZus{}3}\PY{o}{.}\PY{n}{time}
+{\color{incolor}In [{\color{incolor}10}]:} \PY{n}{ssh\PYZus{}tile\PYZus{}3}\PY{o}{.}\PY{n}{time}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}77}]:} <xarray.DataArray 'time' (time: 288)>
+{\color{outcolor}Out[{\color{outcolor}10}]:} <xarray.DataArray 'time' (time: 288)>
          array([   1.,    2.,    3., {\ldots},  286.,  287.,  288.])
          Coordinates:
            * time      (time) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
@@ -922,12 +922,12 @@ coordinates}\label{the-space-non-dimensional-coordinates}
 the longitude and latitude for each of the 'c' points of \(SSH\).
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}78}]:} \PY{n}{ssh\PYZus{}tile\PYZus{}3}\PY{o}{.}\PY{n}{lon\PYZus{}c}
+{\color{incolor}In [{\color{incolor}11}]:} \PY{n}{ssh\PYZus{}tile\PYZus{}3}\PY{o}{.}\PY{n}{lon\PYZus{}c}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}78}]:} <xarray.DataArray 'lon\_c' (j: 90, i: 90)>
+{\color{outcolor}Out[{\color{outcolor}11}]:} <xarray.DataArray 'lon\_c' (j: 90, i: 90)>
          array([[-37.5     , -36.5     , -35.5     , {\ldots},  49.5     ,  50.5     ,  51.5     ],
                 [-37.5     , -36.5     , -35.5     , {\ldots},  49.5     ,  50.5     ,  51.5     ],
                 [-37.5     , -36.5     , -35.5     , {\ldots},  49.5     ,  50.5     ,  51.5     ],
@@ -955,7 +955,7 @@ Let's load tile 3 of the 'u' point horizontal velocity in the local
 \(x\) direction variable, \(UVEL\).
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}79}]:} \PY{n}{data\PYZus{}dir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/Volumes/ECCO\PYZus{}BASE/ECCO\PYZus{}v4r3/nctiles\PYZus{}monthly/UVEL/}\PY{l+s+s1}{\PYZsq{}}    
+{\color{incolor}In [{\color{incolor}12}]:} \PY{n}{data\PYZus{}dir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/Volumes/ECCO\PYZus{}BASE/ECCO\PYZus{}v4r3/nctiles\PYZus{}monthly/UVEL/}\PY{l+s+s1}{\PYZsq{}}    
          \PY{n}{var} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{UVEL}\PY{l+s+s1}{\PYZsq{}}
          \PY{n}{var\PYZus{}type} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{u}\PY{l+s+s1}{\PYZsq{}}
          \PY{n}{tile\PYZus{}index} \PY{o}{=} \PY{l+m+mi}{3}
@@ -974,7 +974,7 @@ called \texttt{minimal\_metadata}. We've already seen these attributes a
 number of times.
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}80}]:} \PY{n}{ecco}\PY{o}{.}\PY{n}{minimal\PYZus{}metadata}\PY{p}{(}\PY{n}{uvel\PYZus{}tile\PYZus{}3}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}13}]:} \PY{n}{ecco}\PY{o}{.}\PY{n}{minimal\PYZus{}metadata}\PY{p}{(}\PY{n}{uvel\PYZus{}tile\PYZus{}3}\PY{p}{)}
 \end{Verbatim}
 
 
@@ -985,12 +985,12 @@ Removing Dataset Attributes A-Z
     \end{Verbatim}
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}81}]:} \PY{n}{uvel\PYZus{}tile\PYZus{}3}
+{\color{incolor}In [{\color{incolor}14}]:} \PY{n}{uvel\PYZus{}tile\PYZus{}3}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}81}]:} <xarray.Dataset>
+{\color{outcolor}Out[{\color{outcolor}14}]:} <xarray.Dataset>
          Dimensions:   (i\_g: 90, j: 90, k: 50, tile: 1, time: 288)
          Coordinates:
            * time      (time) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
@@ -1017,12 +1017,12 @@ Removing Dataset Attributes A-Z
 take a look at the \(UVEL\) \texttt{DataArary}:
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}82}]:} \PY{n}{uvel\PYZus{}tile\PYZus{}3}\PY{o}{.}\PY{n}{UVEL}
+{\color{incolor}In [{\color{incolor}15}]:} \PY{n}{uvel\PYZus{}tile\PYZus{}3}\PY{o}{.}\PY{n}{UVEL}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}82}]:} <xarray.DataArray 'UVEL' (time: 288, tile: 1, k: 50, j: 90, i\_g: 90)>
+{\color{outcolor}Out[{\color{outcolor}15}]:} <xarray.DataArray 'UVEL' (time: 288, tile: 1, k: 50, j: 90, i\_g: 90)>
          array([[[[[-0.029109, {\ldots},       nan],
                    {\ldots}, 
                    [      nan, {\ldots},       nan]],
@@ -1081,12 +1081,12 @@ coordinates}{The dep non-dimensional coordinates}}\label{the-dep-non-dimensional
 meters:
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}83}]:} \PY{n}{uvel\PYZus{}tile\PYZus{}3}\PY{o}{.}\PY{n}{dep}
+{\color{incolor}In [{\color{incolor}16}]:} \PY{n}{uvel\PYZus{}tile\PYZus{}3}\PY{o}{.}\PY{n}{dep}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}83}]:} <xarray.DataArray 'dep' (k: 50)>
+{\color{outcolor}Out[{\color{outcolor}16}]:} <xarray.DataArray 'dep' (k: 50)>
          array([  5.000000e+00,   1.500000e+01,   2.500000e+01,   3.500000e+01,
                   4.500000e+01,   5.500000e+01,   6.500000e+01,   7.500500e+01,
                   8.502500e+01,   9.509500e+01,   1.053100e+02,   1.158700e+02,
@@ -1121,7 +1121,7 @@ Let's load tile 3 of the 'v' point horizontal velocity in the local
 \(x\) direction variable, \(VVEL\).
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}84}]:} \PY{n}{data\PYZus{}dir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/Volumes/ECCO\PYZus{}BASE/ECCO\PYZus{}v4r3/nctiles\PYZus{}monthly/VVEL/}\PY{l+s+s1}{\PYZsq{}}    
+{\color{incolor}In [{\color{incolor}17}]:} \PY{n}{data\PYZus{}dir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/Volumes/ECCO\PYZus{}BASE/ECCO\PYZus{}v4r3/nctiles\PYZus{}monthly/VVEL/}\PY{l+s+s1}{\PYZsq{}}    
          \PY{n}{var} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{VVEL}\PY{l+s+s1}{\PYZsq{}}
          \PY{n}{var\PYZus{}type} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{v}\PY{l+s+s1}{\PYZsq{}}
          \PY{n}{tile\PYZus{}index} \PY{o}{=} \PY{l+m+mi}{3}
@@ -1140,12 +1140,12 @@ Removing Dataset Attributes A-Z
     Let's look at the \emph{Coordinates} of \(VVEL\).
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}85}]:} \PY{n}{vvel\PYZus{}tile\PYZus{}3}\PY{o}{.}\PY{n}{coords}
+{\color{incolor}In [{\color{incolor}18}]:} \PY{n}{vvel\PYZus{}tile\PYZus{}3}\PY{o}{.}\PY{n}{coords}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}85}]:} Coordinates:
+{\color{outcolor}Out[{\color{outcolor}18}]:} Coordinates:
            * time      (time) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
            * k         (k) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 {\ldots}
            * j\_g       (j\_g) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 {\ldots}
