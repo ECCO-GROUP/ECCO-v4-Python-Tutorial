@@ -14,7 +14,7 @@ ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_overview.pdf
 
 .. _in-grid:
 fields on the 13-tile lat-lon-cap (llc) *native* model grid
-========================================================
+===========================================================
 
 geometric model grid parameters
 -------------------------------
@@ -28,7 +28,7 @@ Monthly-averaged ocean and sea-ice fields are in provided in subdirectories of *
 
 .. _in-daily:
 daily-averaged ocean and sea-ice variables
---------------------------------------------
+------------------------------------------
 Daily-averaged ocean and sea-ice fields are in the subdirectories of *nctiles_daily/*. Each subdirectory corresponds to a single variable and contains 13 NetCDF files, one for each llc tile.
 
 
@@ -39,6 +39,7 @@ Daily-averaged ocean and sea-ice fields are in the subdirectories of *nctiles_da
 For reference, these are the atmospheric state fields provided in *input_forcing*
 
 .. code-block:: bash
+
   eccov4r3_dlw_YYYY                 downward longwave radiation
   eccov4r3_dsw_YYYY                 downward shortwave radiation
   eccov4r3_rain_YYYY                precipitation
@@ -50,7 +51,7 @@ For reference, these are the atmospheric state fields provided in *input_forcing
 
 
 monthly-averaged *interpolated* 0.5° x 0.5° latitude-longitude variables
-====================================================================
+========================================================================
 
 Monthly-averaged ocean, sea ice, and air-sea flux terms are in the subdirectory *interp_monthly/*. Each NetCDF file in *interp_monthly* corresponds to a single variable.
 

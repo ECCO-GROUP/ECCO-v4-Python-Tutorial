@@ -12,6 +12,14 @@ ecco\_v4\_py\.dataset\_utils module
     :undoc-members:
     :show-inheritance:
 
+ecco\_v4\_py\.interp\_latlon\_plot module
+-----------------------------------------
+
+.. automodule:: ecco_v4_py.interp_latlon_plot
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 ecco\_v4\_py\.mds\_io module
 ----------------------------
 
