@@ -1,4 +1,3 @@
-
 ############################################################
 ECCO v4 state estimate ocean, sea-ice, and atmosphere fields
 ############################################################
@@ -12,8 +11,9 @@ Geographical layout
 
 Ocean, sea-ice, air-sea flux, and atmosphere fields are provided in two spatial layouts:
 
-1. The 13-tile *native* lat-lon-cap 90 (llc90) grid
-1. A 1° x 1° latitude and longitude grid
+#. 13-tile *native* lat-lon-cap (llc) 90 grid
+#. 0.5° x 0.5° latitude and longitude grid
+
 
 13-tile *native* lat-lon-cap 90 grid
 ====================================
@@ -22,7 +22,7 @@ The lat-lon-cap (llc) is the decomposition of the spherical Earth into a Cartesi
 
 The Cartesian curvilinear coordinate system is divided into 13 tiles, each consisting of 90x90 grid cells in the horizontal and 50 vertical levels.  Horizontal model grid resolution varies spatially from 22km to 110km, with the highest resolutions at high latitudes and lowest resolution in mid latitudes. Vertical grid spacing increases with depth from 10m to 456.5m.  The bottom of the deepest model grid cell is 6145m below the surface.
 
-The Cartesian (x,y) coordinates of llc tiles do not coorespond to longitude and latitude.  Horizontal velocities are defined relative to the **local orientation** of x and y in the tile.  Velocities in the positive *x* direction are defined as positive *u*  Velocities in the positive *y* direction are defined as positive *v*.
+The Cartesian (x,y) coordinates of llc tiles do not coorespond to longitude and latitude.  Horizontal velocities are defined relative to the **local orientation** of x and y in the tile.  Velocities in the positive *x* direction are defined as positive *u*.  Velocities in the positive *y* direction are defined as positive *v*.
 
 .. figure:: ../figures/llc90.png
     :align: center
@@ -41,20 +41,20 @@ daily-averaged ocean and sea-ice fields: ftp://ecco.jpl.nasa.gov/Version4/Releas
 6-hourly atmosphere fields: ftp://ecco.jpl.nasa.gov/Version4/Release3/input_forcing/README
 
 
-*interpolated* 1° x 1° latitude-longitude
-=========================================
+*interpolated* 0.5° x 0.5° latitude-longitude
+=============================================
 
-Select monthly-average fields from the *native* lat-lon-cap model output have been interpolated to a more user-friendly 1° latitude-longitude grid.  
+Select monthly-average fields from the *native* lat-lon-cap model output have been interpolated to a more user-friendly 0.5° latitude-longitude grid.  
 
-List of available fields on the llc90 grid
--------------------------------------------
-1° x 1° monthly-averaged ocean, sea-ice, and atmosphere fields: 
+List of available fields on the 0.5° x 0.5° latitude-longitude
+--------------------------------------------------------------
+0.5° x 0.5° monthly-averaged ocean, sea-ice, and atmosphere fields: 
 ftp://ecco.jpl.nasa.gov/Version4/Release3/interp_monthly/README
 
 
-******************
-Temporal Frequency
-******************
+*******************************************
+Temporal frequency of state estimate fields
+*******************************************
 
 All three-dimensional ocean, sea-ice, and air-sea flux fields are provided as monthly averages.  Select two-dimensional ocean and sea-ice fields are provided as daily averages.  Atmospheric state fields are provided as 6-hourly records.  In addition, potential temperature (theta), salinity, and free surface height anomaly at the ocean/sea-ice interface (etan) are provided as monthly snapshots to support budget closure calculations.  
 
