@@ -19,16 +19,16 @@ This website contains a set of tutorials to how to analyze the ECCO Central Prod
 
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Tutorial 
-   :numbered:
+   :maxdepth: 2
+   :caption: Tutorial
 
    Tutorial_Introduction
    ECCO_v4_data_structure_basics
    ECCO_v4_A_Better_Method_for_Loading_ECCOv4_NetCDF_Tile_Files
+   ECCO_v4_Loading_all_NetCDF_tile_files
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: ECCO v4 Python code
 
    _static/modules

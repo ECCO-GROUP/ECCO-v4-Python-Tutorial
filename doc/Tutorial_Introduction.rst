@@ -1,9 +1,11 @@
+*****************
 Tutorial Overview
-=================
+*****************
 
 
 What are the tutorials?
 -----------------------
+
 
 What are they *not*?
 --------------------
@@ -20,15 +22,8 @@ https://github.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/tree/master/notebooks
 
 
 
-
 Summary of Tutorials
 --------------------
-
-
-
-
-
-
 
 
 
