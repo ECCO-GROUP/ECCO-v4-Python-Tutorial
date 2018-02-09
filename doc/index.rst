@@ -26,6 +26,9 @@ This website contains a set of tutorials to how to analyze the ECCO Central Prod
    ECCO_v4_data_structure_basics
    ECCO_v4_A_Better_Method_for_Loading_ECCOv4_NetCDF_Tile_Files
    ECCO_v4_Loading_all_llc_NetCDF_tile_files_at_once
+   ECCO_v4_Combining_Multiple_Datasets
+   ECCO_v4_Accessing_and_Subsetting_Variables
+   ECCO_v4_Operating_on_Numpy_Arrays
 
 .. toctree::
    :maxdepth: 2
