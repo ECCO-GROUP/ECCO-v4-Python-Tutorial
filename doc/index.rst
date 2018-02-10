@@ -29,6 +29,7 @@ This website contains a set of tutorials to how to analyze the ECCO Central Prod
    ECCO_v4_Combining_Multiple_Datasets
    ECCO_v4_Accessing_and_Subsetting_Variables
    ECCO_v4_Operating_on_Numpy_Arrays
+   ECCO_v4_Plotting_Tiles
 
 .. toctree::
    :maxdepth: 2
