@@ -19,17 +19,33 @@ This website contains a set of tutorials to how to analyze the ECCO Central Prod
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Tutorial
+   :maxdepth: 1
+   :caption: Tutorial: Input/Output
 
    Tutorial_Introduction
    ECCO_v4_data_structure_basics
    ECCO_v4_A_Better_Method_for_Loading_ECCOv4_NetCDF_Tile_Files
    ECCO_v4_Loading_all_llc_NetCDF_tile_files_at_once
    ECCO_v4_Combining_Multiple_Datasets
+   ECCO_v4_Saving_Datasets_and_DataArrays_to_NetCDF 
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tutorial: Basic operations
+
    ECCO_v4_Accessing_and_Subsetting_Variables
    ECCO_v4_Operating_on_Numpy_Arrays
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tutorial: Basic Plotting
+
    ECCO_v4_Plotting_Tiles
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tutorial: Calculations
+
    ECCO_v4_Example_calculations_with_scalar_quantities
  
 .. toctree::
