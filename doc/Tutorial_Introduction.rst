@@ -33,6 +33,7 @@ If you want to see some examples of Juypter Notebooks before continuing further,
 .. _numerical integration with the Crank Nicolson method : http://nbviewer.jupyter.org/github/waltherg/notebooks/blob/master/2013-12-03-Crank_Nicolson.ipynb
 
 This `notebook basics`_ page may be helpful for learning how to navigate around in notebooks.
+
 .. _notebook basics : http://nbviewer.jupyter.org/github/jupyter/notebook/blob/master/docs/source/examples/Notebook/Notebook%20Basics.ipynb
 
 
