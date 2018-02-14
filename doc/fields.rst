@@ -11,9 +11,8 @@ Geographical layout
 
 Ocean, sea-ice, air-sea flux, and atmosphere fields are provided in two spatial layouts:
 
-- 13-tile *native* lat-lon-cap (llc) 90 grid
+- 13-tile *native* lat-lon-cap 90 (llc90) grid
 - 0.5° x 0.5° latitude and longitude grid
-
 
 13-tile *native* lat-lon-cap 90 grid
 ====================================
@@ -32,13 +31,14 @@ The Cartesian (x,y) coordinates of llc tiles do not coorespond to longitude and 
 
 Available fields on the llc90 grid
 ----------------------------------
-monthly-averaged ocean and sea-ice fields: ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/README
 
-monthly-snapshot ocean and sea-ice fields: ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly_snapshots/README
+*monthly-averaged ocean and sea-ice fields*: ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/README
 
-daily-averaged ocean and sea-ice fields: ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_daily/README
+*monthly-snapshot ocean and sea-ice fields*: ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly_snapshots/README
 
-6-hourly atmosphere fields: ftp://ecco.jpl.nasa.gov/Version4/Release3/input_forcing/README
+*daily-averaged ocean and sea-ice fields*: ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_daily/README
+
+*6-hourly atmosphere fields*: ftp://ecco.jpl.nasa.gov/Version4/Release3/input_forcing/README
 
 
 *interpolated* 0.5° x 0.5° latitude-longitude grid
