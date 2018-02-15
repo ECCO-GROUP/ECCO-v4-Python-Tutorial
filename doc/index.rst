@@ -9,10 +9,10 @@ Welcome to the ECCO Version 4 Tutorial
 This website contains a set of tutorials about how to use the ECCO Central Production Version 4 (ECCO v4) global ocean and sea-ice state estimate.  The tutorials were written in Python and make use of the `ecco_v4_py`_ Python library, a library written specifically for loading, plotting, and analyzing ECCO v4 state estimate fields.
 
 
-Alternative Resources
----------------------
+Additional Resources
+--------------------
 
-The ECCO v4 state estimate is the output of a free-running simulation of a global ca. 1-degree configuration of the MITgcm.  Prior to public release, the model output files model are assembled into NetCDF files.  If you would like to work directly with the flat binary "MDS" files provided by the model then take a look at the `xmitgcm`_ Python package.  The `xgcm`_ Python package provides tools for operating on model output field loaded with `xmitgcm`_.   If you wish to analyze the MITgcm model output using Matlab then we strongly recommend the extensive set of tools provided by the `gcmfaces`_ toolbox.  
+The ECCO v4 state estimate is the output of a free-running simulation of a global ca. 1-degree configuration of the MITgcm.  Prior to public release, the model output files model are assembled into NetCDF files.  If you would like to work directly with the flat binary "MDS" files provided by the model then take a look at the `xmitgcm`_ Python package.  The `xgcm`_ Python package provides tools for operating on model output fields loaded with `xmitgcm`_.   If you wish to analyze the MITgcm model output using Matlab then we strongly recommend the extensive set of tools provided by the `gcmfaces`_ toolbox.  
 
 The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgcm`_ package and `gcmfaces`_ toolbox.
 

@@ -40,13 +40,13 @@ This `notebook basics`_ page may be helpful for learning how to navigate around 
 Will I learn Python just from reading these tutorials?
 ------------------------------------------------------
 
-Unlikely!  These tutorials are not a comprehensive introduction to Python.  However, throughout the tutorial there are many helpful tips to guide the non-native Python speaker. These tips come early on so it helps to start from the beginning.  
+Unlikely!  These tutorials are not a comprehensive introduction to Python.  **Nevertheless, throughout the tutorial there are many helpful tips to guide the non-native Python speaker.** These tips come early on so it helps to start from the beginning.  
 
 
 What Python should I review before getting started?
 ---------------------------------------------------
 
-There are thousands of custom Python packages, many of which would no doubt be useful for working with the ECCO v4 state estimate.  Howefver, there are three that you will should familiarze yourself with on some level before starting: **NumPy**, **Matplotib**, and **xarray**.  **NumPy** provides n-dimensional matrices and matrix operations, **Matplotlib** provides plotting tools, and **xarray** provides a framework for labelling and easily accessing subsets of the **NumPy** n-dimensional matrices.  **xarray** is not necessary for working with ECCO v4 output as arrays do not need to have their dimensions and coordinatess labeled to operate on them.  Nevertheless, you may also find that having labeled arrays can make life much, much easier.
+There are thousands of Python packages, many of which would no doubt be useful for working with the ECCO v4 state estimate.  Howefver, there are *three* that you will should familiarze yourself with on some level before starting: **NumPy**, **Matplotib**, and **xarray**.  **NumPy** provides n-dimensional matrices and matrix operations, **Matplotlib** provides plotting tools, and **xarray** provides a framework for labelling and easily accessing subsets of the **NumPy** n-dimensional matrices.  **xarray** is not necessary for working with ECCO v4 output as one does not need to have labeled dimensions and coordinatess to analyze arrays.  Nevertheless, you may find that working with arrays that have well  labeled coordinates and dimensions makes life much, much easier.
 
 NumPy
 ^^^^^
@@ -95,7 +95,7 @@ Definitely please tell us!  You can write Ian.Fenty at jpl.nasa.gov
 What if I would like to contribute with a tutorial of my own?
 -------------------------------------------------------------
 
-That would be fantastic!  We're all in this together.  If you have a notebook that you think would be helpful, let us know and we'll integrate it.  
+That would be fantastic!  We're all in this together.  If you have a notebook that you think would be helpful, let us know and we'll do our best to integrate it.  
 
 
 Bonus Tutorials
