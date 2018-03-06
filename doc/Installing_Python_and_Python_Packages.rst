@@ -57,13 +57,12 @@ After installing Anaconda the following packages must be installed: *xarray*, *n
 
 .. code-block:: bash
 
-    conda install -c conda-forge xarray
-    conda install -c anaconda netcdf4
-    conda install -c conda-forge pyresample
-    conda install -c anaconda basemap 
-
-If you don't install Anaconda then you can install these packages by following the instructions on each project's website.
-
+    pip install xarray
+    pip install netcdf4
+    pip install pyresample
+    pip install basemap
+    
+  
 
 Installing the *ecco_v4_py* Python Package
 ------------------------------------------
