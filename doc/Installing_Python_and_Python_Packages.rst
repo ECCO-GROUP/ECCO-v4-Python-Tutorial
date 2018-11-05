@@ -64,8 +64,12 @@ After installing Anaconda the following packages must be installed: *xarray*, *n
 .. note:: *pyresample* can be installed on a mac using
     conda install -c conda-forge pyresample    
     
-For *basemap*,  please see the *basemap* `github readme` to download a tar ball from the basemap release page
-https://github.com/matplotlib/basemap
+For *basemap*, see the installation instructions on the project page, https://github.com/matplotlib/basemapbrew 
+On a mac you should consider installing the geos package using homebrew as,
+
+.. code-block:: bash
+    brew install geos 
+
 
 Installing the *ecco_v4_py* Python Package
 ------------------------------------------
