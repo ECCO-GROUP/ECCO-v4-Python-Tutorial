@@ -60,9 +60,12 @@ After installing Anaconda the following packages must be installed: *xarray*, *n
     pip install xarray
     pip install netcdf4
     pip install pyresample
-    pip install basemap
     
-  
+.. note:: *pyresample* can be installed on a mac using
+    conda install -c conda-forge pyresample    
+    
+For *basemap*,  please see the *basemap* `github readme` to download a tar ball from the basemap release page
+https://github.com/matplotlib/basemap
 
 Installing the *ecco_v4_py* Python Package
 ------------------------------------------
