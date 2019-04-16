@@ -53,29 +53,22 @@ The latest installers for the Anaconda Distribution can be found on the `Anacond
 Installing Required Python Packages
 -----------------------------------
 
-After installing Anaconda the following packages must be installed: *xarray*, *netcdf4*, *pyresample*, *basemap*.  
+After installing Anaconda the following packages must be installed: *xarray*, *netcdf4*, *pyresample*, *cartopy*, *xmitgcm*, *pyshp*, *shapely*, and *pyproj*.  
 
 .. code-block:: bash
 
     pip install xarray
     pip install netcdf4
     pip install pyresample
-    
+    pip install xmitgcm
 
-.. note:: *pyresample* can be installed on a mac using
+If you are using Anaconda 
+.. note:: *pyresample* 
 
+    conda install shapefile
     conda install -c conda-forge pyresample    
-    
-For *basemap*, see the installation instructions on the project page, https://github.com/matplotlib/basemap
-
-
-On a mac you should consider installing the geos package using homebrew as,
-
-
-.. code-block:: bash
-
-    brew install geos 
-
+    conda install -c conda-forge cartopy
+    conda install -c conda-forge pyproj
 
 Installing the *ecco_v4_py* Python Package
 ------------------------------------------
