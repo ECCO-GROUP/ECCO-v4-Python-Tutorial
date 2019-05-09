@@ -59,6 +59,12 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
    :caption: Tutorial: Calculations
 
    ECCO_v4_Example_calculations_with_scalar_quantities
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Tutorial: "Advanced" Calculations
+
+    calc_rapid_amoc_mht
  
 
 .. toctree::
