@@ -21,6 +21,8 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
 sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('../../ECCOv4-py/'))
+
 #import cloud_sptheme as csp
 import sphinx_rtd_theme
 

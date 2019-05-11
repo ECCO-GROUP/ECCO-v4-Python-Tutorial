@@ -5,6 +5,7 @@ ECCO v4 state estimate ocean, sea-ice, and atmosphere fields
 The complete state estimate consists of a set of ocean, sea-ice, air-sea flux, and atmosphere state variables that are the output from a free-running ocean and sea-ice general circulation model. 
 
 .. _in-layout:
+
 *******************
 Geographical layout
 *******************

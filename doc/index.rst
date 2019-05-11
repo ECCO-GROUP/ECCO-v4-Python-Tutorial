@@ -61,10 +61,10 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
    ECCO_v4_Example_calculations_with_scalar_quantities
 
 .. toctree::
-    :maxdepth: 2
-    :caption: Tutorial: "Advanced" Calculations
+   :maxdepth: 2
+   :caption: Tutorial: "Advanced" Calculations
 
-    calc_rapid_amoc_mht
+   calc_rapid_amoc_mht
  
 
 .. toctree::
@@ -75,11 +75,10 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
    ecco_budgets
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
    :caption: The *ecco_v4_py* Python library
 
-   source/modules
-
+   api
 
 .. toctree::
    :maxdepth: 2
