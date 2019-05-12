@@ -3,4 +3,17 @@ sphinx_rtd_theme
 cloud_sptheme
 nbsphinx
 ipykernel
+cartopy
+dask
+datetime
+dateutil
+glob
+matplotlib
+numpy
+os
+pyresample
+shapefile
+time
+xarray
+xmitgcm
 ecco_v4_py
