@@ -21,7 +21,8 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
 sys.path.insert(0, os.path.abspath('../..'))
-sys.path.insert(0, os.path.abspath('../../ECCOv4-py/'))
+sys.path.insert(0, os.path.abspath('/Users/ifenty/.virtualenvs/ve1/lib/python2.7/site-packages'))
+sys.path.insert(0, os.path.abspath('/home/docs/checkouts/readthedocs.org/user_builds/ecco-v4-python-tutorial/envs/latest/lib/python2.7/site-packages'))
 
 #import cloud_sptheme as csp
 import sphinx_rtd_theme
@@ -136,6 +137,8 @@ html_theme = "sphinx_rtd_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+#html_extra_path = ['api_extra']
+
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.

@@ -78,7 +78,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
    :maxdepth: 4
    :caption: The *ecco_v4_py* Python library
 
-   api
+   source/modules
 
 .. toctree::
    :maxdepth: 2
