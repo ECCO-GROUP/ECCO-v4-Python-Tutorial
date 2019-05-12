@@ -74,11 +74,11 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
    VectorCalculus_ECCO_barotropicVorticity
    ecco_budgets
 
-.. toctree::
-   :maxdepth: 4
-   :caption: The *ecco_v4_py* Python library
+#.. toctree::
+#   :maxdepth: 4
+#   :caption: The *ecco_v4_py* Python library
 
-   source/modules
+#   source/modules
 
 .. toctree::
    :maxdepth: 2
