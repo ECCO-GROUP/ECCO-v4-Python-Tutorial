@@ -12,7 +12,7 @@ Reading General Binary Files
    :members:
 
 Reading LLC MDS (binary) Files
-=============================
+==============================
 
 .. automodule:: ecco_v4_py.read_bin_llc 
    :members:
@@ -66,7 +66,7 @@ Other ECCO utility functions
    :members:
 
 ECCO netcdf generation from MITgcm output
-=========================================
+=================================================
 
 .. automodule:: ecco_v4_py.netcdf_product_generation 
    :members:
