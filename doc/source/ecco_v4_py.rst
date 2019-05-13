@@ -1,6 +1,9 @@
 ecco\_v4\_py package
 ====================
 
+Submodules
+----------
+
 ecco\_v4\_py.ecco\_utils module
 -------------------------------
 
@@ -98,3 +101,10 @@ ecco\_v4\_py.tile\_rotation module
     :show-inheritance:
 
 
+Module contents
+---------------
+
+.. automodule:: ecco_v4_py
+    :members:
+    :undoc-members:
+    :show-inheritance:
