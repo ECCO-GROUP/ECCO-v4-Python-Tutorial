@@ -53,53 +53,102 @@ The latest installers for the Anaconda Distribution can be found on the `Anacond
 Installing Required Python Packages
 -----------------------------------
 
-After installing Anaconda the following packages must be installed: *xarray*, *netcdf4*, *pyresample*, *cartopy*, *xmitgcm*, *pyshp*, *shapely*, and *pyproj*.  
+After installing Anaconda the following packages must be installed: 
+*cartopy*, *netcdf4*, *pyresample*, *cartopy*, and *pyproj*.  
+  
+
+Method 1: pip
+=============
+.. code-block:: bash
+
+    pip install netcdf4
+    pip install pyresample
+    pip install cartopy
+
+Method 2: Conda
+=============
+
+If you are using Anaconda then proceed as follows: 
+
+.. code-block:: bash
+
+    conda install netcdf4
+    conda install -c scitools cartopy
+    conda install -c conda-forge pyresample
+
+
+After installing the above, install the following additional packages, *xarray, xmitgcm*, and *xgcm*.
 
 .. code-block:: bash
 
     pip install xarray
-    pip install netcdf4
-    pip install pyresample
     pip install xmitgcm
+    pip install xgcm
 
-If you are using Anaconda 
-.. note:: *pyresample* 
+    
 
-    conda install shapefile
-    conda install -c conda-forge pyresample    
-    conda install -c conda-forge cartopy
-    conda install -c conda-forge pyproj
+Installing Required Libraries
+-----------------------------
+
+The projection plotting tool Cartopy requires the GEOS (Geometry Engine, Open Source) library.  
+
+If you use Anaconda then the GEOS library is installed with *cartopy*
+
+If you don't want to use conda, instructions for installing this library can be found on the `geos website`_
+
+
 
 Installing the *ecco_v4_py* Python Package
 ------------------------------------------
 
 The *ecco_v4_py* package is a library of routines that are helpful for analyzing the ECCO v4 state estimate.  It is stored on the `github repository`_ 
 
-There are three methods for installing the *ecco_v4_py* Python package, 
+There are three methods for installing the *ecco_v4_py* Python package.
 
-1. [RECOMMENDED] use *pip*, a tool for installing Python packages.
+
+1. Use `git` to clone into the project:  [ recommended ]  
+
+.. code-block:: bash
+	
+    cd /path/to/your/download/ECCOv4-py/
+    git clone https://github.com/ECCO-GROUP/ECCOv4-py.git
+
+Once the library is in the directory of your choice, you can more easily edit the contents and suggested changes via git pull requests (highly encouraged!).
+
+2. Download the latest version from the git repository:
+
+.. code-block:: bash
+	
+    cd /path/to/your/download/ECCOv4-py/
+    wget https://github.com/ECCO-GROUP/ECCOv4-py/archive/master.zip
+    unzip master.zip
+    rm master.zip
+
+Use this method if you don't have access to git and you want access to see the library code
+
+3. Use the *pip* Python package tool.  
+
+The *ecco_v4_py* package will be installed in your Python library directory from https://pypi.org/project/ecco-v4-py/.  This method is OK if you don't plan to edit the library code.  
 
 .. code-block:: bash
 	
     pip install ecco_v4_py
 
-2. Download the latest version from the git repository, https://github.com/ECCO-GROUP/ECCOv4-py/archive/master.zip
 
-3. Use `git` to clone the project:
-
-.. code-block:: bash
-	
-    git clone https://github.com/ECCO-GROUP/ECCOv4-py.git
-
-
-If you use Method 1 (pip install) then the *ecco_v4_py* library will be automatically installed and will be ready to import into your Python program.  
-
-If you use Methods 2 or 3 you'll need to take note of the location of your *ecco_v4_py* directory and add it to the Python system path in the header of your routines to allow the library to be imported:  
+If you use Methods 1 or 2 you'll need to remember the location of your *ecco_v4_py* directory and add it to the Python *system path* in the your Python routines before you can import the library and use the library subroutines.
 
 .. code-block:: python
 
-	sys.path.append('/PATH/TO/YOUR/COPY/OF/ECCOv4-py/ecco_v4_py')
+    import sys
+	sys.path.append('/path/to/your/download/ECCOv4-py/ECCOv4-py/')
 	import ecco_v4_py as ecco
 
+If you use Method 3 (pip install) then the *ecco_v4_py* library will be automatically installed and will be ready to import into your Python program.  
+
+.. code-block:: python
+
+    import ecco_v4_py as ecco
+
+.. _geos website: https://trac.osgeo.org/geos
 
 .. _github repository: https://github.com/ECCO-GROUP/ECCOv4-py/tree/master/ecco_v4_py

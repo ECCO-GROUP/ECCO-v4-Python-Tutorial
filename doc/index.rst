@@ -36,7 +36,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
    :caption: Tutorial: Input/Output
 
    ECCO_v4_data_structure_basics
-   ECCO_v4_A_Better_Method_for_Loading_ECCOv4_NetCDF_Tile_Files
+   ECCO_v4_Coordinates_and_Dimensions_of_ECCOv4_NetCDF_files
    ECCO_v4_Loading_all_llc_NetCDF_tile_files_at_once
    ECCO_v4_Combining_Multiple_Datasets
    ECCO_v4_Saving_Datasets_and_DataArrays_to_NetCDF 
