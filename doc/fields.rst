@@ -24,7 +24,7 @@ The Cartesian curvilinear coordinate system is divided into 13 tiles, each consi
 
 The Cartesian (x,y) coordinates of llc tiles do not coorespond to longitude and latitude.  Horizontal velocities are defined relative to the **local orientation** of x and y in the tile.  Velocities in the positive *x* direction are defined as positive *u*.  Velocities in the positive *y* direction are defined as positive *v*.
 
-.. figure:: ../figures/llc90.png
+.. figure:: ../figures/llc90_0.png
     :align: center
     :alt: alternate text
     :figclass: align-center
