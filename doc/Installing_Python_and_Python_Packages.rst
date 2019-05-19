@@ -59,6 +59,7 @@ After installing Anaconda the following packages must be installed:
 
 Method 1: pip
 =============
+
 .. code-block:: bash
 
     pip install netcdf4
@@ -66,7 +67,7 @@ Method 1: pip
     pip install cartopy
 
 Method 2: Conda
-=============
+===============
 
 If you are using Anaconda then proceed as follows: 
 

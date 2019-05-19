@@ -33,30 +33,36 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorial: Input/Output
-
+   :caption: Tutorial: ECCO Data Structures
+   
    ECCO_v4_data_structure_basics
    ECCO_v4_Coordinates_and_Dimensions_of_ECCOv4_NetCDF_files
-   ECCO_v4_Loading_all_llc_NetCDF_tile_files_at_once
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Tutorial: Input/Output, Data Structure Manipulation
+
+   ECCO_v4_Efficiently_loading_ECCO_NetCDF_state_estimate_and_model_grid_fields.ipynb
    ECCO_v4_Combining_Multiple_Datasets
    ECCO_v4_Saving_Datasets_and_DataArrays_to_NetCDF 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorial: Basic operations
+   :caption: Tutorial: Variable Operation
 
    ECCO_v4_Accessing_and_Subsetting_Variables
    ECCO_v4_Operating_on_Numpy_Arrays
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorial: Basic Plotting
+   :caption: Tutorial: Plotting
 
    ECCO_v4_Plotting_Tiles
+   ECCO_v4_Plotting_Projections
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorial: Calculations
+   :caption: Tutorial: Basic Calculations
 
    ECCO_v4_Example_calculations_with_scalar_quantities
 
@@ -73,12 +79,6 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
 
    VectorCalculus_ECCO_barotropicVorticity
    ecco_budgets
-
-.. toctree::
-   :maxdepth: 4
-   :caption: The *ecco_v4_py* Python library
-
-   api
 
 .. toctree::
    :maxdepth: 2
