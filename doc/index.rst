@@ -33,14 +33,14 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorial: ECCO Data Structures
+   :caption: ECCO Data Structures
    
    ECCO_v4_data_structure_basics
    ECCO_v4_Coordinates_and_Dimensions_of_ECCOv4_NetCDF_files
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorial: Input/Output, Data Structure Manipulation
+   :caption: Input/Output, Data Structure Manipulation
 
    ECCO_v4_Efficiently_loading_ECCO_NetCDF_state_estimate_and_model_grid_fields.ipynb
    ECCO_v4_Combining_Multiple_Datasets
@@ -48,34 +48,34 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorial: Variable Operation
+   :caption: Operating on Data Variables
 
    ECCO_v4_Accessing_and_Subsetting_Variables
    ECCO_v4_Operating_on_Numpy_Arrays
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorial: Plotting
+   :caption: Plotting
 
    ECCO_v4_Plotting_Tiles
    ECCO_v4_Plotting_Projections
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorial: Basic Calculations
+   :caption: Basic Calculations
 
    ECCO_v4_Example_calculations_with_scalar_quantities
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorial: "Advanced" Calculations
+   :caption: More Advanced Calculations
 
    calc_rapid_amoc_mht
  
 
 .. toctree::
    :maxdepth: 2
-   :caption: Bonus Tutorials: Budget and Vorticity Calculations
+   :caption: Bonus: Budget and Vorticity Calculations
 
    VectorCalculus_ECCO_barotropicVorticity
    ecco_budgets
