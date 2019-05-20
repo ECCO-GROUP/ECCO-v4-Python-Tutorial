@@ -58,11 +58,10 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
    :caption: Plotting
 
    ECCO_v4_Plotting_Tiles
-   ECCO_v4_Plotting_Projections
 
 .. toctree::
    :maxdepth: 2
-   :caption: Basic Calculations
+   :caption: UNDER CONSTRUCTION: Basic Calculations
 
    ECCO_v4_Example_calculations_with_scalar_quantities
 
@@ -75,7 +74,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
 
 .. toctree::
    :maxdepth: 2
-   :caption: Bonus: Budget and Vorticity Calculations
+   :caption: UNDER CONSTRUCTION: Budget and Vorticity Calculations
 
    VectorCalculus_ECCO_barotropicVorticity
    ecco_budgets
