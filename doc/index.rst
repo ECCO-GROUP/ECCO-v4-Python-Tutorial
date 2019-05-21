@@ -69,7 +69,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
    :maxdepth: 2
    :caption: More Advanced Calculations
 
-   calc_rapid_amoc_mht
+   compute_mht
  
 
 .. toctree::
