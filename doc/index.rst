@@ -70,6 +70,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
    :caption: More Advanced Calculations
 
    compute_mht
+   calc_osnap
  
 
 .. toctree::
