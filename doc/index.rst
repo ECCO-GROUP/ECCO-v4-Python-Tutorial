@@ -42,7 +42,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
    :maxdepth: 2
    :caption: Input/Output, Data Structure Manipulation
 
-   ECCO_v4_Efficiently_loading_ECCO_NetCDF_state_estimate_and_model_grid_fields.ipynb
+   ECCO_v4_Loading_ECCO_NetCDF_state_estimate_and_model_grid_fields.ipynb
    ECCO_v4_Combining_Multiple_Datasets
    ECCO_v4_Saving_Datasets_and_DataArrays_to_NetCDF 
 
@@ -61,7 +61,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgc
 
 .. toctree::
    :maxdepth: 2
-   :caption: UNDER CONSTRUCTION: Basic Calculations
+   :caption: Scalar Calculations
 
    ECCO_v4_Example_calculations_with_scalar_quantities
 

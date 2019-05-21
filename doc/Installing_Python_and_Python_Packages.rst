@@ -2,7 +2,7 @@
 Python and Python Packages
 **************************
 
-Our tutorials are written for Python 2.7 and use several modules including **ecco_v4-py**, a module specifically written to facilitate loading, plotting, and performing *unary* and *binary* operations on the state estimate fields.  
+Our Python tutorial is compatible with Python 2.7 and 3.  It relies on several packages including **ecco_v4-py** which include codes to facilitate loading, plotting, and performing calculations on ECCOv4 state estimate fields.  
 
 .. _in-python:
 
@@ -13,7 +13,9 @@ Why Python?
 
 Here are some links to help you learn more about Python.
 
-- `Python 2.7 Documentation <https://docs.python.org/2.7/>`_ 
+- `Python 3.x Documentation <https://docs.python.org/3/>`_
+- `Python 3 Tutorial <https://docs.python.org/3/tutorial/>`_ 
+- `Python 2.7 Documentation <https://docs.python.org/2.7/>`_   (Note Python 2.7 will soon be unsupported)
 - `Python 2.7 Tutorial <https://docs.python.org/2.7/tutorial/index.html>`_ 
 - `Scientific Python Lectures <http://www.scipy-lectures.org/>`_ 
 - `Using the NumPy module for Matlab Users <http://scipy.github.io/old-wiki/pages/NumPy_for_Matlab_Users>`_ 
@@ -27,19 +29,16 @@ Installing Python and the Anaconda Distribution
 
 Python
 ^^^^^^
-The latest installers for Python 2.7 for many platforms can be found on the `Python website <https://www.python.org/downloads/release/python-2714/>`_.
+The latest installers for Python for many platforms can be found on the `Python website <https://www.python.org/downloads/release/python-2714/>`_.
 
-.. note::  The code for this tutorial has been developed for Python 2.7 and has not yet been tested with `Python 3 <https://www.digitalocean.com/community/tutorials/python-2-vs-python-3-practical-considerations-2>`_.  
 
 Anaconda
 ^^^^^^^^
 Python code can be written in any text editor and run from the command line.  Third-party modules can be manually installed from the command line using the `pip`_ package manager.  
 
-Alternatively, Python code can be written and executed in an interactive environment (integrated development environment, IDE) similar to what one may be familiar with in Matlab.  For scientific computing, the `Anaconda`_ Python distribution is convenient because it comes with a `large collection`_ of useful modules and a good open source IDE, `Spyder`_.
+Python code can also be written and executed in an interactive environment (integrated development environment, IDE) similar to the Matlab console.  For scientific computing, the `Anaconda`_ Python distribution is quite convenient because it comes with a `large collection`_ of useful modules, a good open source IDE, `Spyder`_., and the ability to open and execute `Jupyter Notebooks`_
 
 The latest installers for the Anaconda Distribution can be found on the `Anaconda website`_
-
-.. note::  For this tutorial be sure to install the Anaconda Distribution for Python 2.7.  
 
 .. _Anaconda : https://www.anaconda.com/
 .. _Anaconda website: https://www.anaconda.com/download/
@@ -47,6 +46,8 @@ The latest installers for the Anaconda Distribution can be found on the `Anacond
 .. _large collection : https://docs.anaconda.com/anaconda/packages/pkg-docs
 .. _Spyder : https://pythonhosted.org/spyder/index.html
 .. _P2v3 : https://www.digitalocean.com/community/tutorials/python-2-vs-python-3-practical-considerations-2
+.. _Jupyter Notebooks : https://jupyter.org/
+
 
 .. _in-libraries:
 
@@ -54,22 +55,17 @@ Installing Required Python Packages
 -----------------------------------
 
 After installing Anaconda the following packages must be installed: 
-*cartopy*, *netcdf4*, *pyresample*, *cartopy*, and *pyproj*.  
+*netcdf4*, *cartopy*, *pyresample*, *xarray*, *xmitgcm*, *xgcm*
   
 
-Method 1: pip
-=============
+Below are two **options** or installing these packages. PICK ONE!
 
-.. code-block:: bash
 
-    pip install netcdf4
-    pip install pyresample
-    pip install cartopy
+Option 1: Conda (recommended)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. attention::
+    Conda is recommended because it automatically installs the GEOS (Geometry Engine, Open Source) library which is needed to make projection plots.
 
-Method 2: Conda
-===============
-
-If you are using Anaconda then proceed as follows: 
 
 .. code-block:: bash
 
@@ -77,74 +73,100 @@ If you are using Anaconda then proceed as follows:
     conda install -c scitools cartopy
     conda install -c conda-forge pyresample
 
-
-After installing the above, install the following additional packages, *xarray, xmitgcm*, and *xgcm*.
-
 .. code-block:: bash
 
     pip install xarray
     pip install xmitgcm
     pip install xgcm
 
-    
 
-Installing Required Libraries
------------------------------
+Option 2: *pip* (not recommended)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The projection plotting tool Cartopy requires the GEOS (Geometry Engine, Open Source) library.  
-
-If you use Anaconda then the GEOS library is installed with *cartopy*
-
-If you don't want to use conda, instructions for installing this library can be found on the `geos website`_
+.. DANGER::
+    The Python module Cartopy requires the GEOS (Geometry Engine, Open Source) library.  Instructions for installing this library can be found on the `geos website`_.   Some users have reported difficulties  installing GEOS libraries on their platforms.  For that reason, we recommend using Conda (Option 1).  
 
 
+.. code-block:: bash
 
-Installing the *ecco_v4_py* Python Package
-------------------------------------------
+    pip install netcdf4
+    pip install pyresample
+    pip install cartopy
+    pip install xarray
+    pip install xmitgcm
+    pip install xgcm
+
+
+
+Downloading the *ecco_v4_py* Python Package
+-------------------------------------------
 
 The *ecco_v4_py* package is a library of routines that are helpful for analyzing the ECCO v4 state estimate.  It is stored on the `github repository`_ 
 
-There are three methods for installing the *ecco_v4_py* Python package.
+
+Below are three **options** or installing the *ecco_v4_py* Python package.
+
+.. attention::
+
+    Use only one of the options below!
 
 
-1. Use `git` to clone into the project:  [ recommended ]  
+Option 1: Clone into the repository using git (recommended)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Cloning into the *ecco_v4_py* repository using `git` 
+is recommended because 
+
+a) you can easily see and modify the ecco_v4_py source code
+b) you can improve the source code and share your improvements with the community.
+
+To use `git` to clone into the project simply run the following commands
+(in the example below the Python files will go into ~/ECCOv4-py/)
+
+.. code-block:: bash
+
+    > mkdir ~/ECCOv4-py
+    > cd ~/ECCOv4-py
+    > git clone https://github.com/ECCO-GROUP/ECCOv4-py.git
+
+
+Option 2: Download the repository using git (not recommended)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This method gets you the source code but if you make changes it is harder to share those changes with the community.
 
 .. code-block:: bash
 	
-    cd /path/to/your/download/ECCOv4-py/
-    git clone https://github.com/ECCO-GROUP/ECCOv4-py.git
+    > mkdir ~/ECCOv4-py
+    > cd ~/ECCOv4-py
+    > wget https://github.com/ECCO-GROUP/ECCOv4-py/archive/master.zip
+    > unzip master.zip
+    > rm master.zip
 
-Once the library is in the directory of your choice, you can more easily edit the contents and suggested changes via git pull requests (highly encouraged!).
+Of course you may want to use this method if you don't have access to git.
 
-2. Download the latest version from the git repository:
-
-.. code-block:: bash
-	
-    cd /path/to/your/download/ECCOv4-py/
-    wget https://github.com/ECCO-GROUP/ECCOv4-py/archive/master.zip
-    unzip master.zip
-    rm master.zip
-
-Use this method if you don't have access to git and you want access to see the library code
-
-3. Use the *pip* Python package tool.  
-
-The *ecco_v4_py* package will be installed in your Python library directory from https://pypi.org/project/ecco-v4-py/.  This method is OK if you don't plan to edit the library code.  
+Option 3: Use the *pip* Python package tool (not recommended)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If you use *pip* to install the *ecco_v4_py* package the source code will be installed in your Python library directory from https://pypi.org/project/ecco-v4-py/.  This method is OK if you don't plan to look at or modify the library code.   
 
 .. code-block:: bash
 	
     pip install ecco_v4_py
 
 
-If you use Methods 1 or 2 you'll need to remember the location of your *ecco_v4_py* directory and add it to the Python *system path* in the your Python routines before you can import the library and use the library subroutines.
+Using the *ecco_v4_py* Python Package in your programs
+------------------------------------------------------
+
+If you use Options 1 or 2 to download the *ecco_v4_py* source code then you must tell Python the location of the files before Python can it.  This is easy, you just you just have to remember to do it at the top of all of your programs!  
+
+Assuming you downloaded the *ecco_v4_py* routines to ``/home/username/ECCOv4-py`` then simply add these three lines to the top of your Python programs (or Jupyter Notebooks)
 
 .. code-block:: python
 
     import sys
-	sys.path.append('/path/to/your/download/ECCOv4-py/ECCOv4-py/')
+	sys.path.append('/home/username/ECCOv4-py')
 	import ecco_v4_py as ecco
 
-If you use Method 3 (pip install) then the *ecco_v4_py* library will be automatically installed and will be ready to import into your Python program.  
+
+If you used Method 3 (pip install) then the *ecco_v4_py* library will be automatically installed and will be ready to import into your Python program via the following commands:  
 
 .. code-block:: python
 

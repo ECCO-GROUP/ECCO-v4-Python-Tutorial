@@ -2,17 +2,23 @@
 How to get the ECCO v4 State Estimate
 #####################################
 
-
 .. _in-ftp-site:
+
 The ECCO v4 r3 ftp site
 =======================
 
-The ECCO v4 r3 state estimate is hosted on ftp://ecco.jpl.nasa.gov/Version4/Release3
+The ECCO v4 r3 state estimate is hosted on ftp://ecco.jpl.nasa.gov/Version4/Release3/
 
 The directory layout of the ftp site is described in the following document,
 ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_overview.pdf
 
+
+.. danger::
+  For the **ECCO summer school** the file directories you will use will be different.  On *stampede2*, please refer to the  README file at  **/work/projects/aci/ECCO/community/ECCO/ECCOv4/Release3p1/README.txt**
+
+
 .. _in-grid:
+
 fields on the 13-tile lat-lon-cap (llc) *native* model grid
 ===========================================================
 
@@ -22,18 +28,23 @@ geometric model grid parameters
 Calculations involving the state estimate variables often require the geometric model grid parameters.  These parameters are packaged together as 13 grid NetCDF files, one for each llc tile, in the *nctiles_grid/* directory.
 
 .. _in-monthly:
+
 monthly-averaged ocean and sea-ice variables
 --------------------------------------------
+
 Monthly-averaged ocean and sea-ice fields are in provided in subdirectories of *nctiles_monthly/*. Each subdirectory corresponds to a single variable and contains 13 NetCDF files, one for each different llc tile.
 
 .. _in-daily:
+
 daily-averaged ocean and sea-ice variables
 ------------------------------------------
+
 Daily-averaged ocean and sea-ice fields are in the subdirectories of *nctiles_daily/*. Each subdirectory corresponds to a single variable and contains 13 NetCDF files, one for each llc tile.
 
 
 6-hourly atmosphere variables
 -----------------------------
+
 6-hourly atmospheric fields that can be used as atmospheric boundary conditions for the model are provided in *input_forcing/*. Each atmospheric state variable is divided by year.  These files are *not* divided into 13 tiles but are instead provided in the special *native* lat-lon-cap flat binary format required by the model.  Tools for reading and plotting files in llc binary format are provided in this tutorial.
 
 For reference, these are the atmospheric state fields provided in *input_forcing*

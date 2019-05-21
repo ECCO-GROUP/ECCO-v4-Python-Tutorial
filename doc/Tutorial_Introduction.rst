@@ -73,12 +73,12 @@ xarray
 ^^^^^^
 From the `xarray website <http://xarray.pydata.org/en/stable/why-xarray.html>`_
 
-Adding dimensions names and coordinate indexes to numpy's ndarray_ makes many
-powerful array operations possible.
+Adding dimensions names and coordinate indexes to numpy's ndarray_ makes many powerful array operations possible.
 
 The N-dimensional nature of xarray's data structures makes it suitable for dealing
 with multi-dimensional scientific data, and its use of dimension names instead of axis labels (``dim='time'`` instead of ``axis=0``) makes such arrays much more manageable than the raw numpy ndarray: [...]
 
+.. _ndarray : https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html
 
 What if I don't like the way you do X?
 --------------------------------------
