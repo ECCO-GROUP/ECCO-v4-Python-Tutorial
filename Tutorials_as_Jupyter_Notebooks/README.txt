@@ -34,7 +34,8 @@ Scalar Calculations
 
 More Advanced Calculations
 ==========================================
-10. calc_rapid_amoc_mht
+10. compute_mht
+11. calc_osnap
  
 
 More Advanced Calculations :  Budget and Vorticity Calculations
@@ -45,5 +46,5 @@ UNDER CONSTRUCTION: these notebooks do not
 	they are included for demonstration 
 	purposes only!!!
 
-11.   VectorCalculus_ECCO_barotropicVorticity
-12.   ecco_budgets
+12.   VectorCalculus_ECCO_barotropicVorticity
+13.   ecco_budgets
