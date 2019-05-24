@@ -2,8 +2,8 @@
 ECCO Version 4 Tutorial Juypter Notebooks Filenames
 ---------------------------------------------------
 
-To see the full notebooks redered as html
-pee the website: https://ecco-v4-python-tutorial.readthedocs.io/index.html
+To see the full notebooks rendered as html
+see the website: https://ecco-v4-python-tutorial.readthedocs.io/index.html
 
 
 ECCO Data Structures
@@ -32,13 +32,10 @@ Scalar Calculations
 9.   ECCO_v4_Example_calculations_with_scalar_quantities
 
 
-More Advanced Calculations
+More Advanced Calculations:
 ==========================================
 10. calc_rapid_amoc_mht
  
-
-More Advanced Calculations :  Budget and Vorticity Calculations
-==========================================
 
 UNDER CONSTRUCTION: these notebooks do not 
 	run with  ECCOv4py NetCDF files
