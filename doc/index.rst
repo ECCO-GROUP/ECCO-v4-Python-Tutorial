@@ -6,7 +6,7 @@
 Welcome to the ECCO Version 4 Tutorial
 ======================================
 
-This website contains a set of tutorials about how to use the ECCO Central Production Version 4 (ECCO v4) global ocean and sea-ice state estimate.  The tutorials were written in Python and make use of the `ecco_v4_py`_ Python library, a library written specifically for loading, plotting, and analyzing ECCO v4 state estimate fields.
+This website contains a set of tutorials about how to use the ECCO Central Production Version 4 (ECCO v4) global ocean and sea-ice state estimate.  The tutorials were written in Python and make use of the `ecco_v4_py` Python library, a library written specifically for loading, plotting, and analyzing ECCO v4 state estimate fields.
 
 
 Additional Resources
@@ -16,7 +16,7 @@ The ECCO v4 state estimate is the output of a free-running simulation of a globa
 
 The `ecco_v4_py`_ package used in this tutorial was inspired by both the `xmitgcm`_ package and `gcmfaces`_ toolbox.
 
-.. _ecco_v4_py : https://pypi.python.org/pypi/ecco_v4_py/
+.. _ecco_v4_py : https://github.com/ECCO-GROUP/ECCOv4-py
 .. _xmitgcm : http://xmitgcm.readthedocs.io/en/latest/index.html
 .. _xgcm : https://github.com/xgcm/xgcm
 .. _gcmfaces : https://github.com/gaelforget/gcmfaces
