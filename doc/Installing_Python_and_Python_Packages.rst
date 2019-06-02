@@ -72,12 +72,14 @@ Option 1: Conda (recommended)
     conda install netcdf4
     conda install -c scitools cartopy
     conda install -c conda-forge pyresample
+    conda install dask
 
 .. code-block:: bash
 
     pip install xarray
     pip install xmitgcm
     pip install xgcm
+    pip install dask
 
 
 Option 2: *pip* (not recommended)
