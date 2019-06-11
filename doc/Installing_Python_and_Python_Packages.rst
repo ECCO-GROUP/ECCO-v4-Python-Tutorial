@@ -73,6 +73,7 @@ Option 1: Conda (recommended)
     conda install -c scitools cartopy
     conda install -c conda-forge pyresample
     conda install dask
+    conda install toolz
 
 .. code-block:: bash
 
@@ -80,6 +81,7 @@ Option 1: Conda (recommended)
     pip install xmitgcm
     pip install xgcm
     pip install dask
+    pip install toolz
 
 
 Option 2: *pip* (not recommended)
