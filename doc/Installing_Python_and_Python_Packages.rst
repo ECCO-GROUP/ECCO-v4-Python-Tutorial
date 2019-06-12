@@ -80,9 +80,7 @@ Option 1: Conda (recommended)
     pip install xarray
     pip install xmitgcm
     pip install xgcm
-    pip install dask
-    pip install toolz
-
+ 
 
 Option 2: *pip* (not recommended)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
