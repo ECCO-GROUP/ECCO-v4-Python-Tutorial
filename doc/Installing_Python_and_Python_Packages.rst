@@ -78,8 +78,10 @@ Option 1: Conda (recommended)
 .. code-block:: bash
 
     pip install xarray
+    pip install dask
     pip install xmitgcm
     pip install xgcm
+
  
 
 Option 2: *pip* (not recommended)
