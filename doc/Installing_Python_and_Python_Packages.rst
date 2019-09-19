@@ -61,7 +61,7 @@ After installing Anaconda the following packages must be installed:
 Below are two **options** or installing these packages. PICK ONE!
 
 
-Option 1: Conda (recommended)
+Option 1: *Conda* and (a little) *pip* (recommended)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. attention::
     Conda is recommended because it automatically installs the GEOS (Geometry Engine, Open Source) library which is needed to make projection plots.
@@ -70,6 +70,7 @@ Option 1: Conda (recommended)
 .. code-block:: bash
 
     conda install netcdf4
+    conda install -c anaconda geos 
     conda install -c scitools cartopy
     conda install -c conda-forge pyresample
     conda install dask
@@ -78,13 +79,12 @@ Option 1: Conda (recommended)
 .. code-block:: bash
 
     pip install xarray
-    pip install dask
     pip install xmitgcm
     pip install xgcm
 
  
 
-Option 2: *pip* (not recommended)
+Option 2: *pip* alone (not recommended)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. DANGER::
@@ -166,8 +166,8 @@ Assuming you downloaded the *ecco_v4_py* routines to ``/home/username/ECCOv4-py`
 .. code-block:: python
 
     import sys
-	sys.path.append('/home/username/ECCOv4-py')
-	import ecco_v4_py as ecco
+    sys.path.append('/home/username/ECCOv4-py')
+    import ecco_v4_py as ecco
 
 
 If you used Method 3 (pip install) then the *ecco_v4_py* library will be automatically installed and will be ready to import into your Python program via the following commands:  
