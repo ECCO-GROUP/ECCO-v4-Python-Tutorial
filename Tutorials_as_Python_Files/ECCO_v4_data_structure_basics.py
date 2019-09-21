@@ -1,33 +1,34 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # The Dataset and DataArray objects used in the ECCOv4 Python package.
 # 
 # ## Objectives
 # 
-# To introduce the two high-level data structures, `Dataset` and `DataArray`, that are used in by the ECCOv4 Python package to load and store the ECCO model grid parameters and state estimate variables
+# To introduce the two high-level data structures, `Dataset` and `DataArray`, that are used in by the `ecco_v4_py` Python package to load and store the ECCO v4 model grid parameters and state estimate variables.
 # 
-# ## Introduction 
+# ## Introduction
 # 
-# Because this is the first tutorial, we describe every step in detail.  Later tutorials will be less explicit about describing the basic operations required to begin working with the state estimate.
+# The ECCOv4 files are provided as NetCDF files.  The file you have may look a little different than the ones shown here because we have been working hard at improving how what exactly goes into our NetCDF files.  
+# 
+# This tutorial document is current as of Sep 2019 with the ECCOv4 NetCDF grid files provided in the following directories:
+# 
+# https://ecco.jpl.nasa.gov/drive/files/Version4/Release3_alt (po.daac drive, recommended)
+# 
+# https://web.corral.tacc.utexas.edu/OceanProjects/ECCO/ECCOv4/Release3_alt/  (mirror at U. Texas, Austin)
+# 
+# In this first tutorial we will start slowly, providing detail at every step.  Later tutorials will be assume knowledge of some basic operations introduced here.
 # 
 # Let's get started.
 # 
 # ## Import external packages and modules
 # 
-# At the beginning of every Python program or interactive instance we need to import helpful non-core modules or packages.  Modules or packages that are loaded into the environment can be thought of as external code libraries and contain subroutines and/or data objects that provide useful functionality.
+# Before using Python libraries we must import them.  Usually this is done at the beginning of every Python program or interactive Juypter notebook instance but one can import a library at any point in the code.  Python libraries, called **packages**, contain subroutines and/or define data structures that provide useful functionality.
+# 
+# Before we go further, let's import some packages needed for this tutorial:
 
 # In[1]:
 
-
-# Matplotlib is a Python 2D plotting library which produces publication quality
-# figures in a variety of hardcopy formats and interactive environments across 
-# platforms.
-# https://matplotlib.org/
-#
-# make all functions from the 'matplotlib.pylab' module available with the 
-# prefix 'plt'
-import matplotlib.pylab as plt
 
 # NumPy is the fundamental package for scientific computing with Python. 
 # It contains among other things:
@@ -40,9 +41,6 @@ import matplotlib.pylab as plt
 # make all functions from the 'numpy' module available with the prefix 'np'
 import numpy as np
 
-# make all functions from the 'sys' module available with the prefix 'sys'
-import sys
-
 # xarray is an open source project and Python package that aims to bring the 
 # labeled data power of pandas to the physical sciences, by providing
 # N-dimensional variants of the core pandas data structures.
@@ -54,24 +52,6 @@ import sys
 # import all function from the 'xarray' module available with the prefix 'xr'
 import xarray as xr
 
-# The matplotlib basemap toolkit is a library for plotting 2D data on maps in
-# Python. ... Basemap is geared toward the needs of earth scientists, 
-# particularly oceanographers and meteorologists. 
-# https://matplotlib.org/basemap/index.html
-#
-# The 'copy' module provides generic ... copy operations."
-# "Assignment statements in Python do not copy objects, they create 
-# bindings [pointers] between a target and an object." "... a copy is 
-# sometimes needed so one can change one copy without changing the other."
-# https://docs.python.org/2/library/copy.html
-#
-# import the 'deepcopy' function from the 'copy' module
-from copy import deepcopy 
-
-# Modules to display images in Jupyter notebooks:
-from IPython.display import Image
-from IPython.core.display import HTML 
-
 
 # ### Load the ECCO Version 4 Python package
 # 
@@ -82,30 +62,63 @@ from IPython.core.display import HTML
 # In[2]:
 
 
+## Import the ecco_v4_py library into Python
+## =========================================
+## -- If ecco_v4_py is not installed in your local Python library, 
+##    tell Python where to find it.  For example, if your ecco_v4_py
+##    files are in /home/username/ECCOv4-py/ecco_v4_py, then use:
+import sys
+sys.path.append('/Users/ifenty/ECCOv4-py')
 import ecco_v4_py as ecco
 
 
-# The syntax *import X package as Y* allows you to access all of the subroutines and other objects in X by typing *Y.some_routine_in_X*.   Here, we import `ecco_v4_py` as `ecco` because it is less to type than *ecco_v4_py* and by doing so we can access many subroutines spread out over several modules within the *ecco_v4_py* package.
+# The syntax 
+# 
+# ```Python
+#   import XYZ package as ABC
+# ```
+# 
+# allows you to access all of the subroutines and/or objects in a package with perhaps a long complicated name with a shorter, easier name.
+# 
+# Here, we import `ecco_v4_py` as `ecco` because typing `ecco` is easier than `ecco_v4_py` every time.  Also, `ecco_v4_py` is actually comprised of multiple python modules and by importing just `ecco_v4_py` we can actually access all of the subroutines in those modules as well.  Fancy.
 
-# ## Load a single NetCDF grid tile file
+# ## Load a single state estimate variable NetCDF tile file
 # 
-# To load ECCO v4's NetCDF files we will use the *open_dataset* command from the [xarray](http://xarray.pydata.org/en/stable/index.html) Python package.  *open_dataset* creates a **Dataset** object and loads the contents of the NetCDF file, including its metadata, into a data structure.    
+# To load ECCO v4's NetCDF files we will use the *open_dataset* command from the Python package [xarray](http://xarray.pydata.org/en/stable/index.html). The *open_dataset* routine creates a `Dataset` object and loads the contents of the NetCDF file, including its metadata, into a data structure.    
 # 
-# Let's open the model ``GRID`` parameter file for *tile 3* (North East Atlantic Ocean).
-# 
-# 
+# Let's open one monthly mean THETA file associated with *tile 2* (the North East Atlantic Ocean).
 
 # In[3]:
 
 
-# Change `grid_dir` to match the location of your `nctiles_grid` directory.
-grid_dir='/Volumes/ECCO_BASE/ECCO_v4r3/nctiles_grid/'    
+## Set top-level file directory for the ECCO NetCDF files
+## =================================================================
+# base_dir = '/home/username/'
+base_dir = '/Users/ifenty/ECCOv4-release'
 
-fname = 'GRID.0003.nc'
-ds = xr.open_dataset(grid_dir + fname)
+## define a high-level directory for ECCO fields
+ECCO_dir = base_dir + '/Release3_alt'
 
 
 # In[4]:
+
+
+## LOAD NETCDF FILE
+## ================
+
+# directory containing the file
+data_dir= ECCO_dir + '/nctiles_monthly/THETA/'
+
+# filename
+fname = 'THETA_2010.nc'
+
+# load the file
+ds = xr.open_dataset(data_dir + fname).load()
+
+
+# What is *ds*?  It is a `Dataset` object which is defined somewhere deep in the `xarray` package:
+
+# In[5]:
 
 
 type(ds)
@@ -113,23 +126,25 @@ type(ds)
 
 # ## The Dataset object 
 # 
-# According to the xarray documentation, a [Dataset](http://xarray.pydata.org/en/stable/generated/xarray.Dataset.html) is a "Python object designed as an "in-memory representation of the data model from the NetCDF file format."
+# According to the xarray documentation, a [Dataset](http://xarray.pydata.org/en/stable/generated/xarray.Dataset.html) is a Python object designed as an "in-memory representation of the data model from the NetCDF file format."
 # 
-# What does that mean?  NetCDF files are *self-describing* in the sense that they [include information about the data they contain](https://www.unidata.ucar.edu/software/netcdf/docs/faq.html).  When Dataset objects are created by loading a NetCDF file they contain all of the same data and metadata provided by the NetCDF file.
+# What does that mean?  NetCDF files are *self-describing* in the sense that they [include information about the data they contain](https://www.unidata.ucar.edu/software/netcdf/docs/faq.html).  When `Datasets` are created by loading a NetCDF file they load all of the same data and metadata.
 # 
-# Just as a NetCDF file can contain many variables, a `Dataset` object can contain many variables.  These variables are referred to as `Data Variables` in the `xarray` nomenclature.
+# Just as a NetCDF file can contain many variables, a `Dataset` can contain many variables.  These variables are referred to as `Data Variables` in the `xarray` nomenclature.
 # 
-# Dataset objects contain three main classes of fields:
+# `Datasets` contain three main classes of fields:
 # 
-# 1. **Coordinates**   : indices and labels for all of the coordinates used by all data variables 
-# 2. **Data Variables**: `DataArray` objects which contain numerical arrays, their coordinates, coordinate labels, and variable-specific metadata
-# 3. **Attributes**    : metadata 
+# 1. **Coordinates**   : arrays identifying the coordinates of the data variables
+# 2. **Data Variables**: the data variable arrays and their associated coordinates
+# 3. **Attributes**    : metadata describing the dataset
 # 
-# Now that we've loaded `GRID.0003.nc` into the `ds` `Dataset` object, let's examine its contents.  
-#   
-#   > **Note:** *You can get information about objects and their contents by typing the name of the variable and hitting **enter** in an interactive session of an IDE such as Spyder or a Jupyter notebook.*
+# Now that we've loaded `GRID.0003.nc` as the *ds* `Dataset` object let's examine its contents.  
+# 
+# > **Note:** *You can get information about objects and their contents by typing the name of the variable and hitting **enter** in an interactive session of an IDE such as Spyder or by executing the cell of a Jupyter notebook.*
+# 
+# 
 
-# In[5]:
+# In[6]:
 
 
 ds
@@ -137,120 +152,132 @@ ds
 
 # ### Examining the Dataset object contents
 # 
-# Let's go through `ds` piece by piece, starting from the top.
+# Let's go through *ds* piece by piece, starting from the top.
 # 
 # #### 1. Object type
-# `<xarray.Dataset>`  
+# `<xarray.Dataset>`
 # 
-# The top line tells us what type of object the variable is.  In this case  `ds` is an instance of the `Dataset` object from the `xarray` package.
+# The top line tells us what type of object the variable is.  *ds* is an instance of a`Dataset` defined in `xarray`.
 # 
 # #### 2. Dimensions
-# `Dimensions:  (i1: 50, i2: 90, i3: 90)`  
+# ```Dimensions:    (i: 90, j: 90, k: 50, nv: 2, tile: 13, time: 12)```
 # 
-# The *Dimensions* list shows all of the different dimensions used by all of the different arrays stored in the NetCDF file (and now loaded in the `Dataset` object.)
+# The *Dimensions* list shows all of the different dimensions used by all of the different arrays stored in the NetCDF file (and now loaded in the `Dataset` object).
 #   
-# Arrays may use any combination of these dimensions.  In the case of the NetCDF ECCO grid file that we've loaded, there are 1D, 2D, and 3D arrays.
+# Arrays may use any combination of these dimensions.  In the case of this *grid* datasets, we find 1D (e.g., depth), 2D (e.g., lat/lon), and 3D (e.g., mask) arrays.
 #   
-# The names and lengths of the three dimensions is given by: `(i1: 50, i2: 90, i3: 90)`.  There are 50 vertical levels in the ECCO v4 model grid so the `i1` obviously corresponds to the vertical dimension while `i2`| and `i3` correspond to the horizontal dimensions.
+# The lengths of these dimensions are next to their name: `(i: 90, j: 90, k: 50, nv: 2, tile: 13, time: 12)`.  There are 50 vertical levels in the ECCO v4 model grid so the `k` corresponds to vertical dimension.  `i` and `j` correspond to the horizontal dimensions.  The lat-lon-cap grid has 13 tiles.  This THETA file has 12 monthly-mean records for 2010.  The dimension `nv` is a time dimension that corresponds to the start and end times of the monthly-mean averaging periods.  In other words, for every 1 month, there are 2 (nv = 2) time records, one describing when the month started and the other when the month ended.
 # 
-# > **Note:** Each tile in the llc90 grid used by ECCO v4 has 90x90 horizontal grid points.  That's where the "90: in llc**90** comes from!  
+# > **Note:** Each tile in the llc90 grid used by ECCO v4 has 90x90 horizontal grid points.  That's where the 90 in llc**90** comes from!  
 # 
 # #### 3. Coordinates
+# 
+# Some coordinates have an asterix **"\*"** in front of their names.  They are known as *dimension coordinates* and are always one-dimensional arrays of length $n$ which specify the length of arrays in the dataset in different dimensions.
+# 
 # ```
 # Coordinates:
-#     i1       (i1) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
-#     i2       (i2) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
-#     i3       (i3) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ... 
+#   * j          (j) int32 0 1 2 3 4 5 6 7 8 9 ... 80 81 82 83 84 85 86 87 88 89
+#   * i          (i) int32 0 1 2 3 4 5 6 7 8 9 ... 80 81 82 83 84 85 86 87 88 89
+#   * k          (k) int32 0 1 2 3 4 5 6 7 8 9 ... 40 41 42 43 44 45 46 47 48 49
+#   * tile       (tile) int32 0 1 2 3 4 5 6 7 8 9 10 11 12
+#   * time       (time) datetime64[ns] 2010-01-16T12:00:00 ... 2010-12-16T12:00:00
 # ``` 
 #   
-# **i1**, **i2**, and **i3** are the [coordinates](http://xarray.pydata.org/en/stable/data-structures.html#coordinates), which are Python dictionaries of arrays whose values *label* each point.  They are used for label-based indexing and alignment.
+# These [coordinates](http://xarray.pydata.org/en/stable/data-structures.html#coordinates) are arrays whose values *label* each grid cell in the arrays.  They are used for *label-based indexing* and *alignment*.
 # 
-# In this case, the *coordinates* of each dimension consist of *labels* $[1, 2, ... n]$, where $n$ is the length of the dimension:
-#   
-#   + Dim **i1**: `array([  1.,   2., ..., 50.])`
-#   + Dim **i2** and **i3**: `array([  1.,   2., ..., 90.])`
-#   
-# > **Note:** Actually these coordinates are **Dimension coordinates** which are one dimensional coordinates (marked by an asterix **"\*"** when printing a dataset or data array).  Don't worry what that means for now, we'll return to the topic in a later tutorial.
-# 
+# Let's look at the three primary spatial coordiates, i, j, k. 
+
+# In[7]:
+
+
+print(ds.i.long_name)
+print(ds.j.long_name)
+print(ds.k.long_name)
+
+
+# `i` indexes (or labels) the tracer grid cells in the `x` direction,  `j` indexes the tracer grid cells in the `y` direction, and similarly `k` indexes the tracer grid cells in the `z` direction.
+
 # #### 4. Data Variables
 # ```
 # Data variables:
-#     hFacC    (i1, i2, i3) float64 ...
-#     hFacW    (i1, i2, i3) float64 ...
-#     hFacS    (i1, i2, i3) float64 ...
-#     ...
-#     XC       (i2, i3) float64 ...
-#     YC       (i2, i3) float64 ...
-#     ...
-#     RC       (i1) float64 ...
-#     RF       (i1) float64 ...
-# ```
+#     THETA      (time, tile, k, j, i) float32 ...
+# ``` 
+# The *Data Variables* are one or more `xarray.DataArray` objects.  `DataArray` objects are labeled, multi-dimensional arrays that may also contain metadata (attributes).  `DataArray` objects are very important to understand because they are container objects which store the  numerical arrays of the state estimate fields.  We'll investigate these objects in more detail after completing our survey of this `Dataset`.
 # 
-# The `Data Variables` are one or more `xarray.DataArray` objects.  `DataArray` objects are labeled, multi-dimensional arrays that may also contain metadata (attributes).  `DataArray` objects are very important to understand because they are container objects that containing the actual numerical arrays for the different ECCO variables.  We'll investigate these objects in more detail after finishing with the `Dataset` object.
-# 
-# A subset of all `Data variables` in `ds` are shown above to demonstrate that in this NetCDF grid file there are variables with three different dimension combinations: 3D with  dimensions (**i1**, **i2**, **i3**), 2D with dimensions (**i2**, **i3**), and 1D with  dimensions (**i1**)
+# In this NetCDF file there is one *Data variables*, `THETA`, which is stored as a five dimensional array (**time, tile, k,j,i**) field of average potential temperature. The llc grid has 13 tiles.  Each tile has two horizontal dimensions (i,j) and one vertical dimension (k).
 #   
-# Here, the 1D variables only have values in the **i1** (vertical) dimension, the 2D variables only have values in the **i2** and **i3** (horizontal) dimensions, and the 3D variables have values in all three dimensions.  All of these variables are of type 64 bit float.
+# `THETA` is stored here as a 32 bit floating point precision.
 #   
-# > **Note:** All ECCO v4 NetCDF grid files include a number of grid parameters.  Of these, 3 are 3D, 13 are 2D, and 4 are 1D.  The 3D grid parameters vary with horizontal location and depth (e.g., **hFacC**, the vertical fraction of a grid cell of the Arakawa-C grid tracer 'c' point).  The 2D grid parameters only vary with horizontal location and are therefore independent of depth (e.g., **XC** the longitude of the tracer 'c' point).  The 1D grid parameters only vary with depth and are therefore independent of horizontal location (e.g., **RF** the height of a tracer 'c' grid cell).  The meaning of all MITgcm grid parameters is described in section [2.10.5 of the MITgcm documentation](http://mitgcm.org/sealion/online_documents/node47.html).
+# > **Note:** The meaning of all MITgcm grid parameters can be found [here](https://mitgcm.readthedocs.io/en/latest/algorithm/horiz-grid.html).
 # 
+
 # #### 5. Attributes
 # ```
 # Attributes:
-#     description:    C-grid parameters (see MITgcm documentation for details)....
-#     A:              :Format      = native grid (nctiles w. 13 tiles)
-#     B:              :source      = ECCO consortium (http://ecco-group.org/)
-#     C:              :institution = JPL/UT/MIT/AER
-#     D:              :history     = files revision history :
-#     E:                                 04/20/2017: fill in geometry info for ...
-#     F:                                 11/06/2016: third release of ECCO v4 (...
-#     ...
-#     W:              file created using gcmfaces_IO/write2nctiles.m
-#     date:           21-Apr-2017
-#     Conventions:    CF-1.6
-#     _FillValue:     nan
-#     missing_value:  nan
+#     product_time_coverage_start:  1992-01-01T12:00:00
+#     author:                       Ian Fenty and Ou Wang
+#     Insitution:                   JPL
+#     product_version:              ECCO Version 4 Release 3 (ECCOv4r3) 1992-2015
+#     time_units:                   days since 1992-01-01 00:00:00
+#     Conventions:                  CF-1.6
+#     Project:                      Estimating the Circulation and Climate of t...
+#     cdm_data_type:                Grid
+#     geospatial_lon_units:         degrees_east
+#     Metadata_Conventions:         CF-1.6, Unidata Dataset Discovery v1.0, GDS...
+#     no_data:                      NaNf
+#     geospatial_lat_units:         degrees_north
+#     product_time_coverage_end:    2015-12-31T12:00:00
+#     geospatial_vertical_min:      0
+#     nz:                           50
+#     geospatial_vertical_units:    meter
+#     geospatial_vertical_max:      6134.5
+#     date_created:                 Mon May 13 02:40:10 2019
+#     geospatial_lat_max:           89.739395
+#     geospatial_lat_min:           -89.873055
+#     nx:                           90
+#     ny:                           90
+#     geospatial_lon_max:           179.98691
+#     geospatial_lon_min:           -179.98895
+#     time_coverage_start:          2010-01-01T00:00:00
+#     time_coverage_end:            2011-01-01T00:00:00
 # ```
 #   
 # The `attrs` variable is a Python [dictionary object](https://www.python-course.eu/dictionaries.php) containing metadata or any auxilliary information.
 #   
 # Metadata is presented as a set of dictionary `key-value` pairs.  Here the `keys` are *description, A, B,  ... missing_value.* while the `values` are the corresponding text and non-text values.  
 #   
-# To see the metadata `value` associated with the metadata "Conventions" `key` we type:
+# To see the metadata `value` associated with the metadata `key` called "Conventions" we can print the value as follows:
 
-# In[6]:
-
-
-print ds.attrs['Conventions']
+# In[8]:
 
 
-#   The resulting "CF-1.6" tells us that ECCO NetCDF output conforms to the [**Climate and Forecast Conventions version 1.6**](http://cfconventions.org/).
-#   
+print (ds.attrs['Conventions'])
+
+
+# "CF-1.6" tells us that ECCO NetCDF output conforms to the [**Climate and Forecast Conventions version 1.6**](http://cfconventions.org/).  How convenient.  
 
 # ### Map of the `Dataset` object
 # 
-# Taking a big step back we can now imagine the `Dataset` object using the following diagram:
+# Now that we've completed our survey, we see that a `Dataset` is a really a kind of *container* comprised of (actually pointing to) many other objects.  
 # 
-# We see that a `Dataset` is a really *container* comprised of (actually pointing to) a set of other objects.  
+# + dims: A `dict` that maps dimension names (keys) with dimension lengths (values)
+# + coords: A `dict` that maps dimension names (keys such as **k, j, i**) with arrays that label each point in the dimension (values) 
+# + One or more *Data Variables* that are pointers to `DataArray` objects 
+# + attrs A `dict` that maps different attribute names (keys) with the attributes themselves (values).
 # 
-# + dims: A `dict` that maps dimension names with dimension lengths
-# + coords: A `dict` that maps dimension names (e.g,. **i1**, **i2**, **i3**) with arrays that label each point in the dimension 
-# + One or more `Data Variables` that are pointers to `DataArray` objects 
-# + attrs A `dict` that maps different attribute names with the attributes themselves.
-# 
-# ![DataArray-diagram](../figures/Dataset-diagram.png)
+# ![Dataset-diagram](../figures/Dataset-diagram.png)
 
-# ## The DataArray Object
+# ## The `DataArray` Object
 # 
-# It is worth looking at the `DataArray` object in more detail because these containers actually store the arrays that we will be using when analyzing ECCO output.  Please see the [xarray documentation on the DataArray object](http://xarray.pydata.org/en/stable/data-structures.html#dataarray) for more information.
+# It is worth looking at the `DataArray` object in more detail because `DataArrays` store the arrays that store the ECCO output.  Please see the [xarray documentation on the DataArray object](http://xarray.pydata.org/en/stable/data-structures.html#dataarray) for more information.
 # 
-# `DataArray` objects are actually very similar to `Dataset` objects.  Like `Dataset` objects they also contain dimensions, coordinates, and attributes.  The biggest difference is that they have a **name**, a string that identifies the name of the variable, and an array of **values**.  The **values** array is a [numpy array](https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.array.html).
+# `DataArrays` are actually very similar to `Datasets`.  They also contain dimensions, coordinates, and attributes.  The two main differences between `Datasets` and `DataArrays` is that `DataArrays` have a **name** (a string) and an array of **values**.  The **values** array is a [numpy n-dimensional array](https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.array.html), an `ndarray`.
 # 
-# ### Examining the `DataArray Object` contents
+# ### Examining the contents of a `DataArray` 
 # 
-# Let's examine the contents of one `DataArray` found in `ds`, `XC`:
+# Let's examine the contents of one of the coordinates `DataArrays` found in *ds*, *XC*.  
 
-# In[7]:
+# In[9]:
 
 
 ds.XC
@@ -258,7 +285,7 @@ ds.XC
 
 # ### Examining the `DataArray`
 # 
-# Fortunately, the layout of `DataArrays` is similar to that of `Datasets`.  Let's take acloser look at each element of `ds.XC`, starting from the top.
+# The layout of `DataArrays` is very similar to those of `Datasets`.  Let's examine each part of *ds.XC*, starting from the top.
 # 
 # #### 1. Object type
 # `<xarray.DataArray>`
@@ -267,57 +294,40 @@ ds.XC
 # 
 # > Note: You can also find the type of an object with the `type` command: `print type(ds.XC)`
 
+# In[10]:
+
+
+print (type(ds.XC))
+
+
 # #### 2. Object Name
 # `XC`
 # 
-# The top line also tells the name of this `DataArray`, `XC`.
-# 
+# The top line shows `DataArray` name, `XC`.
+
 # #### 3. Dimensions
-# `Dimensions:  (i2: 90, i3: 90)`  
+# `(tile: 13, j: 90, i: 90)`  
 # 
-# Unlike `ds`, `XC` only has two dimensions, **i2** and **i3**.  This makes sense since the longitude of the grid cell centers only vary with horizontal location and not depth.
-# 
-# #### 4. Array
+# Unlike *THETA*, *XC* does not have time or depth dimensions which makes sense since the longitude of the grid cell centers do not vary with time or depth.
+
+# #### 4. The `numpy` Array
 # ````
-# array([[-37.5     , -36.5     , -35.5     , ...,  49.5     ,  50.5     ,  51.5     ],
-#        [-37.5     , -36.5     , -35.5     , ...,  49.5     ,  50.5     ,  51.5     ],
-#        [-37.5     , -36.5     , -35.5     , ...,  49.5     ,  50.5     ,  51.5     ],
-#        ..., 
-#        [-37.730072, -37.178291, -36.597565, ...,  50.597565,  51.178291,
-#          51.730072],
-#        [-37.771988, -37.291943, -36.764027, ...,  50.764027,  51.291943,
-#          51.771988],
-#        [-37.837925, -37.44421 , -36.968143, ...,  50.968143,  51.44421 ,
-#          51.837925]])
+# array([[[-111.60647 , -111.303   , -110.94285 , ...,   64.791115,
+#            64.80521 ,   64.81917 ],
+#         [-104.8196  , -103.928444, -102.87706 , ...,   64.36745 ,
+#            64.41012 ,   64.4524  ],
+#         [ -98.198784,  -96.788055,  -95.14185 , ...,   63.936497,
+#            64.008224,   64.0793  ],
+#         ...,
 # ````
 # 
-# Unlike the `Dataset` object there are no *Data variables*.   Instead, we find an **array** of values.  Python prints out a small subset of the entire array.
+# In `Dataset` objects there are *Data variables*.  In `DataArray` objects we find `numpy` **arrays**.  Python prints out a subset of the entire array.  
 # 
-# `DataArrays`  store **only one** array while `DataSets` store one or more `DataArrays`.
+# > **Note**: `DataArrays` store **only one** array while `DataSets` can store **one or more** `DataArrays`.
 # 
-# #### 4. Coordinates
-# ```
-# Coordinates:
-#   i2       (i2) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
-#   i3       (i3) float64 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 ...
-# ```
-# 
-# We find two 1D arrays with coordinate labels for **i2** and **i3**.
-# 
-# #### 5. Attributes
-# ```
-# Attributes:
-#     long_name:  longitude
-#     units:      degrees_east
-# ```
-# 
-# The `XC` variable has a `long_name` (longitude) and units (degrees_east).  This metadata was loaded from the NetCDF file.
+# We access the `numpy` array by invoking the `.values` command on the `DataArray`.
 
-# ### Accessing the numpy array stored in `DataArrays`
-# 
-# To access the `numpy` array storing the values of the variable in the `DataArray` object we access its `values` field as follows,
-
-# In[8]:
+# In[11]:
 
 
 ds.XC.values
@@ -325,24 +335,86 @@ ds.XC.values
 
 # The array that is returned is a numpy n-dimensional array:
 
-# In[9]:
+# In[12]:
 
 
 type(ds.XC.values)
 
 
 # Being a numpy array, one can use all of the numerical operations provided by the numpy module on it.
+# 
+# 
 # > ** Note: ** You may find it useful to learn about the operations that can be made on numpy arrays. Here is a quickstart guide: 
 # https://docs.scipy.org/doc/numpy-dev/user/quickstart.html
 # 
-# We'll learn more about how to access the values of this array in a later tutorial.  For now it is sufficient to know where to find the arrays!
+# We'll learn more about how to access the values of this array in a later tutorial.  For now it is sufficient to know how to access the arrays!
+
+# #### 4. Coordinates
 # 
+# The dimensional coordinates (with the asterixes) are
+# ```
+# Coordinates:
+#   * j        (j) int32 0 1 2 3 4 5 6 7 8 9 10 ... 80 81 82 83 84 85 86 87 88 89
+#   * i        (i) int32 0 1 2 3 4 5 6 7 8 9 10 ... 80 81 82 83 84 85 86 87 88 89
+#   * tile     (tile) int32 0 1 2 3 4 5 6 7 8 9 10 11 12
+# ```
+# 
+# We find three 1D arrays with coordinate labels for **j**, **i**, and **tile**.
+
+# In[13]:
+
+
+ds.XC.coords
+
+
+# two other important coordinates here are `tile` and `time`
+
+# In[14]:
+
+
+print('tile: ')
+print(ds.tile.values)
+print('time: ')
+print(ds.time.values)
+
+
+# The file we loaded was `/nctiles_mean/THETA/THETA_2010.nc`, the 2010 monthly-mean potential temperature field.  Here the time coordinates are the center of the averaging periods.
+
+# #### 5. Attributes
+# ```
+# Attributes:
+#     units:          degrees_east
+#     long_name:      longitude at center of tracer cell
+#     standard_name:  longitude_at_c_location
+#     valid_range:    -180., 180.
+# ```
+# 
+# The `XC` variable has a `long_name` (longitude at center of tracer cell) and units (degrees_east) and other information.  This metadata was loaded from the NetCDF file.  The entire attribute dictionary is accessed using `.attrs`.
+
+# In[15]:
+
+
+ds.XC.attrs
+
+
+# In[16]:
+
+
+ds.XC.attrs['units']
+
+
+# In[17]:
+
+
+ds.XC.attrs['valid_range']
+
+
 # ### Map of the `DataArray` Object
 # 
-# The layout of `DataArray` objects can be visualized as follows:
+# The `DataArray` can be mapped out with the following diagram:
 # 
 # ![DataArray-diagram](../figures/DataArray-diagram.png)
 
-# ## Conclusion
+# ## Summary
 # 
-# Now you know the basics of the `Datasets` and `DataArrays` that will store the ECCO v4 model grid parameters and state estimate output variables.  Now that you are oriented, go back and take another look at the contents of the grid `ds` object that we originally loaded.  It should make a lot more sense now!
+# Now you know the basics of the `Dataset` and `DataArray` objects that will store the ECCO v4 model grid parameters and state estimate output variables.  Go back and take a look athe grid $ds$ object that we originally loaded.  It should make a lot more sense now!

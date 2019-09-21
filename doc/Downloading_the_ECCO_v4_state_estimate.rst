@@ -4,18 +4,26 @@ How to get the ECCO v4 State Estimate
 
 .. _in-ftp-site:
 
-The ECCO v4 r3 ftp site
-=======================
+ECCO v4 r3 on PO.DAAC drive and UT Austin FTP mirror
+====================================================
 
-The ECCO v4 r3 state estimate is hosted on ftp://ecco.jpl.nasa.gov/Version4/Release3/
+ECCOv4 output fields are provided as NetCDF files.  We have been working hard at improving  these NetCDF files so that they contain more useful metadata and variable descriptions, fewer extraneous fields, and have more consistent naming.
 
-The directory layout of the ftp site is described in the following document,
-ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_overview.pdf
+The Python examples in this tutorial are compatible with the ECCOv4 NetCDF grid files provided in the 'Release3_alt' directories:
+
+The ECCO v4 state estimate is now available in two places.
+
+1. PO.DAAC drive: https://ecco.jpl.nasa.gov/drive/files/Version4/ (po.daac drive, recommended)
+
+2. UT Austin FTP mirror: https://web.corral.tacc.utexas.edu/OceanProjects/ECCO/ECCOv4/
 
 
-.. danger::
-  For the **ECCO summer school** the file directories you will use will be different.  On *stampede2*, please refer to the  README file at  **/work/projects/aci/ECCO/community/ECCO/ECCOv4/Release3p1/README.txt**
+IMPORTANT: The NetCDF files in the ECCO Version 4 'Release 1', 'Release 2', and 'Release3' directories are not fully compatible with the tutorial examples and the ecco-v4-py library.  We may update these earlier releases to be compatible with the ecco-v4-py library in the future.  As of now, the 'Release3_alt' has the most up-to-date ECCO solution and file format.  These files can be found here:
 
+1. PO.DAAC drive: https://ecco.jpl.nasa.gov/drive/files/Version4/Release3_alt (po.daac drive, recommended)
+2. UT Austin FTP mirror: https://web.corral.tacc.utexas.edu/OceanProjects/ECCO/ECCOv4/Release3_alt
+
+Please see the ECCO website, ecco.jpl.nasa.gov, for udpates.
 
 .. _in-grid:
 
@@ -70,30 +78,9 @@ Monthly-averaged ocean, sea ice, and air-sea flux terms are in the subdirectory 
 Downloading the State Estimate
 ==============================
 
-There are many ways of downloading files from the ecco v4 r3 ftp site.   
+ECCO v4 solutions are now hosted on the PO.DAAC drive.  This service is very useful because one can mount the ECCO file directory on PO.DAAC drive to your local machine.  
 
-On windows machine, I typically use an ftp client.
-
-On linux machines, I use *wget*.  To download the model grid, and monthly-averaged sea surface height, ocean bottom pressure, temperature, and salinity fields use the following:
-
-.. code-block:: bash
-
-    wget -r ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_grid/
-    wget -r ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/SSH/
-    wget -r ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/OBP/
-    wget -r ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/THETA/
-    wget -r ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/SALT/
-
-
-On osx machines, use the *curl* command:
-
-.. code-block:: bash
-
-    curl ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_grid/
-    curl ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/SSH/
-    curl ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/OBP/
-    curl ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/THETA/
-    curl ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/SALT/
-
+You can even use wget to download files through PO.DAAC drive.  See the ECCO website for more details:
+https://ecco.jpl.nasa.gov/products/latest/
 
 Take note of the location of your files.  You'll need to specify their path location to load them in the tutorial.

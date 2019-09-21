@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # Example calculations with scalar quantities
@@ -19,45 +19,72 @@
 
 
 import numpy as np
-from copy import deepcopy 
-import xarray as xr
 import sys
-import matplotlib.pylab as plt
-import numpy as np
+import xarray as xr
+from copy import deepcopy 
+import matplotlib.pyplot as plt
+get_ipython().run_line_magic('matplotlib', 'inline')
 import warnings
-from mpl_toolkits.basemap import Basemap
 warnings.filterwarnings('ignore')
-
-get_ipython().magic(u'matplotlib inline')
-sys.path.append('/Users/ifenty/git_repo_mine/ECCOv4-py')
-import ecco_v4_py as ecco
 
 
 # In[2]:
 
 
-# Set this to be the directory for your fields
-ECCO_dir = '/Users/ifenty/ECCOv4/R3'
+## Import the ecco_v4_py library into Python
+## =========================================
 
-# Load all tiles of the LLC90 Grid    
-data_dir= ECCO_dir + '/nctiles_grid/'    
-var = 'GRID'
-var_type = 'grid'
+## -- If ecco_v4_py is not installed in your local Python library, 
+##    tell Python where to find it.  For example, if your ecco_v4_py
+##    files are in /Users/ifenty/ECCOv4-py/ecco_v4_py, then use:
 
-grid_all_tiles = ecco.load_all_tiles_from_netcdf(data_dir, 
-                                                 var, var_type,
-                                                 less_output=True)
+sys.path.append('/Users/ifenty/ECCOv4-py')
+import ecco_v4_py as ecco
 
-# Load all tiles of SSH
-data_dir= ECCO_dir + '/nctiles_monthly/SSH/'    
-var = 'SSH'
-var_type = 'c'
-ssh_all_tiles = ecco.load_all_tiles_from_netcdf(data_dir, 
-                                                var, var_type,
-                                                less_output=True)
 
-# Merge the grid parameters and SSH Datasets
-v4 = xr.merge([ssh_all_tiles,grid_all_tiles])
+# In[3]:
+
+
+## Set top-level file directory for the ECCO NetCDF files
+## =================================================================
+# base_dir = '/home/username/'
+base_dir = '/Users/ifenty/ECCOv4-release'
+
+## define a high-level directory for ECCO fields
+ECCO_dir = base_dir + '/Release3_alt'
+
+
+# In[4]:
+
+
+## Load the model grid
+grid_dir= ECCO_dir + '/nctiles_grid/'
+
+ecco_grid = ecco.load_ecco_grid_nc(grid_dir, k_subset=[0])
+
+## Load one year of 2D daily data, SSH, SST, and SSS 
+data_dir= ECCO_dir + '/nctiles_monthly'
+
+ecco_vars = ecco.recursive_load_ecco_var_from_years_nc(data_dir,                                            vars_to_load=['SSH','THETA'],                                            years_to_load = range(2008,2014),                                            k_subset=[0])
+## Merge the ecco_grid with the ecco_vars to make the ecco_ds
+ecco_ds = xr.merge((ecco_grid , ecco_vars))
+
+# load the ecco_ds into memory (xarray's Dask is not helpful when we only need to load a few fields)
+ecco_ds.load()
+
+
+# In[5]:
+
+
+print(ecco_ds.time[0].values)
+print(ecco_ds.time[-1].values)
+
+
+# In[6]:
+
+
+SST = ecco_ds.THETA.isel(k=0)
+SST_0=ecco_ds.THETA.squeeze().isel(time=0)
 
 
 # ## Sea surface height
@@ -76,116 +103,108 @@ v4 = xr.merge([ssh_all_tiles,grid_all_tiles])
 # 
 # #### Part 1: $A_{\text{global ocean}}$
 # 
-# Let's start on the simplest quantity, the global ocean surface area $A_{\text{global ocean}}$.  Our calculation uses $SSH$ which is a 'c' point variable.  The surface area of tracer grid cells is provided by the model grid parameter $RAC$.  $RAC$ is a two-dimensional field that is defined over all model grid points, including land.  To calculate the total ocean surface area we therefore need to ignore the area contributions from land. The wet/dry mask at 'c' points is provided by the $land_c$ variable: 1 for wet cells, 0 for dry cells.  Because this wet/dry mask varies with depth, $land_c$ is three-dimensional.
+# Let's start on the simplest quantity, the global ocean surface area $A_{\text{global ocean}}$.  Our calculation uses *SSH* which is a 'c' point variable.  The surface area of tracer grid cells is provided by the model grid parameter *rA*.  *rA* is a two-dimensional field that is defined over all model grid points, including land.  
 # 
-# To illustrate the depth dependence of $land_c$ here are the wet/dry masks for the uppermost grid cell (centered at z=5m) and the 35th grid cell in teh vertical (centered at z=1634 m):
+# To calculate the total ocean surface area we need to ignore the area contributions from land. 
+# 
+# We will first construct a 3D mask that is True for model grid cells that are wet and False for model grid cells that are dry cells.  
 
-# In[3]:
+# In[7]:
 
 
-# select the uppermost grid cell, k = 1
-k_level = 1
-ecco.plot_tiles(v4.land_c.sel(k=k_level),layout='latlon',
-                rotate_to_latlon = True, user_cmap='ocean',
-                cmin=0, cmax=1.05,tile_labels=False, cbar=True);
+# ocean_mask is ceiling of hFacC which is 0 for 100% dry cells and
+# 0 > hFacC >= 1 for grid cells that are at least partially wet
+
+# hFacC is the fraction of the thickness (h) of the grid cell which
+# is wet.  we'll consider all hFacC > 0 as being a wet grid cell
+# and so we use the 'ceiling' function to make all values > 0 equal to 1.
+
+ocean_mask = np.ceil(ecco_ds.hFacC)
+ocean_mask = ocean_mask.where(ocean_mask==1, np.nan)
+
+
+# In[8]:
+
+
+# the resulting ocean_mask variable is a 2D DataArray because we only loaded 1 vertical level of the model grid
+print(type(ocean_mask))
+print((ocean_mask.dims))
+
+
+# In[9]:
+
+
+plt.figure(figsize=(12,5), dpi= 90)
+
+ecco.plot_tiles(ocean_mask.isel(k=0),layout='latlon', rotate_to_latlon=True)
 
 # select out the model depth at k=1, round the number and convert to string.
-z = np.array_str((np.round(v4.RC.sel(k=k_level).values)))
-
-plt.suptitle('Wet/dry mask for k = ' + str(k_level) + ', z = ' + z + 'm');
-
-
-# In[4]:
+z = str((np.round(ecco_ds.Z.values[0])))
+plt.suptitle('Wet (1) /dry (0) mask for k=' + str(0) + ',   z=' + z + 'm');
 
 
-# select the 35th grid cell, k = 35
-k_level = 35
-ecco.plot_tiles(v4.land_c.sel(k=k_level),layout='latlon',
-                rotate_to_latlon = True, user_cmap='ocean',
-                cmin=0, cmax=1.05,tile_labels=False, cbar=True);
+# To calculate $A_{\text{global ocean}}$ we must apply the surface wet/dry mask to $rA$.  
 
-z = np.array_str((np.round(v4.RC.sel(k=k_level).values)))
-plt.suptitle('Wet/dry mask for k = ' + str(k_level) + ', z = ' + z + 'm');
-
-
-# To calculate $A_{\text{global ocean}}$ we must apply the surface wet/dry mask to $RAC$.  
-# 
-# There are three alternative ways of selecting the surface layer from $land_c$.  First, note that $k$ is the second dimension of $land_c$:
-
-# In[5]:
-
-
-v4.land_c.dims
-
-
-# In[6]:
+# In[10]:
 
 
 # Method 1: the array index method, []
 #           select land_c at k index 0
-total_ocean_area = np.sum(v4.RAC*v4.land_c[:,0,:,:])
-
-# Method 2: the coordinate index method, isel() 
-#           select land_c at k index 0
-total_ocean_area_B = np.sum(v4.RAC*v4.land_c.isel(k=0))
-
-# Method 3: the coordinate label method, sel()
-#           select land_c at k coordinate label 1 
-total_ocean_area_C = np.sum(v4.RAC*v4.land_c.sel(k=1))
-
+total_ocean_area = np.sum(ecco_ds.rA*ocean_mask[0,:])
 
 # these three methods give the same numerical result.  Here are 
 # three alternative ways of printing the result
-print 'total ocean surface area (m^2) ', total_ocean_area.values
-print 'total ocean surface area (km^2)', total_ocean_area_B.values/1e6
+print ('total ocean surface area ( m^2) %d  ' % total_ocean_area.values)
+print ('total ocean surface area (km^2) %d ' % (total_ocean_area.values/1.0e6))
 
 # or in scientific notation with 2 decimal points
-print 'total ocean surface area (km^2) ' + '%.2E' % (total_ocean_area_C.values/1e6)
+print ('total ocean surface area (km^2) %.2E' % (total_ocean_area.values/1.0e6))
 
 
 # This compares favorable with *Global surface area of Earth's Oceans : approx 3.60 x $10^8$ $km^2$* from https://hypertextbook.com/facts/1997/EricCheng.shtml
 # 
 # ##### Multiplication of DataArrays
-# You probably noticed that the multiplication of grid cell area with the land mask was done element by element.  One useful feature of `DataArrays` is that their dimensions are automatically lined up when doing binary operations.  Also, because $v4.RAC$ and $v4.land_c$ are both `DataArrays`, their inner product and their sum are also $total_ocean_area$ variables are also DataArrays.  $land_c$ had a $k$ dimension and $RAC$ did not.  The result of their product inherits the $k$ dimension:*
+# You probably noticed that the multiplication of grid cell area with the land mask was done element by element.  One useful feature of `DataArrays` is that their dimensions are automatically lined up when doing binary operations.  Also, because *rA* and *ocean_mask* are both `DataArrays`, their inner product and their sums are also `DataArrays`.  
+# 
+# > Note:: *ocean_mask* has a depth (**k**) dimension while *rA* does not (horizontal model grid cell area does not change as a function of depth in ECCOv4).  As a result, when *rA* is multiplied with *ocean_mask* `xarray` **broadcasts** *rA* to all **k** levels.  The resulting matrix  inherits the **k** dimension from *ocean_mask*.
 # 
 # ##### Another way of summing over `numpy` arrays
 # 
-# As $RAC$ and $land_c$ both store `numpy` arrays, you can also calculate the sum of their product by invoking the `.sum()` command inherited in all `numpy arrays`:
+# As *rA* and ocean both store `numpy` arrays, you can also calculate the sum of their product by invoking the `.sum()` command inherited in all `numpy arrays`:
 
-# In[7]:
+# In[11]:
 
 
-total_ocean_area_D = (v4.RAC*v4.land_c.sel(k=1)).values.sum()
-print 'total ocean surface area (km^2) ' + '%.2E' % (total_ocean_area_C.values/1e6)
+total_ocean_area = (ecco_ds.rA*ocean_mask).isel(k=0).sum()
+print ('total ocean surface area (km^2) ' + '%.2E' % (total_ocean_area.values/1e6))
 
 
 # #### Part2 : $SSH_{\text{global mean}}(t)$
 # 
-# The global mean SSH at each $t$ is given by,
+# The global mean *SSH* at each $t$ is given by,
 # 
 # $$SSH_{\text{global mean}}(t) = \frac{\sum_{i} SSH(i,t) \,\, A(i)}{A_{\text{global ocean}}}$$
 # 
 # One way of calculating this is to take advantage of `DataArray` coordinate labels and use its *.sum()* functionality to explicitly specify which dimensions to sum over:
 
-# In[8]:
+# In[12]:
 
 
 # note no need to multiple RAC by land_c because SSH is nan over land
-SSH_global_mean = (v4.SSH*v4.RAC).sum(dim=['i','j','tile'])/total_ocean_area
-SSH_global_mean
+SSH_global_mean = (ecco_ds.SSH*ecco_ds.rA).sum(dim=['i','j','tile'])/total_ocean_area
 
 
 # Alternatively we can do the summation over the three non-time dimensions.  The time dimension of SSH is along the first dimension (axis) of the array, axis 0.
 
-# In[9]:
+# In[13]:
 
 
 # note no need to multiple RAC by land_c because SSH is nan over land
-SSH_global_mean = np.sum(v4.SSH*v4.RAC,axis=(1,2,3))/total_ocean_area
-SSH_global_mean
+SSH_global_mean = np.sum(ecco_ds.SSH*ecco_ds.rA,axis=(1,2,3))/total_ocean_area
+SSH_global_mean = SSH_global_mean.compute()
 
 
-# Even though $SSH$ has 3 dimensions (time, j, i) and $RAC$ and $land_c.sel(k=1)$ have 2 (j,i), we can mulitply them and the element-by-element multiplication occurs over their common dimension.
+# Even though *SSH* has 3 dimensions (time, tile, j, i) and *rA* and *ocean_mask.isel(k=0)* have 2 (j,i), we can mulitply them. With `xarray` the element-by-element multiplication occurs over their common dimension.
 # 
 # The resulting $SSH_{global-mean}$ `DataArray` has a single dimension, time.
 # 
@@ -193,8 +212,10 @@ SSH_global_mean
 # 
 # Before we plot the global mean sea level curve let's remove its time-mean to make it global mean sea level anomaly (the absolute value has no meaning here anyway).
 
-# In[10]:
+# In[14]:
 
+
+plt.figure(figsize=(8,4), dpi= 90)
 
 # Method 1: .mean() method of `DataArrays`
 SSH_global_mean_anomaly = SSH_global_mean - SSH_global_mean.mean()
@@ -202,36 +223,39 @@ SSH_global_mean_anomaly = SSH_global_mean - SSH_global_mean.mean()
 # Method 2: numpy's `mean` method 
 SSH_global_mean_anomaly = SSH_global_mean - np.mean(SSH_global_mean)
 
-plt.figure(figsize=(8,5), dpi= 90)
-plt.plot(v4.tim, SSH_global_mean_anomaly)
+SSH_global_mean_anomaly.plot()
 plt.grid()
-plt.title('ECCO v4r3 Global Mean Sea Level Anomaly 1992-2015');
+plt.title('ECCO v4r3 Global Mean Sea Level Anomaly, 2008-2014');
 plt.ylabel('m');
-plt.xlabel('year')
+plt.xlabel('year');
 
 
-# *GMSL is not well constrained by observations prior to the start of TOPEX/Poseidon data collection in late 1992.*
-# 
+# In[15]:
+
+
+np.max(SSH_global_mean.values)
+
+
 # ### Mean Dynamic Topography
 # 
 # Mean dynamic topography is calculated as follows,
 # 
-# $$MDT(i) = \frac{\sum_{t} SSH(i,t) - SSH_{\text{global mean}}(t)}{nt} $$
+# $MDT(i) = \frac{\sum_{t} SSH(i,t) - SSH_{\text{global mean}}(t)}{nt} $
 # 
 # Where $nt$ is the number of time records. 
 # 
-# For $MDT$ we presere the spatial dimensions. Summation and averaging are over the time dimensions (axis 0).
+# For *MDT* we presere the spatial dimensions. Summation and averaging are over the time dimensions (axis 0).
 
-# In[11]:
+# In[16]:
 
 
 ## Two equivalent methods
 
 # Method 1, specify the axis over which to average
-MDT = np.mean(v4.SSH - SSH_global_mean,axis=0)
+MDT = np.mean(ecco_ds.SSH - SSH_global_mean,axis=0)
 
 # Method 2, specify the coordinate label over which to average
-MDT_B = (v4.SSH - SSH_global_mean).mean(dim=['time'])
+MDT_B = (ecco_ds.SSH - SSH_global_mean).mean(dim=['time'])
 
 # which can be verified using the '.equals()' method to compare Datasets and DataArrays
 print(MDT.equals(MDT_B))
@@ -239,7 +263,7 @@ print(MDT.equals(MDT_B))
 
 # As expected, MDT has preserved its spatial dimensions:
 
-# In[12]:
+# In[17]:
 
 
 MDT.dims
@@ -247,230 +271,187 @@ MDT.dims
 
 # Before plotting the MDT field remove its spatial mean since its spatial mean conveys no dynamically useful information.  
 
-# In[13]:
-
-
-MDT_no_spatial_mean = MDT - MDT*v4.RAC/total_ocean_area
-
-
-# In[14]:
-
-
-plt.figure(figsize=(15,7))
-my_cmin =-1.6; my_cmax=1.6;  my_cint=.1
-my_num_levels = len(np.arange(my_cmin,my_cmax+my_cint, my_cint))
-
-f, ax, m = ecco.plot_tiles_proj(v4.XC, v4.YC, MDT_no_spatial_mean,
-                                plot_type='contourf', 
-                                cbar=True, cbar_label='meters',
-                                lon_0 = 115, 
-                                cmin=my_cmin, cmax=my_cmax, 
-                                num_levels = my_num_levels)
-
-plt.title('ECCO v4r3 Mean Dynamic Topography 1992-2015');
-
-
-# ### Spatial variations of sea level linear trends  
-# 
-# To calculate the linear trend for the each model point we will rely on the `polyfit` function of `numpy`.  First, define a time variable in years for SSH.
-
-# In[15]:
-
-
-time_years = v4.SSH.time.values /12
-
-
-# Next, reshape the four dimensional SSH field into two dimensions, time and space (t, i)
-
-# In[16]:
-
-
-ssh_tmp = np.copy(np.reshape(v4.SSH.values,(288, 13*90*90)))
-# where 288 is the number of time records in ECCO v4 r3 [1992-2015] and
-# 13*90*90 is the number of surface grid points, 13 tiles each of 90x90 cells
-
-
-# Now set all $SSH$ values that are 'nan' to zero because the polynominal fitting
-# routine can't handle nans,
-
-# In[17]:
-
-
-ssh_tmp[np.isnan(ssh_tmp)]=0.0
-
-
-# Do the polynomial fitting, https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.polyfit.html
-
 # In[18]:
 
 
-ssh_slope, ssh_intercept = np.polyfit(time_years, ssh_tmp , 1)
-    
-# and reshape the slope result back to 13x90x90    
-ssh_slope = np.reshape(ssh_slope, (13, 90,90))
+MDT_no_spatial_mean = MDT - MDT*ecco_ds.rA/total_ocean_area
 
 
 # In[19]:
 
 
-plt.figure(figsize=(15,7))
-
-my_cmin =-10; my_cmax=10;   my_cint=.5
-my_num_levels = len(np.arange(my_cmin,my_cmax+my_cint, my_cint))
-    
-f, ax, m = ecco.plot_tiles_proj(v4.XC, v4.YC, ssh_slope*1e3, # from m/yr to mm/year
-                                plot_type='contourf', 
-                                cbar=True, cbar_label='mm/year',
-                                lon_0 = 115, cmin=my_cmin, cmax=my_cmax, 
-                                num_levels = my_num_levels)
-
-plt.title('ECCO v4r3 Global Mean Sea Level Trend [1992-2015]');
+MDT_no_spatial_mean.shape
 
 
-# ### Spatial variations of sea level linear trends over two epochs 
+# In[34]:
+
+
+plt.figure(figsize=(12,5), dpi= 90)
+
+# mask land points to Nan
+MDT_no_spatial_mean = MDT_no_spatial_mean.where(ocean_mask[0,:] !=0)
+
+ecco.plot_proj_to_latlon_grid(ecco_ds.XC,                               ecco_ds.YC,                               MDT_no_spatial_mean*ocean_mask,                               user_lon_0=0,                              plot_type = 'pcolormesh',                               show_colorbar=True,                              dx=2,dy=2);
+
+plt.title('ECCO v4r3 Mean Dynamic Topography [m] 2008-2013');
+
+
+# ### Spatial variations of sea level linear trends  
 # 
-# Now we will repeat the last exercise but split the analysis into two 12 year epochs, Jan 1992 to 2003 and Jan 2004 to Dec 2015.
-
-# In[20]:
-
-
-# Epoch 1, Jan 1992 to Dec 2003
-time_years_1 = v4.SSH.time[0:144].values /12
-# Epoch 2, Jan 2004 to Dec 2015
-time_years_2 = v4.SSH.time[144:289].values /12
-
+# To calculate the linear trend for the each model point we will use on the `polyfit` function of `numpy`.  First, define a time variable in years for SSH.
 
 # In[21]:
 
 
-# np.arange makes arrays from (a, b-1).  So np.arange(1,145) makes an array from 1, 2.. 144
-
-# select out time coordinates with labels from 1 to 144
-ssh_tmp_1 = np.copy(np.reshape(v4.SSH.sel(time=np.arange(1,145)).values,(144, 13*90*90)))
-# select out time coordinates with labels from 145 to 288
-ssh_tmp_2 = np.copy(np.reshape(v4.SSH.sel(time=np.arange(145,289)).values,(144, 13*90*90)))
+ecco_ds.SSH.values.shape
 
 
 # In[22]:
 
 
-# set nans to zero
-ssh_tmp_1[np.isnan(ssh_tmp_1)]=0.0
-ssh_tmp_2[np.isnan(ssh_tmp_2)]=0.0
+ssh_flat = np.reshape(ecco_ds.SSH.values,[72, 13*90*90])
+ssh_flat.shape
 
 
 # In[23]:
 
 
-# calculate slopes
-ssh_slope_1, ssh_intercept_1 = np.polyfit(time_years_1, ssh_tmp_1, 1)
-ssh_slope_2, ssh_intercept_2 = np.polyfit(time_years_2, ssh_tmp_2, 1)
-    
-# and reshape the slopes arrays back to 13x90x90    
-ssh_slope_1 = np.reshape(ssh_slope_1, (13, 90,90))
-ssh_slope_2 = np.reshape(ssh_slope_2, (13, 90,90))
+(ecco_ds.time[0]- ecco_ds.time[1])/86400e9
 
 
 # In[24]:
 
 
-# Plot Epoch 1
-plt.figure(figsize=(15,7))
-my_cmin =-13; my_cmax=13;   my_cint=.5
-my_num_levels = len(np.arange(my_cmin,my_cmax+my_cint, my_cint))    
-f, ax, m = ecco.plot_tiles_proj(v4.XC, v4.YC, ssh_slope_1*1e3,
-                                plot_type='contourf',  
-                                cbar=True, cbar_label='mm/year',
-                                lon_0 = 115, cmin=my_cmin, cmax=my_cmax, 
-                                num_levels = my_num_levels)
-plt.title('ECCO v4r3 Global Mean Sea Level Trend [1992-2003]');
+days_since_first_record = ((ecco_ds.time - ecco_ds.time[0])/(86400e9)).astype(int)
+days_since_first_record
 
+
+# Next, reshape the four dimensional SSH field into two dimensions, time and space (t, i)
+
+# Now set all $SSH$ values that are 'nan' to zero because the polynominal fitting
+# routine can't handle nans,
 
 # In[25]:
 
 
-# Plot Epoch 2
-plt.figure(figsize=(15,7))
-my_cmin =-13; my_cmax=13;   my_cint=.5
-my_num_levels = len(np.arange(my_cmin,my_cmax+my_cint, my_cint))
-f, ax, m = ecco.plot_tiles_proj(v4.XC, v4.YC, ssh_slope_2*1e3, 
-                                plot_type='contourf', 
-                                cbar=True, cbar_label='mm/year',
-                                lon_0 = 115, cmin=my_cmin, cmax=my_cmax, 
-                                num_levels = my_num_levels)
-plt.title('ECCO v4r3 Global Mean Sea Level Trend [2004-2015]');
+ssh_flat[np.isnan(ssh_flat)]=0.0
+ssh_flat.shape
 
 
-# ## Regional calculations with THETA
+# Do the polynomial fitting, https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.polyfit.html
 
 # In[26]:
 
 
-# Load all tiles of THETA
-data_dir= ECCO_dir + '/nctiles_monthly/THETA/'    
-var = 'THETA'
-var_type = 'c'
-theta_all_tiles = ecco.load_all_tiles_from_netcdf(data_dir, 
-                                                var, var_type,
-                                                less_output=True)
-# Merge the grid parameters and SSH Datasets
-v4 = xr.merge([theta_all_tiles,v4])
+# slope is in m / day
+ssh_slope, ssh_intercept = np.polyfit(days_since_first_record, ssh_flat, 1)
+
+print(ssh_slope.shape)
+
+# and reshape the slope result back to 13x90x90    
+ssh_slope = np.reshape(ssh_slope, (13, 90,90))
+
+# mask 
+ssh_slope_masked = np.where(ocean_mask[0,:] > 0, ssh_slope, np.nan)
+
+# convert from m / day to mm/year
+ssh_slope_mm_year = ssh_slope_masked*365*1e3
 
 
 # In[27]:
 
 
-SST = v4.THETA.sel(k=1)
+plt.figure(figsize=(12,5), dpi= 90)
+
+
+ecco.plot_proj_to_latlon_grid(ecco_ds.XC,                               ecco_ds.YC,                               ssh_slope_mm_year,                               user_lon_0=-66,                              plot_type = 'pcolormesh',                               show_colorbar=True,                              dx=2,dy=2, cmin=-15, cmax=15)
+
+plt.title('ECCO v4r3 Global Mean Sea Level Trend 2008 - 2013 [mm/yr]');
 
 
 # In[28]:
 
 
-lat_bounds = np.logical_and(v4.YC >= -5, v4.YC <= 5)
-lon_bounds = np.logical_and(v4.XC >= -170, v4.XC <= -120)
+((ssh_slope_mm_year*ecco_ds.rA)/(ecco_ds.rA*ocean_mask).sum()).sum()
 
-SST_masked=SST.where(np.logical_and(lat_bounds, lon_bounds));
 
+# ## Regional calculations with THETA
 
 # In[29]:
 
 
-# Plot Epoch 1
-plt.figure(figsize=(15,7))
-#my_cmin =1; my_cmax=1;   my_cint=.1
-#my_num_levels = len(np.arange(my_cmin,my_cmax+my_cint, my_cint))    
+lat_bounds = np.logical_and(ecco_ds.YC >= -5, ecco_ds.YC <= 5)
+lon_bounds = np.logical_and(ecco_ds.XC >= -170, ecco_ds.XC <= -120)
 
-f, ax, m = ecco.plot_tiles_proj(v4.XC, v4.YC, SST_masked.sel(time=1),
-                                plot_type='contourf',  
-                                cbar=True, cbar_label='mm/year',
-                                lon_0 = 35)
-
-plt.title('Jan 1992 SST in nino 3.4 box');
+SST = ecco_ds.THETA.isel(k=0)
+SST_masked=SST.where(np.logical_and(lat_bounds, lon_bounds))
 
 
 # In[30]:
 
 
-# Create the same mask for the grid cell area
-RAC_masked=v4.RAC.where(np.logical_and(lat_bounds, lon_bounds));
+plt.figure(figsize=(12,5), dpi= 90)
 
-# Calculate the 
-SST_masked_mean=(SST_masked*RAC_masked).sum(dim=['tile','j','i'])/np.sum(RAC_masked)
+ecco.plot_proj_to_latlon_grid(ecco_ds.XC,                               ecco_ds.YC,                               SST_masked.isel(time=0),                              user_lon_0 = -66,                              show_colorbar=True);
+
+plt.title('SST in nino 3.4 box: \n %s ' % str(ecco_ds.time[0].values));
 
 
 # In[31]:
 
 
+# Create the same mask for the grid cell area
+rA_masked=ecco_ds.rA.where(np.logical_and(lat_bounds, lon_bounds));
+
+# Calculate the area-weighted mean in the box
+SST_masked_mean=(SST_masked*rA_masked).sum(dim=['tile','j','i'])/np.sum(rA_masked)
+
+# Substract the temporal mean from the area-weighted mean to get a time series
 SST_nino_34_anom = SST_masked_mean - np.mean(SST_masked_mean)
+SST_nino_34_anom
+
+
+# ### Load up the Nino 3.4 index values from ESRL
+
+# In[32]:
+
+
+# https://www.esrl.noaa.gov/psd/gcos_wgsp/Timeseries/Nino34/
+# https://www.esrl.noaa.gov/psd/gcos_wgsp/Timeseries/Data/nino34.long.anom.data
+# NINA34
+# 5N-5S 170W-120W 
+# HadISST 
+#  Anomaly from 1981-2010
+#  units=degC
+
+nino34_2008_2013 =          [24.79 ,  25.07 ,  26.09 ,  26.88 , 27.22 ,  27.24 , 27.19 , 26.83 ,  26.47 ,           26.43 ,  26.29 ,  25.69 ,  25.58 , 26.05 ,  26.54 , 27.52 , 28.04 ,  28.17 ,  27.91 ,           27.49 ,  27.43 ,  27.69 ,  28.15 , 28.40 ,  28.00 , 27.94 , 28.33 ,  28.33 ,  27.72 ,           27.07 ,  26.34 ,  25.55 ,  25.19 , 25.08 ,  25.08 , 24.95 , 24.88 ,  25.50 ,  26.27 ,           27.03 ,  27.34 ,  27.43 ,  27.00 , 26.22 ,  25.99 , 25.81 , 25.56 ,  25.54 ,  25.65 ,           26.15 ,  26.78 ,  27.48 ,  27.69 , 27.82 ,  27.66 , 27.54 , 27.19 ,  26.96 ,  26.98 , 26.45 ,           26.16 ,  26.36 ,  27.12 ,  27.69 , 27.59 ,  27.36 , 26.94 , 26.59 ,  26.66 ,  26.49 , 26.64  , 26.50]
+
+
+# ### Plot the ECCOv4r3 and ESRL nino 3.4 index
+
+# In[33]:
+
 
 plt.figure(figsize=(8,5), dpi= 90)
-plt.plot(v4.tim, SST_nino_34_anom)
-plt.grid()
+plt.plot(SST_masked.time,SST_nino_34_anom - SST_nino_34_anom.mean(),'ro-')
+plt.plot(SST_masked.time, nino34_2008_2013 - np.mean(nino34_2008_2013),'kx-')
 plt.title('ECCO v4r3 nino 3.4 SST Anomaly');
+plt.legend(('ECCO','ESRL'))
 plt.ylabel('deg C');
 plt.xlabel('year');
+plt.grid()
 
+
+# Wow, it's almost like SST is an easy measurement for ECCO to fit!
 
 # ## Conclusion
 # 
-# You now know how to do some basic calculations with scalar quantities!
+# You should now be familiar with doing some doing calculations using scalar quantities.
+# 
+# ### Suggested exercises
+# 
+# 1. Create the SSH time series from 1992-2015
+# 2. Create the global mean sea level trend (map) from 1992-2015
+# 3. Create the global mean sea level trend (map) for two epochs 1992-2003, 2003-2015
+# 4. Compare other nino indices
+# 

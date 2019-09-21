@@ -14,10 +14,11 @@ ECCO Version 4 Release 3 is the most recent edition of the
 global ocean state estimate and estimation system described by Forget et al. (2015b, 2016).  
 
 A brief synopsis describing Release 3 can be found here:  
-ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_estimation_synopsis.pdf
+
+https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/doc/v4r3_estimation_synopsis.pdf
 
 A high-level analysis of the state estimate can be found here:
-ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_overview_plots.pdf
+https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/doc/v4r3_overview_plots.pdf
 
 Relation to other ocean reanalyses
 ==================================
@@ -38,5 +39,5 @@ The ECCO ocean reanalysis system is a mature, state-of-the-art data tool for syn
 By simultaneously integrating numerous diverse and heterogeneous data streams into the dynamically-consistent framework of the physical model we make optimal use of the data.  Users of the ECCO reanalysis are not only provided a comprehensive description of the Earth’s changing ocean and sea-ice states but also information about the underlying physical processes responsible for driving those changes.
 
 For a list of the input data used to contrain the ECCO Version 4 Release 3 state estimate see:
-ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/v4r3_input_data.pdf
 
+https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/doc/v4r3_input_data.pdf

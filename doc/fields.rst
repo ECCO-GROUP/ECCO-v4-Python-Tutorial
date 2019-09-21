@@ -33,13 +33,13 @@ The Cartesian (x,y) coordinates of llc tiles do not coorespond to longitude and 
 Available fields on the llc90 grid
 ----------------------------------
 
-*monthly-averaged ocean and sea-ice fields*: ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly/README
+*monthly-averaged ocean and sea-ice fields*: https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/nctiles_monthly/README
 
-*monthly-snapshot ocean and sea-ice fields*: ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_monthly_snapshots/README
+*monthly-snapshot ocean and sea-ice fields*: https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/nctiles_monthly_snapshots/README
 
-*daily-averaged ocean and sea-ice fields*: ftp://ecco.jpl.nasa.gov/Version4/Release3/nctiles_daily/README
+*daily-averaged ocean and sea-ice fields*: https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/nctiles_daily/README
 
-*6-hourly atmosphere fields*: ftp://ecco.jpl.nasa.gov/Version4/Release3/input_forcing/README
+*6-hourly atmosphere fields*: https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/input_forcing/README
 
 
 *interpolated* 0.5° x 0.5° latitude-longitude grid
@@ -50,7 +50,7 @@ Select monthly-average fields from the *native* lat-lon-cap model output have be
 Available fields on the 0.5° x 0.5° latitude-longitude grid
 -----------------------------------------------------------
 0.5° x 0.5° monthly-averaged ocean, sea-ice, and atmosphere fields: 
-ftp://ecco.jpl.nasa.gov/Version4/Release3/interp_monthly/README
+https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/interp_monthly/README
 
 
 *******************************************
@@ -64,6 +64,6 @@ Custom output
 *************
 
 Because the state estimate fields are the output from a free-running ocean model, users can re-run the model to generate custom output on the native lat-lon-cap model grid.  Instructions for doing so are provided here:
-ftp://ecco.jpl.nasa.gov/Version4/Release3/doc/ECCOv4r3_reproduction.pdf
+https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/doc/ECCOv4r3_reproduction.pdf
 
 

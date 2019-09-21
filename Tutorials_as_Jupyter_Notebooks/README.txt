@@ -13,29 +13,30 @@ ECCO Data Structures
 
 Input/Output, Data Structure Manipulation
 ==========================================
-3.   ECCO_v4_Loading_ECCO_NetCDF_state_estimate_and_model_grid_fields.ipynb
-4.   ECCO_v4_Combining_Multiple_Datasets
-5.   ECCO_v4_Saving_Datasets_and_DataArrays_to_NetCDF 
+3.   ECCO_v4_Loading_the_ECCOv4_native_model_grid_parameters
+4.   ECCO_v4_Loading_the_ECCOv4_state_estimate_fields_on_the_native_model_grid
+5.   ECCO_v4_Combining_Multiple_Datasets
+6.   ECCO_v4_Saving_Datasets_and_DataArrays_to_NetCDF 
 
 
 Operating on Data Variables
-==========================================
-6.   ECCO_v4_Accessing_and_Subsetting_Variables
-7.   ECCO_v4_Operating_on_Numpy_Arrays
+=========================================
+7.   ECCO_v4_Accessing_and_Subsetting_Variables
+8.   ECCO_v4_Operating_on_Numpy_Arrays
 
 Plotting
 ==========================================
-8.   ECCO_v4_Plotting_Tiles
+9.   ECCO_v4_Plotting_Tiles
 
 Scalar Calculations
 ==========================================
-9.   ECCO_v4_Example_calculations_with_scalar_quantities
+10.   ECCO_v4_Example_calculations_with_scalar_quantities
 
 
 More Advanced Calculations:
 ==========================================
-10. compute_mht
-11. calc_osnap
+11. ECCO_v4_Example_MHT
+12. ECCO_v4_Example_OSNAP
  
 
 UNDER CONSTRUCTION: these notebooks do not 
@@ -43,5 +44,5 @@ UNDER CONSTRUCTION: these notebooks do not
 	they are included for demonstration 
 	purposes only!!!
 
-12.   VectorCalculus_ECCO_barotropicVorticity
-13.   ecco_budgets
+13.   VectorCalculus_ECCO_barotropicVorticity
+14.   ecco_budgets
