@@ -62,7 +62,7 @@ Below are two **options** or installing these packages. PICK ONE!
 
 
 Option 1: *Conda* and (a little) *pip* (recommended)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. attention::
     Conda is recommended because it automatically installs the GEOS (Geometry Engine, Open Source) library which is needed to make projection plots.
 
@@ -85,7 +85,7 @@ Option 1: *Conda* and (a little) *pip* (recommended)
  
 
 Option 2: *pip* alone (not recommended)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. DANGER::
     The Python module Cartopy requires the GEOS (Geometry Engine, Open Source) library.  Instructions for installing this library can be found on the `geos website`_.   Some users have reported difficulties  installing GEOS libraries on their platforms.  For that reason, we recommend using Conda (Option 1).  
