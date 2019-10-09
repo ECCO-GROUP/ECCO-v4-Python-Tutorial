@@ -74,8 +74,10 @@ Option 1: *Conda* and (a little) *pip* (recommended)
     conda install -c scitools cartopy
     conda install dask
     conda install toolz
-
+    conda install -c conda-forge pyresample
+    
 .. code-block:: bash
+
     pip install pyproj
     pip install xarray
     pip install xmitgcm
