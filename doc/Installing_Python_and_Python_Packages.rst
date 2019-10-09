@@ -71,7 +71,7 @@ Option 1: *Conda* and (a little) *pip* (recommended)
 
     conda install netcdf4
     conda install -c anaconda geos 
-    conda install -c scitools cartopy
+    conda install -c conda-forge cartopy
     conda install dask
     conda install toolz
     conda install -c conda-forge pyresample
