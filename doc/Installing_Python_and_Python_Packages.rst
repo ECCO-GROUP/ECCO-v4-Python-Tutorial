@@ -74,7 +74,8 @@ Option 1: *Conda* and (a little) *pip* (recommended)
     conda install -c anaconda geos 
     conda install dask
     conda install -c conda-forge pyresample
-    
+    conda install -c conda-forge cmocean    
+
 .. code-block:: bash
 
     pip install xarray
@@ -98,6 +99,7 @@ Option 2: *pip* alone (not recommended)
     pip install xarray
     pip install xmitgcm
     pip install xgcm
+    pip install cmocean
 
 
 
