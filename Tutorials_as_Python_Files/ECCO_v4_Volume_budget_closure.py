@@ -30,9 +30,11 @@
 # 
 # However, because the vertical coordiate varies with time in the $z^*$ system, the grid cell height ``drF`` varies with time as ``drF``$\times s^*(t)$, with
 # 
-# $s^*(x,y,k,t) = 1 + \frac{\eta(x,y,t)}{H}$ 
+# \begin{equation}
+# s^*(x,y,k,t) = 1 + \frac{\eta(x,y,t)}{H}
+# \end{equation}
 # 
-# $s^* > 1$ when $\eta > 0$
+# with $s^* > 1$ when $\eta > 0$
 # 
 # Thus, to calculate the volume fluxes grid cell through horizontal faces we must account for the time-varying grid cell face areas:
 # 
@@ -41,13 +43,17 @@
 # volume flux across 'v' in the +y direction face with $z^*$ coordinates = $\mathit{VVEL}(x,y,k) \times \mathit{drF}(k) \times \mathit{dxG}(x,y) \times \mathit{hFacS}(x,y,k) \times s^*(x,y,k,t)$
 # 
 # 
-# To make budget calculations easier we provide the scaled velocities quantities ``UVELMASS`` and ``VVELMASS``
+# To make budget calculations easier we provide the scaled velocities quantities ``UVELMASS`` and ``VVELMASS``,
 # 
-# $$\mathit{UVELMASS}(x,y,k) = \mathit{UVEL}(x,y,k) \times \mathit{hFacW}(x,y,k) \times s^*(x,y,k,t)$$
+# \begin{equation}
+# \mathit{UVELMASS}(x,y,k) = \mathit{UVEL}(x,y,k) \times \mathit{hFacW}(x,y,k) \times s^{*}(x,y,k,t)
+# \end{equation}
 # and 
-# $$\mathit{VVELMASS}(x,y,k) = \mathit{VVEL}(x,y,k) \times \mathit{hFacS}(x,y,k) \times s^*(x,y,k,t)$$
+# \begin{equation}
+# \mathit{VVELMASS}(x,y,k) = \mathit{VVEL}(x,y,k) \times \mathit{hFacS}(x,y,k) \times s^{*}(x,y,k,t)
+# \end{equation}
 # 
-# > **Note:** The word $mass$ in ``UVELMASS`` and ``VVELMASS`` is confusing since there is no mass involved here.  Think of these terms as simply being ``UVEL`` and ``VVEL`` multiplied by the scaled grid cell area fraction.
+# > **Note:** The word **mass** in ``UVELMASS`` and ``VVELMASS`` is confusing since there is no mass involved here.  Think of these terms as simply being ``UVEL`` and ``VVEL`` multiplied by the scaled grid cell area fraction.
 # 
 # Fully closing the budget requires the vertical volume fluxes across the top and bottom 'w' faces of the grid cell and surface freshwater fluxes.  Regarding vertical volume fluxes, there are no $s^*$ or ``hFac`` equivalent scaling factors that modify our top and bottom grid cell areas.  Therefore, vertical volume fluxes through 'w' faces are simply:
 # 
@@ -111,7 +117,7 @@ import cmocean
 warnings.filterwarnings('ignore')
 
 
-# In[103]:
+# In[2]:
 
 
 # Density kg/m^3
@@ -190,7 +196,7 @@ ecco_monthly_snaps = ecco_monthly_snaps.isel(time=np.arange(0, num_months-11))
 print(ecco_monthly_snaps.ETAN.time.isel(time=[0, -1]).values)
 
 
-# In[35]:
+# In[8]:
 
 
 # find the record of the last ETAN snapshot
@@ -201,26 +207,31 @@ last_record_year = last_record_date[0]
 
 # ### Load MONTHLY mean data 
 
-# In[33]:
+# In[9]:
 
 
 data_dir= ECCO_dir + '/nctiles_monthly'
 
 year_end = last_record_year
-ecco_monthly_mean = ecco.recursive_load_ecco_var_from_years_nc(data_dir,                                            vars_to_load=['oceFWflx','UVELMASS','VVELMASS', 'WVELMASS'],                                           years_to_load=range(year_start, year_end)).load()
+ecco_monthly_mean = ecco.recursive_load_ecco_var_from_years_nc(data_dir,                         vars_to_load=['oceFWflx',
+                                      'UVELMASS',
+                                      'VVELMASS', 
+                                      'WVELMASS'],\
+                        years_to_load=range(year_start, year_end)).load()
 
 
-# In[36]:
+# In[10]:
 
 
 # first and last monthly-mean records
 print(ecco_monthly_mean.time.isel(time=[0, -1]).values)
 
 
-# In[37]:
+# In[11]:
 
 
-# each monthly mean record is bookended by a snapshot.  we should have one more snapshot than monthly mean record
+# each monthly mean record is bookended by a snapshot.  
+#we should have one more snapshot than monthly mean record
 print('number of monthly mean records: ', len(ecco_monthly_mean.time))
 print('number of monthly snapshot records: ', len(ecco_monthly_snaps.time))
 
@@ -229,7 +240,7 @@ print('number of monthly snapshot records: ', len(ecco_monthly_snaps.time))
 # 
 # the xgcm grid object makes it easy to make flux divergence calculations across different tiles of the lat-lon-cap grid.
 
-# In[38]:
+# In[12]:
 
 
 ecco_xgcm_grid = ecco.get_llc_grid(ecco_grid)
@@ -241,28 +252,30 @@ ecco_xgcm_grid
 # We calculate the monthly-averaged time tendency of ``ETAN`` by differencing monthly ``ETAN`` snapshots.
 # Subtract the numpy arrays $\eta(t+1)$ - $\eta(t)$.  This operation gives us $\Delta$ ``ETAN`` $/ \Delta$ t (month) records.
 
-# In[39]:
+# In[13]:
 
 
 num_months = len(ecco_monthly_snaps.time)
-G_total_tendency_month = ecco_monthly_snaps.ETAN.isel(time=range(1,num_months)).values -     ecco_monthly_snaps.ETAN.isel(time=range(0,num_months-1)).values
+G_total_tendency_month =     ecco_monthly_snaps.ETAN.isel(time=range(1,num_months)).values -     ecco_monthly_snaps.ETAN.isel(time=range(0,num_months-1)).values
 
 # The result is a numpy array of 264 months
 print('shape of G_total_tendency_month: ', G_total_tendency_month.shape)
 
 
-# In[40]:
+# In[14]:
 
 
 ecco_monthly_mean.oceFWflx.shape
 
 
-# In[41]:
+# In[15]:
 
 
-# Convert this numpy array to an xarray Dataarray to take advantage of xarray time indexing.
-# The easiest way is to copy an existing DataArray that has the dimensions and time indexes that we want,
-# replace its values, and change its name.  This is how it's done, son.
+# Convert this numpy array to an xarray Dataarray to take advantage 
+# of xarray time indexing.
+# The easiest way is to copy an existing DataArray that has the 
+# dimensions and time indexes that we want,
+# replace its values, and change its name.  
 
 tmp = ecco_monthly_mean.oceFWflx.copy(deep=True)
 tmp.values = G_total_tendency_month
@@ -277,20 +290,20 @@ print(G_total_tendency_month.time[0].values)
 
 # Now convert $\Delta$ ``ETAN`` $/ \Delta$ t (month) to $\Delta$ ``ETAN`` $/ \Delta$ t (seconds) by dividing by the number of seconds in each month. To find the number of seconds in each month, subtract the model time step number (which is hourly) from the beginning and end of each month:
 
-# In[42]:
+# In[16]:
 
 
 if ecco_version == 'v4r4':
-    hrs_per_month = ecco_monthly_snaps.timestep[1:].values - ecco_monthly_snaps.timestep[0:-1].values
+    hrs_per_month = ecco_monthly_snaps.timestep[1:].values -     ecco_monthly_snaps.timestep[0:-1].values
 elif ecco_version == 'v4r3':
-    hrs_per_month = ecco_monthly_snaps.iter[1:].values - ecco_monthly_snaps.iter[0:-1].values
+    hrs_per_month = ecco_monthly_snaps.iter[1:].values -     ecco_monthly_snaps.iter[0:-1].values
 
 # convert hours per month to seconds per month:
 secs_per_month = hrs_per_month * 3600
 
 # Make a DataArray with the number of seconds in each month, 
 #time indexed to the times in dETAN_dT_perMonth (middle of each month)
-secs_per_month = xr.DataArray(secs_per_month, coords={'time': G_total_tendency_month.time.values}, dims='time')
+secs_per_month = xr.DataArray(secs_per_month,                               coords={'time': G_total_tendency_month.time.values},                               dims='time')
 
 # show number of seconds in the first two months:
 print('# of seconds in Jan and Feb 1993 ', secs_per_month[0:2].values)
@@ -301,7 +314,7 @@ print('# of days in Jan and Feb 1993 ', secs_per_month[0:2].values/3600/24)
 
 # Convert the `ns_in_month` from timedelta64 object to float so we can use it to use it for a mathematical operation: converting G_total_tendency_month to G_total_tendency.  Also, convert from ns to seconds.
 
-# In[104]:
+# In[17]:
 
 
 # convert dETAN_dT_perMonth to perSeconds
@@ -320,7 +333,7 @@ G_total_tendency = G_total_tendency_month / secs_per_month
 # 
 # In our case we know the length of each month, we just calculated it above in ``secs_per_month``.  We will weight each month by the relative # of seconds in each month and sum to get a weighted average.
 
-# In[105]:
+# In[18]:
 
 
 # the weights are just the # of seconds per month divided by total seconds
@@ -333,25 +346,25 @@ month_length_weights = secs_per_month / secs_per_month.sum()
 # 
 # with $\sum_{i=1}^{nm} w_i = 1$ and  nm=number of months
 
-# In[106]:
+# In[19]:
 
 
 # the weights sum to 1
 print(month_length_weights.sum())
 
 
-# In[107]:
+# In[20]:
 
 
-# the weighted mean is the sum in time of the relative month-duration weighted individual terms
+# the weighted mean weights by the length of each month (in seconds)
 G_total_tendency_mean = (G_total_tendency*month_length_weights).sum('time')
 
 
-# In[108]:
+# In[21]:
 
 
 plt.figure(figsize=(20,8));
-ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, G_total_tendency_mean,show_colorbar=True,                              cmin=-1e-9, cmax=1e-9, cmap=cmocean.cm.balance, user_lon_0=-67,                              dx=map_dx,dy=map_dy);
+ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                              G_total_tendency_mean,show_colorbar=True,                              cmin=-1e-9, cmax=1e-9,                               cmap=cmocean.cm.balance, user_lon_0=-67,                              dx=map_dx,dy=map_dy);
 plt.title('Average $\partial \eta / \partial t$ [m/s]', fontsize=20);
 
 
@@ -360,70 +373,75 @@ plt.title('Average $\partial \eta / \partial t$ [m/s]', fontsize=20);
 # 
 # The time average eta tendency is small, about 1 billionth of a meter per second.  The ECCO period is coming up to a billion seconds though...  How much did ``ETAN`` change over the analysis period?
 
-# In[109]:
+# In[22]:
 
 
 # the number of seconds in the entire period 
-seconds_in_entire_period = float(ecco_monthly_snaps.time[-1] - ecco_monthly_snaps.time[0])/1e9
+seconds_in_entire_period =     float(ecco_monthly_snaps.time[-1] - ecco_monthly_snaps.time[0])/1e9
 print ('seconds in analysis period: ', seconds_in_entire_period)
 
 # which is also the sum of the number of seconds in each month
 print('sum of seconds in each month ', secs_per_month.sum().values)
 
 
-# In[110]:
+# In[23]:
 
 
 ETAN_delta = G_total_tendency_mean*seconds_in_entire_period
 
 
-# In[111]:
+# In[24]:
 
 
 plt.figure(figsize=(20,8));
-ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, ETAN_delta,show_colorbar=True,                              cmin=-1, cmax=1, cmap=cmocean.cm.balance, user_lon_0=-67,                               dx=map_dx,dy=map_dy);
-plt.title('Predicted $\Delta \eta$ [m] from $\partial \eta / \partial t$', fontsize=20);
+ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                               ETAN_delta,show_colorbar=True,                              cmin=-1, cmax=1,                               cmap=cmocean.cm.balance, user_lon_0=-67,                               dx=map_dx,dy=map_dy);
+plt.title('Predicted $\Delta \eta$ [m] from $\partial \eta / \partial t$',           fontsize=20);
 
 
 # We can sanity check the total ``ETAN`` change that we found by multipling the time-mean ``ETAN`` tendency with the number of seconds in the simulation by comparing that with the difference in ``ETAN`` between the end of the last month and start of the first month. 
 
-# In[112]:
+# In[25]:
 
 
-ETAN_delta_method_2 = ecco_monthly_snaps.ETAN.isel(time=-1).values - ecco_monthly_snaps.ETAN.isel(time=0).values
+ETAN_delta_method_2 = ecco_monthly_snaps.ETAN.isel(time=-1).values -     ecco_monthly_snaps.ETAN.isel(time=0).values
 
 
-# In[113]:
+# In[26]:
 
 
 plt.figure(figsize=(20,8));
-ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, ETAN_delta_method_2 ,show_colorbar=True,                              cmin=-1, cmax=1, cmap=cmocean.cm.balance, user_lon_0=-67,                              dx=map_dx,dy=map_dy);
+ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                               ETAN_delta_method_2,
+                              show_colorbar=True,\
+                              cmin=-1, cmax=1, \
+                              cmap=cmocean.cm.balance, user_lon_0=-67,\
+                              dx=map_dx,dy=map_dy);
 plt.title('Actual $\Delta \eta$ [m]', fontsize=20);
 
 
-# In[114]:
+# In[27]:
 
 
 plt.figure(figsize=(20,8));
-ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, ETAN_delta_method_2-ETAN_delta ,show_colorbar=True,                              cmin=-1e-6, cmax=1e-6, cmap=cmocean.cm.balance, user_lon_0=-67,                              dx=map_dx,dy=map_dy);
-plt.title('Difference between actual and predicted $\Delta \eta$ [m]', fontsize=20);
+ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                               ETAN_delta_method_2-ETAN_delta,                              show_colorbar=True,                              cmin=-1e-6, cmax=1e-6,                               cmap=cmocean.cm.balance, user_lon_0=-67,                              dx=map_dx,dy=map_dy);
+plt.title('Difference between actual and predicted $\Delta \eta$ [m]',           fontsize=20);
 
 
 # That's a big woo, these are the same to within 10^-6 meters!
 
 # ### Example $\partial \eta / \partial t$ field
 
-# In[115]:
+# In[28]:
 
 
 plt.figure(figsize=(20,8));
 
-# get an array of YYYY, MM, DD, HH, MM, SS for dETAN_dT_perSec at time index 100
+# get an array of YYYY, MM, DD, HH, MM, SS for 
+#dETAN_dT_perSec at time index 100
 tmp = ecco.extract_yyyy_mm_dd_hh_mm_ss_from_datetime64(G_total_tendency.time[100].values)
 print(tmp)
-ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, G_total_tendency.isel(time=100),show_colorbar=True,                              cmin=-1e-7, cmax=1e-7, cmap=cmocean.cm.balance, user_lon_0=-67,
-                              dx=map_dx,dy=map_dy);
-plt.title('$\partial \eta / \partial t$ [m/s] during ' + str(tmp[0]) +'/' + str(tmp[1]), fontsize=20);
+ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                               G_total_tendency.isel(time=100),                              show_colorbar=True,                              cmin=-1e-7, cmax=1e-7,                              cmap=cmocean.cm.balance, user_lon_0=-67,                              dx=map_dx,dy=map_dy);
+plt.title('$\partial \eta / \partial t$ [m/s] during ' + 
+          str(tmp[0]) +'/' + str(tmp[1]), fontsize=20);
 
 
 # For any given month the time rate of change of ``ETAN`` is two orders of magnitude smaller than the 1993-2015 mean. In the above we are looking at May 2001.  We see positive ``ETAN`` tendency due sea ice melting in the northern hemisphere (e.g., Baffin Bay, Greenland Sea, and Chukchi Sea).
@@ -432,7 +450,7 @@ plt.title('$\partial \eta / \partial t$ [m/s] during ' + str(tmp[0]) +'/' + str(
 # 
 # Surface mass fluxes are given in `oceFWflx`.  Convert surface mass flux to a vertical velocity by dividing by the reference density ``rhoConst``= 1029 kg m-3
 
-# In[116]:
+# In[29]:
 
 
 # tendency of eta implied by surface volume fluxes (m/s)
@@ -445,20 +463,21 @@ G_surf_fluxes = ecco_monthly_mean.oceFWflx/rhoconst
 # 
 # We calculate the time-mean surface flux $\eta$ tendency using the same weights as the total $\eta$ tendency.
 
-# In[117]:
+# In[30]:
 
 
 G_surf_fluxes_mean= (G_surf_fluxes*month_length_weights).sum('time')
 G_surf_fluxes_mean.shape
 
 
-# In[118]:
+# In[31]:
 
 
 plt.figure(figsize=(20,8));
-ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, G_surf_fluxes_mean,
+ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                               G_surf_fluxes_mean,
                               show_colorbar=True,\
-                              cmin=-1e-7, cmax=1e-7, cmap=cmocean.cm.balance, user_lon_0=-67,
+                              cmin=-1e-7, cmax=1e-7, \
+                              cmap=cmocean.cm.balance, user_lon_0=-67,
                               dx=map_dx,dy=map_dy)
 plt.title('Average $\partial \eta / \partial t$ [m/s] implied by oceFWflx surface mass fluxes\n Negative = Water out',
           fontsize=20);
@@ -468,32 +487,35 @@ plt.title('Average $\partial \eta / \partial t$ [m/s] implied by oceFWflx surfac
 # 
 # If there were no other terms on the RHS to balance surface fluxes, the total change in ``ETAN`` between 1993 and 2015 would be order of h10s of meters almost everwhere.  
 
-# In[119]:
+# In[32]:
 
 
 ETAN_delta_surf_fluxes = G_surf_fluxes_mean*seconds_in_entire_period
 
 
-# In[120]:
+# In[33]:
 
 
 plt.figure(figsize=(20,8));
-ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, ETAN_delta_surf_fluxes,show_colorbar=True,                              cmin=-100, cmax=100, cmap=cmocean.cm.balance, user_lon_0=-67,                               dx=map_dx,dy=map_dy);
-plt.title('$\Delta \eta$ [m] implied by oceFWflx surface mass fluxes', fontsize=20);
+ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                               ETAN_delta_surf_fluxes,show_colorbar=True,                              cmin=-100, cmax=100,                               cmap=cmocean.cm.balance, user_lon_0=-67,                               dx=map_dx,dy=map_dy);
+plt.title('$\Delta \eta$ [m] implied by oceFWflx surface mass fluxes', 
+          fontsize=20);
 
 
 # ### Example $\partial \eta / \partial t$ impliedy by surface fluxes
 
-# In[121]:
+# In[34]:
 
 
 plt.figure(figsize=(20,8));
 
-# get an array of YYYY, MM, DD, HH, MM, SS for dETAN_dT_perSec at time index 100
+# get an array of YYYY, MM, DD, HH, MM, SS for 
+# dETAN_dT_perSec at time index 100
 tmp = ecco.extract_yyyy_mm_dd_hh_mm_ss_from_datetime64(G_surf_fluxes.time[100].values)
 print(tmp)
-ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, G_surf_fluxes.isel(time=100),show_colorbar=True,                             cmin=-1e-7, cmax=1e-7, cmap=cmocean.cm.balance, user_lon_0=-67,                              dx=map_dx,dy=map_dy);
-plt.title('$\partial \eta / \partial t$ [m/s] implied by oceFWflx surface mass fluxes ' +           str(tmp[1]) +'/' + str(tmp[0]), fontsize=20);
+ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                               G_surf_fluxes.isel(time=100),show_colorbar=True,                             cmin=-1e-7, cmax=1e-7,                               cmap=cmocean.cm.balance, user_lon_0=-67,                              dx=map_dx,dy=map_dy);
+plt.title('$\partial \eta / \partial t$ [m/s] implied by oceFWflx surface mass fluxes ' + 
+          str(tmp[1]) +'/' + str(tmp[0]), fontsize=20);
 
 
 # For any given month the time rate of change of ``ETAN`` is almost the same as its 22 year mean.  Differences are largest in the high latitudes where sea-ice melt and growth during any particular month induce large changes in ``ETAN``.
@@ -508,41 +530,32 @@ plt.title('$\partial \eta / \partial t$ [m/s] implied by oceFWflx surface mass f
 # 
 # First, find the time-mean vertical velocity at the liquid ocean surface
 
-# In[122]:
+# In[35]:
 
 
-WVELMASS_surf_mean = (ecco_monthly_mean.WVELMASS.isel(k_l=0)*month_length_weights).sum('time')
+WVELMASS_surf_mean =     (ecco_monthly_mean.WVELMASS.isel(k_l=0)*month_length_weights).sum('time')
 
 
 # Next, find the time-mean vertical velocity implied by the `oceFWflx` at k_l=0:
 
-# In[123]:
+# In[36]:
 
 
-WVEL_from_oceFWflx_mean = -(ecco_monthly_mean.oceFWflx*month_length_weights).sum('time')/rhoconst
+WVEL_from_oceFWflx_mean =     -(ecco_monthly_mean.oceFWflx*month_length_weights).sum('time')/rhoconst
 
 
-# In[124]:
+# In[37]:
 
 
 plt.figure(figsize=(15,15))
 #plt.sca(axs[0,0])
-F=ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, WVELMASS_surf_mean,
-                              show_colorbar=True,\
-                              cmin=-1e-7, cmax=1e-7, cmap=cmocean.cm.balance, user_lon_0=-67,\
-                              dx=2,dy=2, subplot_grid=[3,1,1]);
+F=ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                                 WVELMASS_surf_mean,                                show_colorbar=True,                                cmin=-1e-7, cmax=1e-7,                                 cmap=cmocean.cm.balance, user_lon_0=-67,                                dx=2,dy=2, subplot_grid=[3,1,1]);
 F[1].set_title('A: surface velocity from WVEL [m/s]')
 
-F=ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, WVEL_from_oceFWflx_mean,
-                              show_colorbar=True,\
-                              cmin=-1e-7, cmax=1e-7, cmap=cmocean.cm.balance, user_lon_0=-67,\
-                              dx=2,dy=2, subplot_grid=[3,1,2])
+F=ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                                 WVEL_from_oceFWflx_mean,                                show_colorbar=True,                                cmin=-1e-7, cmax=1e-7,                                 cmap=cmocean.cm.balance, user_lon_0=-67,                                dx=2,dy=2, subplot_grid=[3,1,2])
 F[1].set_title("B: surface velocity implied by oceFWflx [m/s]")
 
-F=ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, WVELMASS_surf_mean-WVEL_from_oceFWflx_mean,
-                              show_colorbar=True,\
-                              cmin=-1e-7, cmax=1e-7, cmap=cmocean.cm.balance, user_lon_0=-67,\
-                              dx=2,dy=2, subplot_grid=[3,1,3])
+F=ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                                 WVELMASS_surf_mean-WVEL_from_oceFWflx_mean,                                show_colorbar=True,                                cmin=-1e-7, cmax=1e-7,                                 cmap=cmocean.cm.balance, user_lon_0=-67,                                dx=2,dy=2, subplot_grid=[3,1,3])
 F[1].set_title("difference between A and B");
 
 
@@ -550,7 +563,7 @@ F[1].set_title("difference between A and B");
 # 
 # Calculate the vertical volume fluxes at each level: (velocity x grid cell area) [m3 s-1]
 
-# In[125]:
+# In[38]:
 
 
 vol_transport_z = ecco_monthly_mean.WVELMASS * ecco_grid.rA
@@ -558,7 +571,7 @@ vol_transport_z = ecco_monthly_mean.WVELMASS * ecco_grid.rA
 
 # Set the volume transport at the surface level to be zero because we already counted the fluxes out of the domain with ``oceFWflx``.
 
-# In[126]:
+# In[39]:
 
 
 vol_transport_z.isel(k_l=0).values[:] = 0
@@ -566,39 +579,43 @@ vol_transport_z.isel(k_l=0).values[:] = 0
 
 # Each grid cell has a top and bottom surface and therefore ``WEVELMASS ``should have 51 vertical levels (one more than the number of tracer cells).  For some reason we only have 50 vertical levels, with the bottom of the 50th tracer cell missing.  To calculate vertical flux divergence we need to add this 51st ``WVELMASS`` which is everywhere  zero (no volume flux from the seafloor). The xgcm library handles this in its `diff` routine by specifying the boundary='fill' and fill_value = 0.  
 
-# In[127]:
+# In[40]:
 
 
 # volume flux divergence into each grid cell, m^3 / s 
-vol_vert_divergence = ecco_xgcm_grid.diff(vol_transport_z, 'Z', boundary='fill', fill_value=0)
+vol_vert_divergence = ecco_xgcm_grid.diff(vol_transport_z, 'Z',                                           boundary='fill', fill_value=0)
 
-# change in eta per unit time due to volumetric vertical convergence at each depth level: m/s
+# change in eta per unit time due to volumetric vertical convergence 
+# at each depth level: m/s
 G_vertical_flux_divergence = vol_vert_divergence / ecco_grid.rA;
 
 
-# In[128]:
+# In[41]:
 
 
-# change in eta per unit time due to vertical integral of volumetric horizonal convergence: m/s
+# change in eta per unit time due to vertical integral of 
+# volumetric horizonal convergence: m/s
 G_vertical_flux_divergence_depth_integrated = G_vertical_flux_divergence.sum('k')
 
 
-# In[129]:
+# In[42]:
 
 
-# Calculate the time-mean surface flux $\eta$ tendency using the same weights as the total $\eta$ tendency.
+# Calculate the time-mean surface flux $\eta$ tendency using 
+# the same weights as the total $\eta$ tendency.
 G_vertical_flux_divergence_depth_integrated_time_mean =     (G_vertical_flux_divergence_depth_integrated * month_length_weights).sum('time')
 
 
 # ### Plot the time-mean $G_{\text{vertical flux divergence}}$
 
-# In[130]:
+# In[43]:
 
 
 plt.figure(figsize=(20,8));
 ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                              G_vertical_flux_divergence_depth_integrated_time_mean,
                               show_colorbar=True,\
-                              cmap=cmocean.cm.balance, cmin=-1e-9, cmax=1e-9,
+                              cmap=cmocean.cm.balance, \
+                              cmin=-1e-9, cmax=1e-9,
                               dx=map_dx,dy=map_dy);
 plt.title('Average $\partial \eta / \partial t$ [m/s] due to vertical flux divergence\n Negative = Water out',
           fontsize=20);
@@ -608,7 +625,7 @@ plt.title('Average $\partial \eta / \partial t$ [m/s] due to vertical flux diver
 
 # ### Horizontal Volume Flux Divergence
 
-# In[131]:
+# In[44]:
 
 
 # Volumetric transports in x and y(m^3/s)
@@ -616,24 +633,25 @@ vol_transport_x = ecco_monthly_mean.UVELMASS * ecco_grid.dyG * ecco_grid.drF
 vol_transport_y = ecco_monthly_mean.VVELMASS * ecco_grid.dxG * ecco_grid.drF
 
 
-# In[132]:
+# In[45]:
 
 
 # Difference of horizontal transports in x and y directions
-vol_flux_diff = ecco_xgcm_grid.diff_2d_vector({'X': vol_transport_x, 'Y': vol_transport_y}, boundary='fill')
+vol_flux_diff = ecco_xgcm_grid.diff_2d_vector({'X': vol_transport_x,                                                'Y': vol_transport_y},                                              boundary='fill')
 
 # volume flux divergence into each grid cell, m^3 / s 
 vol_horiz_divergence = (vol_flux_diff['X'] + vol_flux_diff['Y'])
 
-# change in eta per unit time due to volumetric horizonal convergence at each depth level: m/s
+# change in eta per unit time due to volumetric horizonal
+# convergence at each depth level: m/s
 # a positive DIVERGENCE leads to negative eta tendency
 G_vol_horiz_divergence = -vol_horiz_divergence / ecco_grid.rA
 
-# change in eta in each grid cell per unit time due to horizontal divergence: m/s
+# change in eta in each grid cell per unit time due to horiz. divergence: m/s
 G_vol_horiz_divergence_depth_integrated = G_vol_horiz_divergence.sum('k')
 
 
-# In[133]:
+# In[46]:
 
 
 # calculate time-mean using the month length weights
@@ -642,13 +660,14 @@ G_vol_horiz_divergence_depth_integrated_mean =     (G_vol_horiz_divergence_depth
 
 # ### Plot the time-mean $G_{\text{horizontal flux divergence}}$
 
-# In[134]:
+# In[47]:
 
 
 plt.figure(figsize=(20,8));
 ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                               G_vol_horiz_divergence_depth_integrated_mean,
                               show_colorbar=True,\
-                              cmin=-1e-7, cmax=1e-7, cmap=cmocean.cm.balance, user_lon_0=-67,\
+                              cmin=-1e-7, cmax=1e-7, \
+                              cmap=cmocean.cm.balance, user_lon_0=-67,\
                               dx=map_dx,dy=map_dy);
 plt.title('Average $\partial \eta / \partial t$ [m/s] implied by horizontal flux divergence\n Positive = Water out',
           fontsize=20);
@@ -656,13 +675,14 @@ plt.title('Average $\partial \eta / \partial t$ [m/s] implied by horizontal flux
 
 # ### Plot one example $G_{\text{horizontal flux divergence}}$
 
-# In[149]:
+# In[48]:
 
 
 plt.figure(figsize=(20,8));
 ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                               G_vol_horiz_divergence_depth_integrated.isel(time=100),
                               show_colorbar=True,\
-                              cmin=-2e-7, cmax=2e-7, cmap=cmocean.cm.balance, user_lon_0=-67,\
+                              cmin=-2e-7, cmax=2e-7, \
+                              cmap=cmocean.cm.balance, user_lon_0=-67,\
                               dx=map_dx,dy=map_dy);
 plt.title('$\partial \eta / \partial t$ [m/s] implied by horizontal flux divergence for May 2001\nPositive = Water out',
           fontsize=20);
@@ -670,13 +690,14 @@ plt.title('$\partial \eta / \partial t$ [m/s] implied by horizontal flux diverge
 
 # ### Plot $G_{\text{horizontal flux divergence}}$ at 100m depth
 
-# In[136]:
+# In[49]:
 
 
 plt.figure(figsize=(20,8));
 ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                               G_vol_horiz_divergence.isel(k=10,time=100),
                               show_colorbar=True,\
-                              cmin=-2e-6, cmax=2e-6, cmap=cmocean.cm.balance, user_lon_0=-67,\
+                              cmin=-2e-6, cmax=2e-6, \
+                              cmap=cmocean.cm.balance, user_lon_0=-67,\
                               dx=map_dx,dy=map_dy);
 plt.title('$\partial \eta / \partial t$ [m/s] at 100 m implied by horizontal flux divergence for May 2001\nPositive = Water out',
           fontsize=20);
@@ -688,7 +709,7 @@ plt.title('$\partial \eta / \partial t$ [m/s] at 100 m implied by horizontal flu
 
 # Plot the time-mean difference between the LHS and RHS of the volume budget equation.  
 
-# In[137]:
+# In[50]:
 
 
 #LHS ETA TENDENCY
@@ -700,25 +721,27 @@ c = G_surf_fluxes_mean
 delta = a - b -c 
 
 
-# In[138]:
+# In[51]:
 
 
 plt.figure(figsize=(20,8));
-ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, delta,show_colorbar=True,                             cmin=-1e-9, cmax=1e-9, cmap=cmocean.cm.balance,dx=.25,dy=0.25);
-plt.title('Residual $\partial \eta / \partial t$ [m/s]: LHS - RHS ', fontsize=20);
+ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, delta,                               show_colorbar=True,                              cmin=-1e-9, cmax=1e-9,                               cmap=cmocean.cm.balance,                               dx=map_dx,dy=map_dy);
+plt.title('Residual $\partial \eta / \partial t$ [m/s]: LHS - RHS ', 
+          fontsize=20);
 
 
 # The residual of the time-mean surface velocity tendency terms is essentially zero.  We can look at the distribution of residuals to get a little more confidence.
 
 # ### Histogram of residuals
 
-# In[139]:
+# In[52]:
 
 
 tmp = np.abs( a-b-c).values.ravel();
 plt.figure(figsize=(10,3));
 
-plt.hist(tmp[np.nonzero(tmp > 0)],np.linspace(0, .5e-10,1000));plt.grid()
+plt.hist(tmp[np.nonzero(tmp > 0)],np.linspace(0, .5e-10,1000));
+plt.grid()
 
 
 # Almost all residuals < $10^{-11}$ m/s.  We can close the ETAN budget using UVELMASS, VVELMASS, ``WVELMASS`` and ``oceFWflx``.  
@@ -731,7 +754,7 @@ plt.hist(tmp[np.nonzero(tmp > 0)],np.linspace(0, .5e-10,1000));plt.grid()
 # 
 # Another way of demonstrating volume budget closure is to show the global spatially-averaged ETAN tendency terms through time
 
-# In[140]:
+# In[53]:
 
 
 # LHR and RHS through time
@@ -753,7 +776,7 @@ tmp_d=(d*area_masked).sum(dim=('i','j','tile'))/area_masked.sum()
 tmp_a.dims
 
 
-# In[141]:
+# In[54]:
 
 
 fig, axs = plt.subplots(2, 2, figsize=(12,8))
@@ -791,7 +814,7 @@ plt.suptitle('Global Volume Budget',fontsize=20);
 # 
 # Locally we expect that volume divergence can impact $\eta$.  This is demonstrated for a single point the Arctic.
 
-# In[142]:
+# In[55]:
 
 
 # Recall, from above...
@@ -842,7 +865,7 @@ plt.suptitle('Volume Budget for one Arctic Ocean point',fontsize=20);
 # 
 # The seasonal cycle of surface fluxes from sea-ice growth and melt can be seen in the surface fluxes term (plotted below for just the year 1995)
 
-# In[143]:
+# In[56]:
 
 
 tmp_cc.sel(time='1995').plot(color='r')
@@ -856,19 +879,25 @@ plt.title('d(eta)/d(t) from surf. fluxes in 1995 [m/s]');
 # 
 # As we have shown, in our Boussinesq model the only term that can change global mean model sea level anomaly $\eta$ is net surface freshwater flux.  Let us compare the time-evolution of $\eta$ implied by surface freshwater fluxes and the actual $\eta$ from the model output.
 # 
-# The predicted $\eta$ time series is calculated by time integrating **$G_{surface fluxes}$**.  This time series is compared against the actual $\eta$ time series anomaly relative to the $\eta(t=0)$.
+# The predicted $\eta$ time series is calculated by time integrating **$G_{surface fluxes}$**.  
+# This time series is compared against the actual $\eta$ time series anomaly relative to the $\eta(t=0)$.
 
-# In[144]:
+# In[57]:
 
 
-plt.figure(figsize=(14,5));
 area_masked = ecco_grid.rA.where(ecco_grid.maskC.isel(k=0) == 1)
-dETA_per_month_predicted_from_surf_fluxes=((G_surf_fluxes * area_masked).sum(dim=('i','j','tile'))/ area_masked.sum())*secs_per_month
-ETA_predicted_by_surf_fluxes=np.cumsum(dETA_per_month_predicted_from_surf_fluxes.values)
+
+dETA_per_month_predicted_from_surf_fluxes =     ((G_surf_fluxes * area_masked).sum(dim=('i','j','tile'))/area_masked.sum())*secs_per_month
+
+ETA_predicted_by_surf_fluxes =     np.cumsum(dETA_per_month_predicted_from_surf_fluxes.values)
 
 ETA_from_ETAN = (ecco_monthly_snaps.ETAN * area_masked).sum(dim=('i','j','tile'))/ area_masked.sum()
-plt.plot(dETA_per_month_predicted_from_surf_fluxes.time,ETA_predicted_by_surf_fluxes,'b.')
-plt.plot(ETA_from_ETAN.time.values,ETA_from_ETAN-ETA_from_ETAN[0],'r-')
+
+# plotting
+plt.figure(figsize=(14,5));
+
+plt.plot(dETA_per_month_predicted_from_surf_fluxes.time,          ETA_predicted_by_surf_fluxes,'b.')
+plt.plot(ETA_from_ETAN.time.values, ETA_from_ETAN-ETA_from_ETAN[0],'r-')
 plt.grid()
 plt.ylabel('global mean $\eta$');
 plt.legend(('predicted', 'actual'));
@@ -884,7 +913,7 @@ plt.title('$\eta(t)$ as predicted from net surface fluxes and model ETAN [m]', f
 # Available here.  See Figure 16.
 # https://www.earth-syst-sci-data.net/10/1551/2018/essd-10-1551-2018.pdf
 
-# In[145]:
+# In[58]:
 
 
 # Annual mean SL calculation must account for different lengths of each month.
@@ -901,9 +930,10 @@ annual_mean_GMSL_due_to_mass_fluxes =tmp2/secs_per_year
 num_years = len(annual_mean_GMSL_due_to_mass_fluxes.year.values)
 
 plt.figure(figsize=(8,5));
-plt.bar(annual_mean_GMSL_due_to_mass_fluxes.year.values[12:num_years],        1000*(annual_mean_GMSL_due_to_mass_fluxes.values[12:num_years]-.013), color='k')
+# the -0.13 is to make the starting value comparable with WCRP fig 16.
+plt.bar(annual_mean_GMSL_due_to_mass_fluxes.year.values[12:num_years],        1000*(annual_mean_GMSL_due_to_mass_fluxes.values[12:num_years]-.017),         color='k')
 plt.grid()
-plt.xticks(np.arange(2005,annual_mean_GMSL_due_to_mass_fluxes.year.values[-1]+1,step=1));
+plt.xticks(np.arange(2005, annual_mean_GMSL_due_to_mass_fluxes.year.values[-1]+1,step=1));
 plt.title('Sea level (mm) caused by mass fluxes');
 
 
@@ -911,28 +941,29 @@ plt.title('Sea level (mm) caused by mass fluxes');
 # 
 # We can easily calculate the time mean rate of global sea level rise due to net freshwater flux.
 
-# In[146]:
+# In[59]:
 
 
 x=(G_surf_fluxes_mean * area_masked).sum() / area_masked.sum()
 total_GMSLR_due_to_mass_fluxes = x*seconds_in_entire_period
-print('total global mean sea level rise due to mass fluxes m: ', total_GMSLR_due_to_mass_fluxes.values)
+print('total global mean sea level rise due to mass fluxes m: ',       total_GMSLR_due_to_mass_fluxes.values)
 
 
 # Dividing this by the total number of years in the analysis period gives a average rate per year:
 
-# In[147]:
+# In[60]:
 
 
 total_number_of_years = len(secs_per_month)/12
 total_number_of_years
 
 
-# In[148]:
+# In[61]:
 
 
-mean_rate_of_GMSLR_due_to_mass_fluxes = total_GMSLR_due_to_mass_fluxes/total_number_of_years
-print('mean rate of GMSLR due to mass fluxes [mm/yr] ', 1000*mean_rate_of_GMSLR_due_to_mass_fluxes.values)
+mean_rate_of_GMSLR_due_to_mass_fluxes =     total_GMSLR_due_to_mass_fluxes/total_number_of_years
+
+print('mean rate of GMSLR due to mass fluxes [mm/yr] ',        1000*mean_rate_of_GMSLR_due_to_mass_fluxes.values)
 
 
-# Compare that with other estimates of GMSLR due to mass fluxes.
+# Compare with other estimates of GMSLR due to mass fluxes.
