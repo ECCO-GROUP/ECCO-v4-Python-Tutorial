@@ -2,7 +2,7 @@
 Python and Python Packages
 **************************
 
-Our Python tutorial is compatible with Python 2.7 and 3.  It relies on several packages including **ecco_v4-py** which include codes to facilitate loading, plotting, and performing calculations on ECCOv4 state estimate fields.  
+Our Python tutorial is compatible with Python 3.  It relies on several packages including **ecco_v4-py** which include codes to facilitate loading, plotting, and performing calculations on ECCOv4 state estimate fields.  
 
 .. _in-python:
 
@@ -15,8 +15,6 @@ Here are some links to help you learn more about Python.
 
 - `Python 3.x Documentation <https://docs.python.org/3/>`_
 - `Python 3 Tutorial <https://docs.python.org/3/tutorial/>`_ 
-- `Python 2.7 Documentation <https://docs.python.org/2.7/>`_   (Note Python 2.7 will soon be unsupported)
-- `Python 2.7 Tutorial <https://docs.python.org/2.7/tutorial/index.html>`_ 
 - `Scientific Python Lectures <http://www.scipy-lectures.org/>`_ 
 - `Using the NumPy module for Matlab Users <http://scipy.github.io/old-wiki/pages/NumPy_for_Matlab_Users>`_ 
 - `Learning Python with Anaconda <https://www.datacamp.com/learn-python-with-anaconda>`_ 
@@ -69,18 +67,14 @@ Option 1: *Conda* and (a little) *pip* (recommended)
 
 .. code-block:: bash
 
-    conda install -c conda-forge cartopy
-    conda install netcdf4
-    conda install -c anaconda geos 
-    conda install dask
-    conda install -c conda-forge pyresample
-    conda install -c conda-forge cmocean    
-
-.. code-block:: bash
-
-    pip install xarray
-    pip install xmitgcm
-    pip install xgcm
+    conda install geos
+    conda install pyresample
+    conda install cmocean
+    conda install xarray
+    conda install xmitgcm
+    conda install xgcm
+    conda install cartopy
+    
 
  
 
