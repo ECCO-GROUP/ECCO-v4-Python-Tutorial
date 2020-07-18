@@ -59,7 +59,8 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
    :caption: Plotting
 
    ECCO_v4_Plotting_Tiles
-
+   ECCO_v4_Interpolating_Fields_to_Lat-Lon_Grid
+   
 .. toctree::
    :maxdepth: 2
    :caption: Scalar Calculations
