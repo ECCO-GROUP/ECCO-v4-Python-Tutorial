@@ -21,7 +21,6 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
 sys.path.insert(0, os.path.abspath('../..'))
-sys.path.insert(0, os.path.abspath('/Users/ifenty/.virtualenvs/ve1/lib/python2.7/site-packages'))
 sys.path.insert(0, os.path.abspath('/home/docs/checkouts/readthedocs.org/user_builds/ecco-v4-python-tutorial/envs/latest/lib/python2.7/site-packages'))
 
 #import cloud_sptheme as csp
@@ -212,7 +211,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'ECCOVersion4PythonTutorial', u'ECCO Version 4 Python Tutorial Documentation',
-     author, 'ECCOVersion4PythonTutorial', 'A course on using the ECCO Version 4 Central Production with Python 2.7',
+     author, 'ECCOVersion4PythonTutorial', 'A course on using the ECCO Version 4 Central Production with Python 3',
      'Miscellaneous'),
 ]
 
