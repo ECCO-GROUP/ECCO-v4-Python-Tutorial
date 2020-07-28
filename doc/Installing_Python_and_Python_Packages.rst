@@ -59,7 +59,7 @@ After installing Anaconda the following packages must be installed:
 Below are two **options** or installing these packages. PICK ONE!
 
 
-Option 1: *Conda* and (a little) *pip* (recommended)
+Option 1: *Conda*
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. attention::
     Conda is recommended because it automatically installs the GEOS (Geometry Engine, Open Source) library which is needed to make projection plots.
