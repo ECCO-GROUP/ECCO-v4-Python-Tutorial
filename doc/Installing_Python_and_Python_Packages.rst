@@ -67,13 +67,13 @@ Option 1: *Conda*
 
 .. code-block:: bash
 
-    conda install geos
-    conda install pyresample
+    conda install geos 
     conda install cmocean
-    conda install xarray
-    conda install xmitgcm
-    conda install xgcm
-    conda install cartopy
+    conda install -c conda-forge pyresample
+    conda install -c conda-forge xarray dask netCDF4 bottleneck
+    conda install -c conda-forge xmitgcm
+    conda install -c conda-forge xgcm
+    conda install -c conda-forge cartopy
     
 
  
