@@ -648,61 +648,33 @@ forcH = xr.concat([forcH_surf,forcH_subsurf[:,:,1:]], dim='k').transpose('time',
 # ### Geothermal flux
 
 # The geothermal flux contribution is not accounted for in any of the standard model diagnostics provided as output. Rather, this term, which is time invariant, is provided in the input file `geothermalFlux.bin` and can be downloaded from the PO.DAAC drive (https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/input_init/geothermalFlux.bin).
+# > **Note**: Here, `geothermalFlux.bin` has been placed in `base_dir`.
 
 # In[53]:
 
 
-# Here geothermalFlux.bin has been saved in base_dir.
-geoflx = np.fromfile(base_dir + '/geothermalFlux.bin', dtype=np.float32)
-
+# Load the geothermal heat flux using the routine 'read_llc_to_tiles'
+geoflx = ecco.read_llc_to_tiles(base_dir, 'geothermalFlux.bin')
 
 # > **Note**: Geothermal flux needs to be saved as an xarray data array with the same format as the model output. In order to reformat the loaded data array the byte-ordering needs to be changed.
 
-# In[54]:
-
-
-# Data and type endianness don't match. Change data to match dtype and reshape to 1d
-geoflx = geoflx.byteswap().reshape([105300,1])
-
-
-# In[55]:
-
-
-# Reshape data for each face and save as xarray data array in LLC format
-geoflx00 = xr.DataArray(geoflx[:8100,0].reshape([90,90]),coords=[np.arange(0,90,1),np.arange(0,90,1)],
-                        dims=['j','i'])
-geoflx01 = xr.DataArray(geoflx[8100:16200,0].reshape([90,90]),coords=[np.arange(0,90,1),np.arange(0,90,1)],
-                        dims=['j','i'])
-geoflx02 = xr.DataArray(geoflx[16200:24300,0].reshape([90,90]),coords=[np.arange(0,90,1),np.arange(0,90,1)],
-                        dims=['j','i'])
-geoflx03 = xr.DataArray(geoflx[24300:32400,0].reshape([90,90]),coords=[np.arange(0,90,1),np.arange(0,90,1)],
-                        dims=['j','i'])
-geoflx04 = xr.DataArray(geoflx[32400:40500,0].reshape([90,90]),coords=[np.arange(0,90,1),np.arange(0,90,1)],
-                        dims=['j','i'])
-geoflx05 = xr.DataArray(geoflx[40500:48600,0].reshape([90,90]),coords=[np.arange(0,90,1),np.arange(0,90,1)],
-                        dims=['j','i'])
-geoflx06 = xr.DataArray(geoflx[48600:56700,0].reshape([90,90]),coords=[np.arange(0,90,1),np.arange(0,90,1)],
-                        dims=['j','i'])
-
-geoflx0709 = geoflx[56700:81000,0].reshape([90,270])
-geoflx07 = xr.DataArray(geoflx0709[:,:90],coords=[np.arange(0,90,1),np.arange(0,90,1)],dims=['j','i'])
-geoflx08 = xr.DataArray(geoflx0709[:,90:180],coords=[np.arange(0,90,1),np.arange(0,90,1)],dims=['j','i'])
-geoflx09 = xr.DataArray(geoflx0709[:,180:],coords=[np.arange(0,90,1),np.arange(0,90,1)],dims=['j','i'])
-
-geoflx1012 = geoflx[81000:,0].reshape([90,270])
-geoflx10 = xr.DataArray(geoflx1012[:,:90],coords=[np.arange(0,90,1),np.arange(0,90,1)],dims=['j','i'])
-geoflx11 = xr.DataArray(geoflx1012[:,90:180],coords=[np.arange(0,90,1),np.arange(0,90,1)],dims=['j','i'])
-geoflx12 = xr.DataArray(geoflx1012[:,180:],coords=[np.arange(0,90,1),np.arange(0,90,1)],dims=['j','i'])
-
+# The geothermal flux dataset needs to be saved as an xarray data array with the same format as the model output.
 
 # In[56]:
 
+# Convert numpy array to an xarray DataArray with matching dimensions as the monthly mean fields
+geoflx_llc = xr.DataArray(geoflx,coords={'tile': ecco_monthly_mean.tile.values,
+                                         'j': ecco_monthly_mean.j.values,
+                                         'i': ecco_monthly_mean.i.values},dims=['tile','j','i'])
 
-geoflx_llc = xr.concat([geoflx00,geoflx01,geoflx02,geoflx03,geoflx04,geoflx05,geoflx06,
-                        geoflx07,geoflx08,geoflx09,geoflx10,geoflx11,geoflx12], 'tile')
+plt.figure(figsize=(15,5));
 
+ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, geoflx_llc,show_colorbar=True,cmap='magma', 
+                              user_lon_0=-67, dx=0.2, dy=0.2)
+plt.title(r'Geothermal heat flux [W m$^{-2}$]', fontsize=16)
+plt.show()
 
-# >**Note**: Geothermal flux needs to be a three dimensional field since the sources are distributed along the ocean floor at various depths. This requires a three dimensional mask (see below).
+# Geothermal flux needs to be a three dimensional field since the sources are distributed along the ocean floor at various depths. This requires a three dimensional mask (see below).
 
 # In[57]:
 
