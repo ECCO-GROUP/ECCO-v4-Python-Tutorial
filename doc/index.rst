@@ -44,6 +44,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
 
    ECCO_v4_Loading_the_ECCOv4_native_model_grid_parameters.ipynb
    ECCO_v4_Loading_the_ECCOv4_state_estimate_fields_on_the_native_model_grid.ipynb
+   ECCO_v4_Loading_LLC_compact_binary_files.ipynb
    ECCO_v4_Combining_Multiple_Datasets
    ECCO_v4_Saving_Datasets_and_DataArrays_to_NetCDF 
 
