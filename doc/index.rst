@@ -74,6 +74,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
    ECCO_v4_Example_MHT.ipynb
    ECCO_v4_Example_OSNAP.ipynb
    ECCO_v4_Volume_budget_closure.ipynb 
+   ECCO_v4_Heat_budget_closure.ipynb 
 
 .. toctree::
    :maxdepth: 2

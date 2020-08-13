@@ -656,16 +656,20 @@ forcH = xr.concat([forcH_surf,forcH_subsurf[:,:,1:]], dim='k').transpose('time',
 # Load the geothermal heat flux using the routine 'read_llc_to_tiles'
 geoflx = ecco.read_llc_to_tiles(base_dir, 'geothermalFlux.bin')
 
-# > **Note**: Geothermal flux needs to be saved as an xarray data array with the same format as the model output. In order to reformat the loaded data array the byte-ordering needs to be changed.
 
 # The geothermal flux dataset needs to be saved as an xarray data array with the same format as the model output.
 
 # In[56]:
 
+
 # Convert numpy array to an xarray DataArray with matching dimensions as the monthly mean fields
 geoflx_llc = xr.DataArray(geoflx,coords={'tile': ecco_monthly_mean.tile.values,
                                          'j': ecco_monthly_mean.j.values,
                                          'i': ecco_monthly_mean.i.values},dims=['tile','j','i'])
+
+
+# In[ ]:
+
 
 plt.figure(figsize=(15,5));
 
@@ -674,7 +678,8 @@ ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC, geoflx_llc,show_colorb
 plt.title(r'Geothermal heat flux [W m$^{-2}$]', fontsize=16)
 plt.show()
 
-# Geothermal flux needs to be a three dimensional field since the sources are distributed along the ocean floor at various depths. This requires a three dimensional mask (see below).
+
+# Geothermal flux needs to be a three dimensional field since the sources are distributed along the ocean floor at various depths. This requires a three dimensional mask.
 
 # In[57]:
 
