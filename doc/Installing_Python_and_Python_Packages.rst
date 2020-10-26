@@ -68,7 +68,7 @@ Option 1: *Conda*
 .. code-block:: bash
 
     conda install geos 
-    conda install cmocean
+    conda install -c conda-forge cmocean
     conda install -c conda-forge pyresample
     conda install -c conda-forge xarray dask netCDF4 bottleneck
     conda install -c conda-forge xmitgcm
