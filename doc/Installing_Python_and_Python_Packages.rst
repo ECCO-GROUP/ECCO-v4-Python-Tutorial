@@ -71,9 +71,10 @@ Option 1: *Conda*
     conda install -c conda-forge cmocean
     conda install -c conda-forge pyresample
     conda install -c conda-forge xarray dask netCDF4 bottleneck
-    :strike:`conda -c conda-forge xmitgcm`
+    [SEE NOTE!] conda install -c conda-forge xmitgcm`
     conda install -c conda-forge xgcm
     conda install -c conda-forge cartopy
+
 
 .. attention::
 
@@ -101,7 +102,7 @@ Option 2: *pip* alone (not recommended)
     pip install pyresample
     pip install cartopy
     pip install xarray
-    :strike:`pip install xmitgcm`
+    [SEE NOTE!] pip install xmitgcm`
     pip install xgcm
     pip install cmocean
 
