@@ -71,10 +71,20 @@ Option 1: *Conda*
     conda install -c conda-forge cmocean
     conda install -c conda-forge pyresample
     conda install -c conda-forge xarray dask netCDF4 bottleneck
-    conda install -c conda-forge xmitgcm
+    :strike:`conda -c conda-forge xmitgcm`
     conda install -c conda-forge xgcm
     conda install -c conda-forge cartopy
-    
+
+.. attention::
+
+	As of 2020-11-18 xmitgcm must be installed by cloning the github repository and installing as follows:
+	
+.. code-block:: bash
+
+	git clone https://github.com/MITgcm/xmitgcm.git
+	cd xmitgcm
+	python setup.py install
+
 
  
 
@@ -91,11 +101,22 @@ Option 2: *pip* alone (not recommended)
     pip install pyresample
     pip install cartopy
     pip install xarray
-    pip install xmitgcm
+    :strike:`pip install xmitgcm`
     pip install xgcm
     pip install cmocean
 
+.. attention::
 
+	As of 2020-11-18 xmitgcm must be installed by cloning the github repository and installing as follows:
+	
+.. code-block:: bash
+
+	git clone https://github.com/MITgcm/xmitgcm.git
+	cd xmitgcm
+	python setup.py install
+
+
+ 
 
 Downloading the *ecco_v4_py* Python Package
 -------------------------------------------
