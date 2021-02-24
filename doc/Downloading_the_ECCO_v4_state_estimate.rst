@@ -81,6 +81,6 @@ Downloading the State Estimate
 ECCO v4 solutions are now hosted on the PO.DAAC drive.  This service is very useful because one can mount the ECCO file directory on PO.DAAC drive to your local machine.  
 
 You can even use wget to download files through PO.DAAC drive.  See the ECCO website for more details:
-https://ecco.jpl.nasa.gov/products/latest/
+https://ecco-group.org
 
 Take note of the location of your files.  You'll need to specify their path location to load them in the tutorial.
