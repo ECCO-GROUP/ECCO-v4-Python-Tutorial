@@ -64,6 +64,6 @@ Custom output
 *************
 
 Because the state estimate fields are the output from a free-running ocean model, users can re-run the model to generate custom output on the native lat-lon-cap model grid.  Instructions for doing so are provided here:
-https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/doc/ECCOv4r3_reproduction.pdf
+https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/doc/v4r3_reproduction_howto.pdf
 
 
