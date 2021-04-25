@@ -73,7 +73,7 @@ Option 1: *Conda*
     conda install -c conda-forge xarray dask netCDF4 bottleneck
     conda install -c conda-forge xmitgcm
     conda install -c conda-forge xgcm
-    conda install -c conda-forge cartopy
+    conda install -c conda-forge cartopy pyepsg
 
 
 Option 2: *pip* alone (not recommended)
