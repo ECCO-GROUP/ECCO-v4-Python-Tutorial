@@ -247,8 +247,9 @@ print(runoff_DA2.coords)
 # ## Example 3: Load a 3D 'compact' llc binary file with 3rd dimension = Depth
 # 
 # 
-# The file 'total_kapredi_r009bit11.bin' is a 50 depth level array of the adjusted GM redi parameter (first guess + adjustments), dimensions of [depth, j, i]
-
+# The file 'total_kapredi_r009bit11.bin' is a 50 depth level array of the adjusted Redi parameter from Release 1 (first guess + adjustments), dimensions of [depth, j, i]
+# Release 4's adjusted Redi parameter can be found at https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/ECCO_L4_OCEAN_3D_MIX_COEFFS_LLC0090GRID_V4R4/OCEAN_3D_MIXING_COEFFS_ECCO_V4r4_native_llc0090.nc
+#
 # In[22]:
 
 
