@@ -16,7 +16,9 @@
 # 
 # ECCOv4 uses the $z^*$ coordinate system in which the depth of the vertical coordinate, $z^*$ varies with time as:
 # 
-# $$ z^* = \frac{z - \eta(x,y,t)}{H(x,y) + \eta(x,y,t)} H(x,y)$$
+# \begin{equation}
+# z^* = \frac{z - \eta(x,y,t)}{H(x,y) + \eta(x,y,t)} H(x,y)
+# \end{equation}
 # 
 # With $H$ being the model depth, $\eta$ being the model sea level anomaly, and $z$ being depth.
 # 
@@ -45,15 +47,15 @@
 # 
 # To make budget calculations easier we provide the scaled velocities quantities ``UVELMASS`` and ``VVELMASS``,
 # 
-# \begin{equation}
+# \begin{align}
 # \mathit{UVELMASS}(x,y,k) = \mathit{UVEL}(x,y,k) \times \mathit{hFacW}(x,y,k) \times s^{*}(x,y,k,t)
-# \end{equation}
+# \end{align}
 # and 
-# \begin{equation}
+# \begin{align}
 # \mathit{VVELMASS}(x,y,k) = \mathit{VVEL}(x,y,k) \times \mathit{hFacS}(x,y,k) \times s^{*}(x,y,k,t)
-# \end{equation}
+# \end{align}
 # 
-# > **Note:** The word **mass** in ``UVELMASS`` and ``VVELMASS`` is confusing since there is no mass involved here.  Think of these terms as simply being ``UVEL`` and ``VVEL`` multiplied by the scaled grid cell area fraction.
+# It is worth noting that the word **mass** in ``UVELMASS`` and ``VVELMASS`` is confusing since there is no mass involved here.  Think of these terms as simply being ``UVEL`` and ``VVEL`` multiplied by the fraction of the grid cell height that is open grid cell face across which the volume transport occurs.  Partial cell bathymetry can make this fraction (hFacW, hFacS) less than one, and the $s^*$ scaling factor further adjusts this fraction higher or lower through time.
 # 
 # Fully closing the budget requires the vertical volume fluxes across the top and bottom 'w' faces of the grid cell and surface freshwater fluxes.  Regarding vertical volume fluxes, there are no $s^*$ or ``hFac`` equivalent scaling factors that modify our top and bottom grid cell areas.  Therefore, vertical volume fluxes through 'w' faces are simply:
 # 
@@ -71,7 +73,7 @@
 # 
 # Greatbatch, 1994. J. of Geophys. Res. Oceans, https://doi.org/10.1029/94JC00847
 
-# # Evaluating the model sea level anomaly ``ETAN`` volume budget
+# ## Evaluating the model sea level anomaly ``ETAN`` volume budget
 
 # We will evalute 
 # 
@@ -101,7 +103,7 @@
 # 
 # The ``UVELMASS, VVELMASS, WVELMASS`` and ``oceFWflx`` terms must be time-average quantities between the monthly $\eta$ snapshots.
 # 
-# ## Prepare environment and loading the relevant model variables
+# ### Prepare environment and loading the relevant model variables
 
 # In[1]:
 
@@ -117,7 +119,7 @@ import cmocean
 warnings.filterwarnings('ignore')
 
 
-# In[2]:
+# In[62]:
 
 
 # Density kg/m^3
@@ -125,7 +127,8 @@ rhoconst = 1029
 
 ## needed to convert surface mass fluxes to volume fluxes
 
-# lat/lon resolution in degrees to interpolate the model fields for the purposes of plotting
+# lat/lon resolution in degrees to interpolate the model 
+# fields for the purposes of plotting
 map_dx = .2
 map_dy = .2
 
@@ -180,7 +183,7 @@ year_end = 2017
 
 
 # load one extra year worth of snapshots
-ecco_monthly_snaps = ecco.recursive_load_ecco_var_from_years_nc(data_dir,                                            vars_to_load=['ETAN'],                                           years_to_load=range(year_start, year_end+1)).load()
+ecco_monthly_snaps = ecco.recursive_load_ecco_var_from_years_nc(data_dir,                          vars_to_load=['ETAN'],                         years_to_load=range(year_start, year_end+1)).load()
 
 num_months = len(ecco_monthly_snaps.time.values)
 # drop the last 11 months so that we have one snapshot at the beginning and end of each month within the 
@@ -200,7 +203,8 @@ print(ecco_monthly_snaps.ETAN.time.isel(time=[0, -1]).values)
 
 
 # find the record of the last ETAN snapshot
-last_record_date = ecco.extract_yyyy_mm_dd_hh_mm_ss_from_datetime64(ecco_monthly_snaps.time[-1].values)
+last_record_date = 
+    ecco.extract_yyyy_mm_dd_hh_mm_ss_from_datetime64(ecco_monthly_snaps.time[-1].values)
 print(last_record_date)
 last_record_year = last_record_date[0]
 
@@ -236,7 +240,7 @@ print('number of monthly mean records: ', len(ecco_monthly_mean.time))
 print('number of monthly snapshot records: ', len(ecco_monthly_snaps.time))
 
 
-# ## Create the xgcm 'grid' object
+# ### Create the xgcm 'grid' object
 # 
 # the xgcm grid object makes it easy to make flux divergence calculations across different tiles of the lat-lon-cap grid.
 
@@ -415,6 +419,7 @@ ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                       
                               cmin=-1, cmax=1, \
                               cmap=cmocean.cm.balance, user_lon_0=-67,\
                               dx=map_dx,dy=map_dy);
+
 plt.title('Actual $\Delta \eta$ [m]', fontsize=20);
 
 
@@ -440,6 +445,7 @@ plt.figure(figsize=(20,8));
 tmp = ecco.extract_yyyy_mm_dd_hh_mm_ss_from_datetime64(G_total_tendency.time[100].values)
 print(tmp)
 ecco.plot_proj_to_latlon_grid(ecco_grid.XC, ecco_grid.YC,                               G_total_tendency.isel(time=100),                              show_colorbar=True,                              cmin=-1e-7, cmax=1e-7,                              cmap=cmocean.cm.balance, user_lon_0=-67,                              dx=map_dx,dy=map_dy);
+
 plt.title('$\partial \eta / \partial t$ [m/s] during ' + 
           str(tmp[0]) +'/' + str(tmp[1]), fontsize=20);
 
@@ -621,7 +627,7 @@ plt.title('Average $\partial \eta / \partial t$ [m/s] due to vertical flux diver
           fontsize=20);
 
 
-# These values are all essentially zero (at the noise level).  On average the only vertical flux divergence in the column is across the ocean surface, because the column integrated vertical flux divergences below the surface is in the noise.  This may be related to the $z^*$ coordinate system.  When water is added or removed from he column, $\eta$ changes and the depth levels of top and bottom 'w' faces of the grid cells are scaled up or down via the $s*$ factor.  Because grid cells change thickness via $s*$ no vertical flux divergence is required.  Thus, the fact that the vertical flux divergences are zero may be an artifact of the $z*$ coordinate system.  If you, dear reader, have a better explanation, please share.
+# These values are everywhere essentially zero (numerical noise). On average, the only vertical flux divergence in the column is across the ocean surface. Below the surface, the sum of vertical flux divergence in all tracer cells in the column must be zero because any divergence in any one particular cell is exactly offset by convergence in another cell. Net convergence into the column manifests as a positive vertical velocity at the surface which is equal to oceFWflux in the time-mean. **Thanks to Hong Zhang for comments that improved this explanation**
 
 # ### Horizontal Volume Flux Divergence
 
@@ -858,7 +864,8 @@ plt.ylim([-5e-7, 5e-7]);
 plt.grid()
 
 plt.subplots_adjust(hspace = .5, wspace=.2)
-plt.suptitle('Volume Budget for one Arctic Ocean point',fontsize=20);
+plt.suptitle('Volume Budget for one Arctic Ocean point',
+                 fontsize=20);
 
 
 # Indeed, the volume divergence term does contribute to $\eta$ variations at this one point.  
@@ -875,7 +882,7 @@ plt.grid()
 plt.title('d(eta)/d(t) from surf. fluxes in 1995 [m/s]');
 
 
-# # Predicted vs. actual $\eta$ 
+# ## Predicted vs. actual $\eta$ 
 # 
 # As we have shown, in our Boussinesq model the only term that can change global mean model sea level anomaly $\eta$ is net surface freshwater flux.  Let us compare the time-evolution of $\eta$ implied by surface freshwater fluxes and the actual $\eta$ from the model output.
 # 
@@ -887,11 +894,14 @@ plt.title('d(eta)/d(t) from surf. fluxes in 1995 [m/s]');
 
 area_masked = ecco_grid.rA.where(ecco_grid.maskC.isel(k=0) == 1)
 
-dETA_per_month_predicted_from_surf_fluxes =     ((G_surf_fluxes * area_masked).sum(dim=('i','j','tile'))/area_masked.sum())*secs_per_month
+dETA_per_month_predicted_from_surf_fluxes =     ((G_surf_fluxes * area_masked).sum(dim=('i','j','tile')) / 
+     area_masked.sum())*secs_per_month
 
 ETA_predicted_by_surf_fluxes =     np.cumsum(dETA_per_month_predicted_from_surf_fluxes.values)
 
-ETA_from_ETAN = (ecco_monthly_snaps.ETAN * area_masked).sum(dim=('i','j','tile'))/ area_masked.sum()
+ETA_from_ETAN = 
+    (ecco_monthly_snaps.ETAN * area_masked).sum(dim=('i','j','tile')) /
+    area_masked.sum()
 
 # plotting
 plt.figure(figsize=(14,5));
@@ -901,10 +911,11 @@ plt.plot(ETA_from_ETAN.time.values, ETA_from_ETAN-ETA_from_ETAN[0],'r-')
 plt.grid()
 plt.ylabel('global mean $\eta$');
 plt.legend(('predicted', 'actual'));
-plt.title('$\eta(t)$ as predicted from net surface fluxes and model ETAN [m]', fontsize=20);
+plt.title('$\eta(t)$ as predicted from net surface fluxes and model ETAN [m]', 
+          fontsize=20);
 
 
-# > **Note:** the first predicted $\eta$ occurs at the end of the first month (one month time integral of $\partial \eta / \partial t$.  The first *actual* $\eta$ is set to be zero.
+# The first predicted $\eta$ occurs at the end of the first month (one month time integral of $\partial \eta / \partial t$.  The first *actual* $\eta$ is set to be zero.
 # 
 # The above plot is another way of confirming that in our Boussinesq model the only term that can change global mean model sea level anomaly $\eta$ is net surface freshwater flux.  To account for changes in global mean density we must apply the Greatbatch correction, inverse-barometer correction, and a correction term to account for the fact that sea-ice does not 'float' on top of the ocean but in fact displaces seawater upwards.  All of these corrections are made for the term ``SSH``, dynamic sea surface height anomaly (not shown here).
 
@@ -933,7 +944,8 @@ plt.figure(figsize=(8,5));
 # the -0.13 is to make the starting value comparable with WCRP fig 16.
 plt.bar(annual_mean_GMSL_due_to_mass_fluxes.year.values[12:num_years],        1000*(annual_mean_GMSL_due_to_mass_fluxes.values[12:num_years]-.017),         color='k')
 plt.grid()
-plt.xticks(np.arange(2005, annual_mean_GMSL_due_to_mass_fluxes.year.values[-1]+1,step=1));
+plt.xticks(np.arange(2005, 
+                     annual_mean_GMSL_due_to_mass_fluxes.year.values[-1]+1,step=1));
 plt.title('Sea level (mm) caused by mass fluxes');
 
 
