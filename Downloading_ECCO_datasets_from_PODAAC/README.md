@@ -2,7 +2,7 @@
 
 ## Using Python 3 & Jupyter Notebooks
 
-[Python 3 Jupyter Notebook (ipynb](Tutorial_Python3_Jupyter_Notebook_Downloading_ECCO_Datasets_from_PODAAC.ipynb)
+[Python 3 Jupyter Notebook (ipynb)](Tutorial_Python3_Jupyter_Notebook_Downloading_ECCO_Datasets_from_PODAAC.ipynb)
 
 [Python 3 Jupyter Notebook (pdf)](Tutorial_Python3_Jupyter_Notebook_Downloading_ECCO_Datasets_from_PODAAC.pdf)
 
