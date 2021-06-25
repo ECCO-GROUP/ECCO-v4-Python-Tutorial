@@ -1,4 +1,4 @@
-# Tutorial: Using Command Line wget to Download ECCO Datasets from PO.DAAC
+# Tutorial: Using Command Line _wget_ to Download ECCO Datasets from PO.DAAC
 
 Version 1.0 2021-06-25
 
@@ -61,24 +61,24 @@ Click the big green button identified by the red arrow/box in the screenshot bel
 
 <img src="https://raw.githubusercontent.com/ECCO-GROUP/ECCO-ACCESS/master/PODAAC/Images/edsc1.png" width="70%" />
 
-That will add all the granules in the collection to your "shopping cart" and then redirect you straight there and present you with the available options for customizing the data prior to download. We will ignore those because they're mostly in active development and because we want to download all data in the collection.
+That will add all the granules in the collection to your "shopping cart" and then redirect you straight there and present you with the available options for customizing the data prior to download.  In this example we ignore the other download options those because they are in active development. 
 
 <img src="https://raw.githubusercontent.com/ECCO-GROUP/ECCO-ACCESS/master/PODAAC/Images/edsc2.png" width="70%" />
 <center><i>The screenshot above shows the download customization interface (i.e. "shopping cart")</i></center>
 
 **3. Click *Download Data* to get your list of download urls (bottom-left, another green button)**
 
-The *Download Data* button takes you to one final page that provides the list of urls from which to download the files matching your search parameters and any customization options that you selected in the steps that followed. This page will be retained in your User History in case you need to return to it later.
+The *Download Data* button takes you to one final page that provides the list of urls from which to download the files matching your search parameters and any customization options that you selected in the steps that followed. This page will be retained in your User History in case you need to return to it later. 
 
 <img src="https://raw.githubusercontent.com/ECCO-GROUP/ECCO-ACCESS/master/PODAAC/Images/edsc3.png" width="70%" />
 
-There are several ways that you could get the list of urls into a text file that's accessible from Jupyter or your local shell. I simply clicked the save button in my browser and downloaded them as a text file to a subdirectory called *resources* inside this workspace. (You could also copy them into a new notebook cell and write them to a file like we did with the netrc file above.)
+There are several ways that you could get the list of urls into a text file that's accessible from Jupyter or your local shell. I simply clicked the **Save** button in my browser and downloaded them as a text file. (You could also copy them into a new notebook cell and write them to a file like we did with the ```netrc``` file above.). As of 2021-06-25 the option "Download Script" also produces a functioning script for batch downloading. 
 
-### Step 3: Download files in a batch with GNU *Wget*
+### Step 3: Download files in a batch with GNU *_wget_*
 
-I find *wget* options to be convenient and easy to remember. There are only a handful that I use with any regularity.
+I find *_wget_* options to be convenient and easy to remember. There are only a handful that I use with any regularity.
 
-The most important wget option for our purpose is set by the `-i` argument, which takes a path to the input text file containing our download urls. Another nice feature of wget is the ability to continue downloads where you left of during a previously-interrupted download session. That option is turned on by passing the `-c` argument.
+The most important _wget_ option for our purpose is set by the `-i` argument, which takes a path to the input text file containing our download urls. Another nice feature of _wget_ is the ability to continue downloads where you left of during a previously-interrupted download session. That option is turned on by passing the `-c` argument.
 
 Go ahead and create a *data/* directory to keep the downloaded files, and then start the downloads into that location by including the `-P` argument:
 
