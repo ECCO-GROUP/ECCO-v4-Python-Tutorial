@@ -76,7 +76,7 @@ There are several ways that you could get the list of urls into a text file that
 
 > **Note!**  _As of 2021-06-25 the option "Download Script" also produces a functioning script for batch downloading._)
 
-### Step 3: Download files in a batch with GNU *_wget_*
+## Step 4: Download files in a batch with GNU *_wget_*
 
 I find *_wget_* options to be convenient and easy to remember. There are only a handful that I use with any regularity.
 
@@ -85,9 +85,9 @@ The most important _wget_ option for our purpose is set by the `-i` argument, wh
 Go ahead and create a *data/* directory to keep the downloaded files, and then start the downloads into that location by including the `-P` argument:
 
 ```sh
-mkdir -p data
+$mkdir -p data
 
-wget --no-verbose \
+$wget --no-verbose \
      --no-clobber \
      --continue \
      -i 5237392644-download.txt -P data/
