@@ -9,7 +9,7 @@ Our Python tutorial is compatible with Python 3.  It relies on several packages 
 Why Python?
 -----------
 
-`Python <https://www.python.org/>`_ is an easy to learn, open source programming language.  In addition to the standard language library, there are thousands of free third-party modules (code libraries) available on the `Python Package Index <https://pypi.org/>`_ (PyPI).  Unlike commerical numerical computing environments like Matlab and IDL, Python is free for everyone to use.  In addition, Python code can be run on just any platform whether Windows, Linux, or OS X.
+`Python <https://www.python.org/>`_ is an easy to learn open source programming language.  In addition to the standard language library, there are thousands of free third-party modules (code libraries) available on code repositories such as `Python Package Index <https://pypi.org/>`_ (PyPI), `_Conda <https://anaconda.org/anaconda/repo>`_ and `Conda Forge <https://conda-forge.org/feedstock-outputs/>`_.  Unlike commerical numerical computing environments like Matlab and IDL, Python is free for everyone to use.  In addition, Python code can be run on multiple platforms such as Windows, Linux, and OS X.
 
 Here are some links to help you learn more about Python.
 
@@ -22,19 +22,14 @@ Here are some links to help you learn more about Python.
 
 .. _in-Installing:
 
-Installing Python and the Anaconda Distribution
+Installing Python
 -----------------------------------------------
 
-Python
-^^^^^^
-The latest installers for Python for many platforms can be found on the `Python website <https://www.python.org/downloads/release/python-2714/>`_.
-
+There are several ways of installing Python on your machine. You can install compiled binaries directly from the  `Python website <https://www.python.org/downloads/release/python-2714/>`_, or one can install via a package manager such as Anaconda or Miniconda. I personally find the Anaconda or Miniconda route to be simplest. 
 
 Anaconda
 ^^^^^^^^
-Python code can be written in any text editor and run from the command line.  Third-party modules can be manually installed from the command line using the `pip`_ package manager.  
-
-Python code can also be written and executed in an interactive environment (integrated development environment, IDE) similar to the Matlab console.  For scientific computing, the `Anaconda`_ Python distribution is quite convenient because it comes with a `large collection`_ of useful modules, a good open source IDE, `Spyder`_., and the ability to open and execute `Jupyter Notebooks`_
+For scientific computing, the `Anaconda`_ Python distribution is quite convenient because it comes with a `large collection`_ of useful modules, a good open source IDE, `Spyder`_., and the ability to open and execute `Jupyter Notebooks`_
 
 The latest installers for the Anaconda Distribution can be found on the `Anaconda website`_
 
@@ -49,57 +44,12 @@ The latest installers for the Anaconda Distribution can be found on the `Anacond
 
 .. _in-libraries:
 
-Installing Required Python Packages
------------------------------------
 
-After installing Anaconda the following packages must be installed: 
-*netcdf4*, *cartopy*, *pyresample*, *xarray*, *xmitgcm*, *xgcm*
-  
-
-Below are two **options** or installing these packages. PICK ONE!
-
-
-Option 1: *Conda*
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. attention::
-    Conda is recommended because it automatically installs the GEOS (Geometry Engine, Open Source) library which is needed to make projection plots.
-
-
-.. code-block:: bash
-
-    conda install geos 
-    conda install -c conda-forge cmocean
-    conda install -c conda-forge pyresample
-    conda install -c conda-forge xarray dask netCDF4 bottleneck
-    conda install -c conda-forge xmitgcm
-    conda install -c conda-forge xgcm
-    conda install -c conda-forge cartopy pyepsg
-
-
-Option 2: *pip* alone (not recommended)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. DANGER::
-    The Python module Cartopy requires the GEOS (Geometry Engine, Open Source) library.  Instructions for installing this library can be found on the `geos website`_.   Some users have reported difficulties  installing GEOS libraries on their platforms.  For that reason, we recommend using Conda (Option 1).  
-
-
-.. code-block:: bash
-
-    pip install netcdf4
-    pip install pyresample
-    pip install cartopy
-    pip install xarray
-    [SEE NOTE!] pip install xmitgcm
-    pip install xgcm
-    pip install cmocean
-
-
- 
 
 Downloading the *ecco_v4_py* Python Package
 -------------------------------------------
 
-The *ecco_v4_py* package is a library of routines that are helpful for analyzing the ECCO v4 state estimate.  It is stored on the `github repository`_ 
+The *ecco_v4_py* package is a library of routines that are helpful for analyzing the ECCO the Version 4 state estimate.  The latest version can always be found on our `github repository`_ 
 
 
 Below are three **options** or installing the *ecco_v4_py* Python package.
@@ -129,7 +79,7 @@ To use `git` to clone into the project simply run the following commands
 
 Option 2: Download the repository using git (not recommended)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This method gets you the source code but if you make changes it is harder to share those changes with the community.
+This method gets you the source code but if you make changes it is harder to share those changes with the community. Use this method if you don't have access to git.
 
 .. code-block:: bash
 	
@@ -139,21 +89,141 @@ This method gets you the source code but if you make changes it is harder to sha
     > unzip master.zip
     > rm master.zip
 
-Of course you may want to use this method if you don't have access to git.
 
-Option 3: Use the *pip* Python package tool (not recommended)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If you use *pip* to install the *ecco_v4_py* package the source code will be installed in your Python library directory from https://pypi.org/project/ecco-v4-py/.  This method is OK if you don't plan to look at or modify the library code.   
+
+Option 3: Use the *pip* Python package tool (not at all recommended)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If you use *pip* to install the *ecco_v4_py* package the source code will be installed in your Python library directory from https://pypi.org/project/ecco-v4-py/.  This method is OK if you don't plan to look at or modify the library code, but what fun would that be?  Also, YMMV with respect to installing dependencies.
 
 .. code-block:: bash
 	
     pip install ecco_v4_py
+    
+    
+       
+
+Installing Required Python Packages
+-----------------------------------
+
+The following additional packages must be installed 
+
+.. code-block:: bash
+
+  - aiohttp
+  - codecov
+  - cartopy>=0.18.0
+  - cmocean
+  - dask
+  - docrep
+  - fsspec
+  - future
+  - geos
+  - matplotlib
+  - netcdf4
+  - numpy
+  - pathlib
+  - proj
+  - pytest
+  - python=3.8
+  - pytest-cov
+  - pyresample
+  - scipy
+  - xarray
+  - xgcm>=0.5.0
+  - xmitgcm>=0.5.1
+
+Below are several **options** or installing these packages. PICK ONE!
 
 
-Using the *ecco_v4_py* Python Package in your programs
+Option 1: *Conda*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. attention::
+    Conda is recommended because it automatically installs the GEOS (Geometry Engine, Open Source) library which is needed to make projection plots.
+
+To simply install all required dependencies using conda, create a new conda environment using the ECCOv4-py environment YAML.
+
+
+.. code-block:: bash
+
+   cd your_ECCOv4_py_directory/
+   conda env create --name ECCOv4_py --file ci/environment-py38.yml
+
+To activate the conda environment with the required dependencies call:
+
+.. code-block:: bash
+
+   conda activate ECCOv4_py
+   
+   
+Alternatively, one can install the dependencies one at a time into an existing conda environment:
+
+.. code-block:: bash
+
+  conda activate yourExistingCondaEnvironment
+  
+  conda install -c conda-forge aiohttp
+  conda install -c conda-forge codecov
+  conda install -c conda-forge cartopy 
+  conda install -c conda-forge cmocean
+  conda install -c conda-forge dask
+  conda install -c conda-forge docrep
+  conda install -c conda-forge fsspec
+  conda install -c conda-forge future
+  conda install -c conda-forge geos
+  conda install -c conda-forge matplotlib
+  conda install -c conda-forge netcdf4
+  conda install -c conda-forge numpy
+  conda install -c conda-forge pathlib
+  conda install -c conda-forge proj
+  conda install -c conda-forge pytest
+  conda install -c conda-forge pytest-cov
+  conda install -c conda-forge pyresample
+  conda install -c conda-forge scipy
+  conda install -c conda-forge xarray
+  conda install -c conda-forge xgcm 
+  conda install -c conda-forge xmitgcm
+
+
+Option 2: *pip* alone (not recommended)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. DANGER::
+    The Python module Cartopy requires the GEOS (Geometry Engine, Open Source) library.  Instructions for installing this library can be found on the `geos website`_.   Some users have reported difficulties installing GEOS libraries on their platforms.  For that reason, we recommend using Conda (Option 1).   
+
+To install geos, following instructions here:
+https://pygeos.readthedocs.io/en/latest/installation.html
+
+
+.. code-block:: bash
+
+  pip install geos
+  pip install aiohttp
+  pip install codecov
+  pip install cmocean
+  pip install dask
+  pip install docrep
+  pip install fsspec
+  pip install future
+  pip install matplotlib
+  pip install netcdf4
+  pip install numpy
+  pip install pathlib
+  pip install pytest
+  pip install pytest-cov
+  pip install pyresample
+  pip install scipy
+  pip install xarray
+  pip install xgcm
+  pip install xmitgcm
+  pip install proj
+  pip install cartopy
+  
+ 
+
+
+
+Using the *ecco_v4_py* in your programs
 ------------------------------------------------------
-
-If you use Options 1 or 2 to download the *ecco_v4_py* source code then you must tell Python the location of the files before Python can it.  This is easy, you just you just have to remember to do it at the top of all of your programs!  
 
 Assuming you downloaded the *ecco_v4_py* routines to ``/home/username/ECCOv4-py`` then simply add these three lines to the top of your Python programs (or Jupyter Notebooks)
 
@@ -164,7 +234,7 @@ Assuming you downloaded the *ecco_v4_py* routines to ``/home/username/ECCOv4-py`
     import ecco_v4_py as ecco
 
 
-If you used Method 3 (pip install) then the *ecco_v4_py* library will be automatically installed and will be ready to import into your Python program via the following commands:  
+If you you installed the package using pip then the *ecco_v4_py* library will be automatically installed and will be ready to import into your Python program via the following commands:  
 
 .. code-block:: python
 
