@@ -47,6 +47,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
    ECCO_v4_Loading_LLC_compact_binary_files.ipynb
    ECCO_v4_Combining_Multiple_Datasets.ipynb
    ECCO_v4_Saving_Datasets_and_DataArrays_to_NetCDF.ipynb
+   ECCO_v4_Interpolating_Fields_to_LatLon_Grid.ipynb
 
 .. toctree::
    :maxdepth: 2
@@ -59,8 +60,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
    :maxdepth: 2
    :caption: Plotting & Interpolation
 
-   ECCO_v4_Plotting_Tiles
-   ECCO_v4_Interpolating_Fields_to_LatLon_Grid.ipynb
+   ECCO_v4_Plotting_Tiles.ipynb
 
 .. toctree::
    :maxdepth: 2
