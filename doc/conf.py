@@ -83,7 +83,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'ECCO Version 4 Python Tutorial'
-#copyright = u'2018, Ian Fenty'
+#copyright = u'2022, Ian Fenty'
 author = u'Ian Fenty and other contributors'
 
 # The version info for the project you're documenting, acts as replacement for
