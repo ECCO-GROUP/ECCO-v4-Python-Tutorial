@@ -2,7 +2,7 @@
 Python and Python Packages
 **************************
 
-Our Python tutorial is compatible with Python 3.  It relies on several packages including **ecco_v4-py** which include codes to facilitate loading, plotting, and performing calculations on ECCOv4 state estimate fields.  
+The ECCO Python tutorial is compatible with Python 3.  It relies on several packages including **ecco_v4-py** which include codes to facilitate loading, plotting, and performing calculations on ECCOv4 state estimate fields.  
 
 .. _in-python:
 
@@ -49,7 +49,7 @@ The latest installers for the Anaconda Distribution can be found on the `Anacond
 Downloading the *ecco_v4_py* Python Package
 -------------------------------------------
 
-The *ecco_v4_py* package is a library of routines that are helpful for analyzing the ECCO the Version 4 state estimate.  The latest version can always be found on our `github repository`_ 
+The *ecco_v4_py* package is a library of routines for analyzing the ECCO the Version 4 state estimate. The latest version can always be found on our `github repository`_ 
 
 
 Below are three **options** or installing the *ecco_v4_py* Python package.
@@ -64,8 +64,8 @@ Option 1: Clone into the repository using git (recommended)
 Cloning into the *ecco_v4_py* repository using `git` 
 is recommended because 
 
-a) you can easily see and modify the ecco_v4_py source code
-b) you can improve the source code and share your improvements with the community.
+a) you can easily see and modify source code
+b) you share your improvements with the community.
 
 To use `git` to clone into the project simply run the following commands
 (in the example below the Python files will go into ~/ECCOv4-py/)
@@ -77,9 +77,9 @@ To use `git` to clone into the project simply run the following commands
     > git clone https://github.com/ECCO-GROUP/ECCOv4-py.git
 
 
-Option 2: Download the repository using git (not recommended)
+Option 2: Download the repository using git (less recommended)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This method gets you the source code but if you make changes it is harder to share those changes with the community. Use this method if you don't have access to git.
+This method downloads the source code but if you make changes it is harder to share those changes with the community using git.
 
 .. code-block:: bash
 	
@@ -89,141 +89,42 @@ This method gets you the source code but if you make changes it is harder to sha
     > unzip master.zip
     > rm master.zip
 
-
-
-Option 3: Use the *pip* Python package tool (not at all recommended)
+Option 3: Use the *conda* package manager (less recommended)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If you use *pip* to install the *ecco_v4_py* package the source code will be installed in your Python library directory from https://pypi.org/project/ecco-v4-py/.  This method is OK if you don't plan to look at or modify the library code, but what fun would that be?  Also, YMMV with respect to installing dependencies.
+*ecco_v4_py* is available via the *conda* package management system (see https://anaconda.org/conda-forge/ecco_v4_py ) 
+Installing using conda should install all of the required dependencies.
+
+.. code-block:: bash
+	
+    conda install ecco_v4_py
+
+
+Option 4: Use the *pip* package manager (not at all recommended)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+*ecco_v4_py* is available via the *pip* package manager (see https://pypi.org/project/ecco-v4-py/ ) Before using pip, you must first install the PROJ and GEOS libraries (see next section). 
 
 .. code-block:: bash
 	
     pip install ecco_v4_py
     
     
-       
 
-Installing Required Python Packages
------------------------------------
-
-The following additional packages must be installed 
-
-.. code-block:: bash
-
-  - aiohttp
-  - codecov
-  - cartopy>=0.18.0
-  - cmocean
-  - dask
-  - docrep
-  - fsspec
-  - future
-  - geos
-  - matplotlib
-  - netcdf4
-  - numpy
-  - pathlib
-  - proj
-  - pytest
-  - python=3.8
-  - pytest-cov
-  - pyresample
-  - scipy
-  - xarray
-  - xgcm>=0.5.0
-  - xmitgcm>=0.5.1
-
-Below are several **options** or installing these packages. PICK ONE!
-
-
-Option 1: *Conda*
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. attention::
-    Conda is recommended because it automatically installs the GEOS (Geometry Engine, Open Source) library which is needed to make projection plots.
-
-To simply install all required dependencies using conda, create a new conda environment using the ECCOv4-py environment YAML.
-
-
-.. code-block:: bash
-
-   cd your_ECCOv4_py_directory/
-   conda env create --name ECCOv4_py --file ci/environment-py38.yml
-
-To activate the conda environment with the required dependencies call:
-
-.. code-block:: bash
-
-   conda activate ECCOv4_py
+Installing Dependencies
+-----------------------
    
-   
-Alternatively, one can install the dependencies one at a time into an existing conda environment:
-
-.. code-block:: bash
-
-  conda activate yourExistingCondaEnvironment
-  
-  conda install -c conda-forge aiohttp
-  conda install -c conda-forge codecov
-  conda install -c conda-forge cartopy 
-  conda install -c conda-forge cmocean
-  conda install -c conda-forge dask
-  conda install -c conda-forge docrep
-  conda install -c conda-forge fsspec
-  conda install -c conda-forge future
-  conda install -c conda-forge geos
-  conda install -c conda-forge matplotlib
-  conda install -c conda-forge netcdf4
-  conda install -c conda-forge numpy
-  conda install -c conda-forge pathlib
-  conda install -c conda-forge proj
-  conda install -c conda-forge pytest
-  conda install -c conda-forge pytest-cov
-  conda install -c conda-forge pyresample
-  conda install -c conda-forge scipy
-  conda install -c conda-forge xarray
-  conda install -c conda-forge xgcm 
-  conda install -c conda-forge xmitgcm
-
-
-Option 2: *pip* alone (not recommended)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 .. DANGER::
-    The Python module Cartopy requires the GEOS (Geometry Engine, Open Source) library.  Instructions for installing this library can be found on the `geos website`_.   Some users have reported difficulties installing GEOS libraries on their platforms.  For that reason, we recommend using Conda (Option 1).   
+    While conda is recommended because it automatically installs the required the GEOS (Geometry Engine) and PROJ (generic coordinate transformation software) binary libraries, you can install those libraries yourself. 
 
-To install geos, following instructions here:
-https://pygeos.readthedocs.io/en/latest/installation.html
+Instructions for installing the GEOS library can be found on the `geos website`_.  
 
+Instructions for installing the PROJ library can be found on the `proj website`_.  
 
-.. code-block:: bash
-
-  pip install geos
-  pip install aiohttp
-  pip install codecov
-  pip install cmocean
-  pip install dask
-  pip install docrep
-  pip install fsspec
-  pip install future
-  pip install matplotlib
-  pip install netcdf4
-  pip install numpy
-  pip install pathlib
-  pip install pytest
-  pip install pytest-cov
-  pip install pyresample
-  pip install scipy
-  pip install xarray
-  pip install xgcm
-  pip install xmitgcm
-  pip install proj
-  pip install cartopy
-  
- 
+Some users have reported difficulties installing these libraries on their platforms.  For that reason, we recommend using conda (Option 1).   
 
 
 
 Using the *ecco_v4_py* in your programs
-------------------------------------------------------
+---------------------------------------
 
 Assuming you downloaded the *ecco_v4_py* routines to ``/home/username/ECCOv4-py`` then simply add these three lines to the top of your Python programs (or Jupyter Notebooks)
 
@@ -240,6 +141,7 @@ If you you installed the package using pip then the *ecco_v4_py* library will be
 
     import ecco_v4_py as ecco
 
-.. _geos website: https://trac.osgeo.org/geos
 
+.. _proj website: https://proj.org/install.html
+.. _geos website: https://libgeos.org/
 .. _github repository: https://github.com/ECCO-GROUP/ECCOv4-py/tree/master/ecco_v4_py
