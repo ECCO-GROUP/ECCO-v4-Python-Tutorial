@@ -78,7 +78,7 @@ To use `git` to clone into the project simply run the following commands
 
 
 Option 2: Download the repository using git (less recommended)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 This method downloads the source code but if you make changes it is harder to share those changes with the community using git.
 
 .. code-block:: bash
