@@ -37,6 +37,7 @@ More Advanced Calculations:
 ==========================================
 11. ECCO_v4_Example_MHT
 12. ECCO_v4_Example_OSNAP
+13. ECCO_v4_Calculating_the_ECCOv4_ocean_thermal_forcing
  
 
 UNDER CONSTRUCTION: these notebooks do not 
@@ -44,5 +45,5 @@ UNDER CONSTRUCTION: these notebooks do not
 	they are included for demonstration 
 	purposes only!!!
 
-13.   VectorCalculus_ECCO_barotropicVorticity
-14.   ecco_budgets
+14.   VectorCalculus_ECCO_barotropicVorticity
+15.   ecco_budgets
