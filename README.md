@@ -4,7 +4,7 @@
 
 This repository contains a Python tutorial for using the [ECCO Central Production version 4](https://ecco.jpl.nasa.gov/) ocean and sea-ice state estimate.  Directories within the repository include the ([tutorial documentation](http://ecco-v4-python-tutorial.readthedocs.io/)) and individiual lessons from the tutorial as Juypter notebooks ([model settings ([Tutorials_as_Jupyter_Notebooks/](Tutorials_as_Jupyter_Notebooks/) and [Tutorials_as_Python_Files/](Tutorials_as_Python_Files/)).  
 
-The tutorials were written for ECCO version 4 release 3 but should be applicable to any ECCO v4 solution. If user support is needed, please contact <ecco-support@mit.edu>.
+The tutorials were written for ECCO version 4 release 3 but should be applicable to any ECCO v4 solution, and are currently being updated for version 4 release 4. If user support is needed, please contact <ecco-support@mit.edu>.
 
 [Estimating the Circulation and Climate of the Ocean]: http://ecco.jpl.nasa.gov, http://ecco-group.org/
 
