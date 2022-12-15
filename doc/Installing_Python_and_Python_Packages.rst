@@ -97,6 +97,13 @@ Installing using conda should install all of the required dependencies.
 .. code-block:: bash
 	
     conda install ecco_v4_py
+    
+    
+If for some reason the above command returns an error, include the ``-c`` option to point to the channel where the package is found (*conda-forge*).
+
+.. code-block:: bash
+
+    conda install -c conda-forge ecco_v4_py
 
 
 Option 4: Use the *pip* package manager (not at all recommended)
@@ -119,7 +126,7 @@ Instructions for installing the GEOS library can be found on the `geos website`_
 
 Instructions for installing the PROJ library can be found on the `proj website`_.  
 
-Some users have reported difficulties installing these libraries on their platforms.  For that reason, we recommend using conda (Option 1).   
+Some users have reported difficulties installing these libraries on their platforms.  For that reason, we recommend using Options 1-3.
 
 
 
