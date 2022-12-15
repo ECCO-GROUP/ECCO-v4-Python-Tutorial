@@ -29,6 +29,8 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
    fields
    Installing_Python_and_Python_Packages
    Downloading_the_ECCO_v4_state_estimate
+   Downloading_ECCO_Datasets_from_PODAAC_Python.ipynb
+   Downloading_ECCO_Datasets_from_PODAAC_wget
    Tutorial_Introduction
 
 .. toctree::
