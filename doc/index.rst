@@ -76,6 +76,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
    
    Geostrophic_balance.ipynb
    Thermal_wind.ipynb
+   Steric_height.ipynb
 
 .. toctree::
    :maxdepth: 2
