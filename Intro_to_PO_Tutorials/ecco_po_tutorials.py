@@ -1,3 +1,69 @@
+def cmap_zerocent_scale(plot,scale_factor):
+    """
+    Center colormap at zero and scale relative to existing |maximum| value, 
+    given plot object and scale_factor, a number of type float.
+    Returns new colormap limits as new_clim.
+    """
+    curr_clim = plot.get_clim()
+    new_clim = (scale_factor*np.max(np.abs(curr_clim)))*np.array([-1,1])
+    plot.set_clim(new_clim)
+    return new_clim
+
+
+
+def plot_mask(*args,ax=None,color):
+    """
+    Plot mask, given input parameters:
+    - X, Y: (optional) coordinates as 1-D or 2-D NumPy arrays or xarray DataArrays
+    - mask: 2-D array of boolean values (True/False or 1/0), NumPy or xarray
+    - axes: axes to plot on, defaults to current axes
+    - color: a string indicating a color in Matplotlib, or a 3-element tuple or NumPy array indicating RGB color values
+    
+    Returns plot_obj, the plot object of the mask 
+    """
+    if len(args) == 1:
+        mask = args[0]
+    else:
+        X = args[0]
+        Y = args[1]
+        mask = args[2]
+    # set alpha values to 1 where mask is plotted, 0 otherwise
+    if str(type(mask))[0:5] == 'xarray':
+        mask = mask.values
+    # get color for mask
+    if isinstance(color,str):
+        import matplotlib.colors as mcolors
+        color_rgb = mcolors.to_rgb(color)
+    elif (isinstance(color,tuple)) and (len(color) == 3):
+        color_rgb = np.asarray(color)
+    elif (isinstance(color,np.ndarray)) and (len(color) == 3):
+        color_rgb = color
+    else:
+        raise TypeError("input parameter 'color' has incorrect type or number of elements")
+    # create a colormap using a 2x4 array with two RGBA entries
+    # the RGB entries are the same in each row
+    # in the 1st row alpha=0, in the 2nd row alpha=1
+    cmap_array = np.hstack((np.tile(color_rgb,(2,1)),np.array([[0],[1]])))
+    from matplotlib.colors import ListedColormap
+    colormap = ListedColormap(cmap_array)
+    # get axis limits of existing plot
+    if ax is None:
+        ax = plt.gca()
+    existing_xlim = ax.get_xlim()
+    existing_ylim = ax.get_ylim()
+    # plot mask using colormap just created, with alpha=1 where mask=1 or True
+    if len(args) == 1:
+        plot_obj = ax.pcolormesh(mask,cmap=colormap,vmin=0.,vmax=1.,zorder=50)
+    else:
+        plot_obj = ax.pcolormesh(X,Y,mask,cmap=colormap,vmin=0.,vmax=1.,zorder=50)
+    # set axis limits of mask to axis limits of existing plot
+    ax.set_xlim(existing_xlim)
+    ax.set_ylim(existing_ylim)
+    
+    return plot_obj
+
+
+
 def geos_vel_compute(dens_press_filename,grid_filename="~/Downloads/ECCO_V4r4_PODAAC/ECCO_L4_GEOMETRY_LLC0090GRID_V4R4/GRID_GEOMETRY_ECCO_V4r4_native_llc0090.nc",fc_filename="llc_13tile_fc.txt"):
     """
     This routine computes geostrophic velocities from an input netCDF file containing ECCO v4r4 density and pressure anomalies on the native llc90 grid.
