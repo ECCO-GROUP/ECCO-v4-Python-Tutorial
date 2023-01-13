@@ -1,4 +1,4 @@
-# Tutorial: Using Command Line _wget_ to Download ECCO Datasets from PO.DAAC
+# Using _wget_ to Download ECCO Datasets from PO.DAAC
 
 Version 1.0 2021-06-25
 

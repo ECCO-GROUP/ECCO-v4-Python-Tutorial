@@ -4,3 +4,5 @@ _templates
 *.ipynb_checkpoints*
 /Tutorials_as_Jupyter_Notebooks/.ipynb_checkpoints/*
 .README.md.swp
+/ECCO-ACCESS/Downloading_ECCO_Datasets_from_PODAAC/~/
+*.pyc

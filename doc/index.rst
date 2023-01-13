@@ -28,7 +28,8 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
    intro
    fields
    Installing_Python_and_Python_Packages
-   Downloading_the_ECCO_v4_state_estimate
+   Downloading_ECCO_Datasets_from_PODAAC_Python.ipynb
+   Downloading_ECCO_Datasets_from_PODAAC_wget.md
    Tutorial_Introduction
 
 .. toctree::
@@ -67,6 +68,13 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
    :caption: Scalar Calculations
 
    ECCO_v4_Example_calculations_with_scalar_quantities.ipynb
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Intro to PO Tutorials
+   
+   Geostrophic_balance.ipynb
+   Thermal_wind.ipynb
 
 .. toctree::
    :maxdepth: 2
