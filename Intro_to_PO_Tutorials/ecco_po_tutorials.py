@@ -81,6 +81,11 @@ def geos_vel_compute(dens_press_filename,grid_filename="~/Downloads/ECCO_V4r4_PO
     import xarray as xr
     import json
     import xgcm
+    from os.path import expanduser,join
+    import sys
+    user_home_dir = expanduser('~')
+    sys.path.append(join(user_home_dir,'ECCOv4-py'))
+    import ecco_v4_py as ecco
     
     # load file into workspace
     ds_denspress = xr.open_dataset(dens_press_filename, data_vars='minimal',\
@@ -98,24 +103,15 @@ def geos_vel_compute(dens_press_filename,grid_filename="~/Downloads/ECCO_V4r4_PO
     ds_grid = xr.open_dataset(grid_filename)
     
     
-    # load face_connections dictionary
-    
-    # read in as string
-    with open(fc_filename) as fc:
-        data = fc.read()
-    # convert string to dictionary
-    face_connections = json.loads(data)
-    
-    
     # create xgcm Grid object
-    grid = xgcm.Grid(ds_grid,periodic=False,face_connections=face_connections)
+    xgcm_grid = ecco.get_llc_grid(ds_grid)
     
     # compute derivatives of pressure in x and y
-    d_press_dx = (grid.diff(rhoConst*pressanom,axis="X",boundary='extend'))/ds_grid.dxC
-    d_press_dy = (grid.diff(rhoConst*pressanom,axis="Y",boundary='extend'))/ds_grid.dyC
+    d_press_dx = (xgcm_grid.diff(rhoConst*pressanom,axis="X",boundary='extend'))/ds_grid.dxC
+    d_press_dy = (xgcm_grid.diff(rhoConst*pressanom,axis="Y",boundary='extend'))/ds_grid.dyC
     
     # interpolate (vector) gradient values to center of grid cells
-    press_grads_interp = grid.interp_2d_vector({'X':d_press_dx,'Y':d_press_dy},boundary='extend')
+    press_grads_interp = xgcm_grid.interp_2d_vector({'X':d_press_dx,'Y':d_press_dy},boundary='extend')
     dp_dx = press_grads_interp['X']
     dp_dy = press_grads_interp['Y']
     
