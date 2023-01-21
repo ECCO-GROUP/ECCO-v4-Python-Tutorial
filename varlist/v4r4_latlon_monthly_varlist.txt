@@ -1,0 +1,87 @@
+ECCO Version 4: Fourth Release (1992-2017)  [ECCO v4r4]
+
+These are the variables in the ECCO v4r4 output that can be downloaded as monthly averages from the PO.DAAC cloud, interpolated to a 0.5-degree latitude-longitude grid:
+
+ShortName         Variable Name     Description (units)
+
+ECCO_L4_SSH_05DEG_MONTHLY_V4R4
+                  SSH               Dynamic sea surface height anomaly. Suitable for comparisons with altimetry sea surface height data products that apply the inverse barometer correction. (m)
+                  SSHIBC            The inverted barometer correction to sea surface height due to atmospheric pressure loading. (m)
+                  SSHNOIBC          Sea surface height anomaly without the inverted barometer correction. Suitable for comparisons with altimetry sea surface height data products that do NOT apply the inverse barometer correction. (m)
+
+ECCO_L4_ATM_STATE_05DEG_MONTHLY_V4R4
+                  EXFatemp          Atmosphere surface (2 m) air temperature (degK)
+                  EXFaqh            Atmosphere surface (2 m) specific humidity (kg/kg)
+                  EXFewind          Zonal (east-west) component of ocean surface wind (m/s)
+                  EXFnwind          Meridional (north-south) component of ocean surface wind (m/s)
+                  EXFwspee          10-m wind speed magnitude (>= 0) over open water (m/s)
+                  EXFpress          Atmosphere surface pressure (N/m^2)
+
+ECCO_L4_STRESS_05DEG_MONTHLY_V4R4
+                  EXFtaue           Zonal (east-west) component of wind stress (N/m^2)
+                  EXFtaun           Meridional (north-south) component of wind stress (N/m^2)
+                  oceTAUE           Zonal (east-west) component of ocean surface stress due to wind and sea-ice (N/m^2)
+                  oceTAUN           Meridional (north-south) component of ocean surface stress due to wind and sea-ice (N/m^2)
+
+ECCO_L4_HEAT_FLUX_05DEG_MONTHLY_V4R4
+                  EXFhl             Open ocean air-sea latent heat flux (W/m^2)
+                  EXFhs             Open ocean air-sea sensible heat flux (W/m^2)
+                  EXFlwdn           Downward longwave radiative flux (W/m^2)
+                  EXFswdn           Downwelling shortwave radiative flux (W/m^2)
+                  EXFqnet           Open ocean net air-sea heat flux (W/m^2)
+                  oceQnet           Net heat flux into the ocean surface (W/m^2)
+                  SIatmQnt          Net upward heat flux to the atmosphere (W/m^2)
+                  TFLUX             Rate of change of ocean heat content per m^2 accounting for mass (e.g. freshwater) fluxes (W/m^2)
+                  EXFswnet          Open ocean net shortwave radiative flux (W/m^2)
+                  EXFlwnet          Net open ocean longwave radiative flux (W/m^2)
+                  oceQsw            Net shortwave radiative flux across the ocean surface (W/m^2)
+                  SIaaflux          Conservative ocean and sea-ice advective heat flux adjustment, associated with temperature difference between sea surface temperature and sea-ice, excluding latent heat of fusion (W/m^2)
+
+ECCO_L4_FRESH_FLUX_05DEG_MONTHLY_V4R4
+                  EXFpreci          Precipitation rate (m/s)
+                  EXFevap           Open ocean evaporation rate (m/s)
+                  EXFroff           River runoff (m/s)
+                  SIsnPrcp          Snow precipitation on sea-ice (kg/(m^2 s))
+                  EXFempmr          Open ocean net surface freshwater flux from precipitation, evaporation, and runoff (m/s)
+                  oceFWflx          Net freshwater flux into the ocean (kg/(m^2 s))
+                  SIatmFW           Net freshwater flux into the open ocean, sea-ice, and snow (kg/(m^2 s))
+                  SFLUX             Rate of change of total ocean salinity per m^2 accounting for mass fluxes (g/(m^2 s))
+                  SIacSubl          Freshwater flux to the atmosphere due to sublimation-deposition of snow or ice (kg/(m^2 s))
+                  SIrsSubl          Residual sublimation freshwater flux (kg/(m^2 s))
+                  SIfwThru          Precipitation through sea-ice (kg/(m^2 s))
+
+ECCO_L4_SEA_ICE_CONC_THICKNESS_05DEG_MONTHLY_V4R4
+                  SIarea            Sea-ice concentration (fraction between 0 and 1)
+                  SIheff            Area-averaged sea-ice thickness (m)
+                  SIhsnow           Area-averaged snow thickness (m)
+                  sIceLoad          Average sea-ice and snow mass per unit area (kg/m^2)
+
+ECCO_L4_SEA_ICE_VELOCITY_05DEG_MONTHLY_V4R4
+                  SIeice            Zonal (east-west) component of sea-ice velocity (m/s)
+                  SInice            Meridional (north-south) component of sea-ice velocity (m/s)
+
+ECCO_L4_MIXED_LAYER_DEPTH_05DEG_MONTHLY_V4R4
+                  MXLDEPTH          Mixed-layer depth diagnosed using the temperature difference criterion of Kara et al., 2000 (m)
+
+ECCO_L4_OBP_05DEG_MONTHLY_V4R4
+                  OBP               Ocean bottom pressure, excluding global mean atmospheric pressure, given as equivalent water thickness. This is suitable for comparisons with GRACE data products. (m)
+                  OBPGMAP           Ocean bottom pressure, includes global mean atmospheric pressure, given as equivalent water thickness. This is suitable for comparisons with ocean bottom pressure gauge data products. (m)
+
+ECCO_L4_OCEAN_VEL_05DEG_MONTHLY_V4R4
+                  EVEL              Zonal (east-west) component of ocean velocity (m/s)
+                  NVEL              Meridional (north-south) component of ocean velocity (m/s)
+                  WVEL              Vertical velocity (m/s)
+
+ECCO_L4_TEMP_SALINITY_05DEG_MONTHLY_V4R4
+                  THETA             Potential temperature, i.e., temperature of water parcel at sea level pressure (degC)
+                  SALT              Salinity (1e-3, or parts per thousand)
+
+ECCO_L4_DENS_STRAT_PRESS_05DEG_MONTHLY_V4R4
+                  RHOAnoma          In-situ seawater density anomaly (kg/m^3)
+                  DRHODR            Density stratification ((kg/m^3)/m)
+                  PHIHYD            Ocean hydrostatic pressure anomaly (m^2/s^2)
+             
+ECCO_L4_BOLUS_05DEG_MONTHLY_V4R4
+                  EVELSTAR          Zonal (east-west) component of the Gent-McWilliams bolus ocean velocity (m/s)
+                  NVELSTAR          Meridional (north-south) component of the Gent-McWilliams bolus ocean velocity (m/s)
+                  WVELSTAR          Vertical component of the Gent-McWilliams bolus ocean velocity (m/s)

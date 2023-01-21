@@ -33,37 +33,44 @@ The Cartesian (x,y) coordinates of llc tiles do not coorespond to longitude and 
 Available fields on the llc90 grid
 ----------------------------------
 
-*monthly-averaged ocean and sea-ice fields*: https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/nctiles_monthly/README
+`Monthly-averaged fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/v4r4_nctiles_monthly_varlist.txt>`_
 
-*monthly-snapshot ocean and sea-ice fields*: https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/nctiles_monthly_snapshots/README
+`Daily-averaged fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/v4r4_nctiles_daily_varlist.txt>`_
 
-*daily-averaged ocean and sea-ice fields*: https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/nctiles_daily/README
-
-*6-hourly atmosphere fields*: https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/input_forcing/README
+`Daily snapshot fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/v4r4_nctiles_snapshots_varlist.txt>`_
 
 
 *interpolated* 0.5° x 0.5° latitude-longitude grid
 ==================================================
 
-Select monthly-average fields from the *native* lat-lon-cap model output have been interpolated to a more user-friendly 0.5° latitude-longitude grid.  
+Many fields from the *native* lat-lon-cap model output have been interpolated to a more user-friendly 0.5° latitude-longitude grid.  Note that the interpolated fields generally can not be used to close budgets, and so flux fields that are primarily used for budget calculations have not been interpolated.
 
 Available fields on the 0.5° x 0.5° latitude-longitude grid
 -----------------------------------------------------------
-0.5° x 0.5° monthly-averaged ocean, sea-ice, and atmosphere fields: 
-https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/interp_monthly/README
+
+`0.5° x 0.5° monthly-averaged fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/v4r4_latlon_monthly_varlist.txt>`_
+
+`0.5° x 0.5° daily-averaged fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/v4r4_latlon_daily_varlist.txt>`_
+
+
+Miscellaneous fields and data
+==================================================
+
+A few time series that do not have spatial dimensions (e.g. averages over the global ocean), as well as the grid parameter fields, are listed `here <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/v4r4_tseries_grid_varlist.txt>`_.
+
+See the "Using Python to Download ECCO Datasets" tutorial for information on how to download the output.
 
 
 *******************************************
 Temporal frequency of state estimate fields
 *******************************************
 
-All three-dimensional ocean, sea-ice, and air-sea flux fields are provided as monthly averages.  Select two-dimensional ocean and sea-ice fields are provided as daily averages.  Atmospheric state fields are provided as 6-hourly records.  In addition, potential temperature (theta), salinity, and free surface height anomaly at the ocean/sea-ice interface (etan) are provided as monthly snapshots to support budget closure calculations.  
+All ocean, sea-ice, surface atmosphere, and air-sea flux fields are provided as monthly and daily averages on the native LLC90 grid.  In addition, certain fields are provided as daily snapshots (at 0Z UTC time) to support budget closure calculations.
 
 *************
 Custom output
 *************
 
-Because the state estimate fields are the output from a free-running ocean model, users can re-run the model to generate custom output on the native lat-lon-cap model grid.  Instructions for doing so are provided here:
-https://ecco.jpl.nasa.gov/drive/files/Version4/Release3/doc/v4r3_reproduction_howto.pdf
+Because the state estimate fields are the output from a free-running ocean model, users can re-run the model to generate custom output on the native lat-lon-cap model grid.  Instructions for doing so are provided `here <https://www.ecco-group.org/docs/v4r4_reproduction_howto.pdf>`_ .
 
 
