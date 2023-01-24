@@ -34,7 +34,8 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
     from pathlib import Path
     from platform import system
     from netrc import netrc
-    from os.path import basename, isfile, isdir, join
+    from os.path import basename, isfile, isdir, join, expanduser
+    import sys
     # progress bar
     from tqdm import tqdm
     # library to download files
@@ -42,12 +43,8 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
     
     # if no download directory specified, set directory under user's home directory
     if download_root_dir==None:
-        import sys
-        from os.path import expanduser
         user_home_dir = expanduser('~')
-        download_root_dir = Path(user_home_dir + '/Downloads/ECCO_V4r4_PODAAC')
-    else:
-        download_root_dir = Path(download_root_dir)
+        download_root_dir = join(user_home_dir,'Downloads','ECCO_V4r4_PODAAC')
     
     # Predict the path of the netrc file depending on os/platform type.
     _netrc = join(expanduser('~'), "_netrc" if system()=="Windows" else ".netrc")
@@ -149,11 +146,9 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
             print(f'total downloaded: {np.round(total_download_size_in_bytes/1e6,2)} Mb')
             print(f'avg download speed: {np.round(total_download_size_in_bytes/1e6/total_time,2)} Mb/s')
     
-    # define root directory for downloaded NetCDF files
-    download_root_dir = Path(user_home_dir + '/Downloads/ECCO_V4r4_PODAAC')
-    
+
     # define the directory where the downloaded files will be saved
-    download_dir = download_root_dir / ShortName
+    download_dir = Path(download_root_dir) / ShortName
     
     # create the download directory
     download_dir.mkdir(exist_ok = True, parents=True)

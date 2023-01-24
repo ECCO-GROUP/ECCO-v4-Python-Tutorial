@@ -1,6 +1,6 @@
 ECCO Version 4: Fourth Release (1992-2017)  [ECCO v4r4]
 
-These are the variables in the ECCO v4r4 output that can be downloaded as monthly averages from the PO.DAAC cloud:
+These are the variables in the ECCO v4r4 output that can be downloaded as monthly averages on the native LLC90 grid:
 
 ShortName         Variable Name     Description (units)
 
@@ -136,11 +136,3 @@ ECCO_L4_BOLUS_LLC0090GRID_MONTHLY_V4R4
 ECCO_L4_OCEAN_BOLUS_STREAMFUNCTION_LLC0090GRID_MONTHLY_V4R4
                   GM_PsiX           Gent-McWilliams bolus transport streamfunction in the model +x direction (m^2/s)
                   GM_PsiY           Gent-McWilliams bolus transport streamfunction in the model +y direction (m^2/s)
-
-ECCO_L4_GMSL_TIME_SERIES_MONTHLY_V4R4
-                  global_mean_barystatic_sea_level_anomaly
-                                    Global mean of barystatic sea level anomaly (m)
-                  global_mean_sterodynamic_sea_level_anomaly
-                                    Global mean of sterodynamic sea level anomaly (m)
-                  global_mean_sea_level_anomaly
-                                    Global mean of dynamic SSH (m)
