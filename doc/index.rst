@@ -91,13 +91,6 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
 
 .. toctree::
    :maxdepth: 2
-   :caption: UNDER CONSTRUCTION: Budget and Vorticity Calculations
-
-   VectorCalculus_ECCO_barotropicVorticity
-   ecco_budgets
-
-.. toctree::
-   :maxdepth: 2
    :caption: Support 
 
    support
