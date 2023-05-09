@@ -138,7 +138,7 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
     
             # tqdm makes a cool progress bar
-            results = list(tqdm(executor.map(download_file, dls, repeat(download_dir), repeat(force)), total=len(dls)))
+            results = list(tqdm(executor.map(download_file, dls, repeat(download_dir), repeat(force)), total=len(dls), desc='DL Progress', ascii=True, ncols=75, file=sys.stdout))
         
             # add up the total downloaded file sizes
             total_download_size_in_bytes = np.sum(np.array(results))
