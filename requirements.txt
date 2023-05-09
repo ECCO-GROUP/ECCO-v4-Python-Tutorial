@@ -1,8 +1,9 @@
 # removed ian 2023-05-08 sphinx
-sphinx_rtd_theme
-cloud_sptheme
-nbsphinx
-ipykernel
+#sphinx_rtd_theme
+#cloud_sptheme
+#nbsphinx-0.9.1
+#ipykernel
+
 # added ian 2023-05-08  
 alabaster==0.7.12
     # via sphinx
@@ -18,10 +19,14 @@ idna==3.4
     # via requests
 imagesize==1.4.1
     # via sphinx
+ipykernel==6.23.0
+    # from readthedocs log file
 jinja2==3.1.2
     # via sphinx
 markupsafe==2.1.1
     # via jinja2
+nbsphinx==0.9.1
+    # from readthedocs log file
 packaging==22.0
     # via sphinx
 pygments==2.13.0
@@ -46,5 +51,7 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
+sphinx-rtd-theme==0.4.3
+    # from readthedocs log file
 urllib3==1.26.13
     # via requests
