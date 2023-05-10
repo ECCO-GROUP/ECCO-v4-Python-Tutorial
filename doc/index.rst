@@ -29,7 +29,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
    fields
    Installing_Python_and_Python_Packages
    Downloading_ECCO_Datasets_from_PODAAC_Python.ipynb
-   Downloading_ECCO_Datasets_from_PODAAC_wget.md
+   Tutorial_wget_Command_Line_HTTPS_Downloading_ECCO_Datasets_from_PODAAC
    Tutorial_Introduction
 
 .. toctree::
