@@ -369,10 +369,10 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
                                          where 0 is the first index and end is not included).
                                          Note: only index ranges with consistent spacing can be downloaded 
                                          (e.g., downloading tiles 0,1,3,4 would need to be done either with
-                                         tile_ind=[0,5,1] or as two separate downloads [0,2,1] and [3,5,1]).
+                                         tile_isel=[0,5,1] or as two separate downloads [0,2,1] and [3,5,1]).
                                          Defaults to the full range of each dimension.
                                          If indices are specified but the dimension does not exist in the files 
-                                         (e.g., tile_ind is specified but the ShortName is for a lat/lon regridded
+                                         (e.g., tile_isel is specified but the ShortName is for a lat/lon regridded
                                          dataset), the index specification is ignored.
     
     netcdf4: bool, indicates whether to download files as NetCDF4 or (classic) NetCDF3 files.
