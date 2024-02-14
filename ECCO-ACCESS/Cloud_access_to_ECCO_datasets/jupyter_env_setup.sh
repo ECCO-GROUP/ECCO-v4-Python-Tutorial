@@ -44,11 +44,11 @@ mamba init
 
 # set paths to environment and package directories
 printf '\n# set conda environment and package directories' >> ~/.bashrc
-printf '\nexport CONDA_ENVS_PATH=/opt/conda/envs' >> ~/.bashrc
-printf '\nexport CONDA_PKGS_DIRS=/opt/conda/pkgs' >> ~/.bashrc
+printf '\nexport CONDA_ENVS_PATH=/tmp/conda/envs' >> ~/.bashrc
+printf '\nexport CONDA_PKGS_DIRS=/tmp/conda/pkgs' >> ~/.bashrc
 source ~/.bashrc
 
-# create jupyter environment under /opt/conda/envs/
+# create jupyter environment under /tmp/conda/envs/
 # (in EBS storage to save space in home directory)
 mamba create --name jupyter python=3.8 -y
 echo -e "${red_start}Created jupyter environment${nocolor_start}"
@@ -121,9 +121,9 @@ fi
 sudo chmod 400 ~/.netrc
 
 # set up Jupyter lab, to be opened in a tmux session using password
-PW="$(python3 -c 'from notebook.auth import passwd; import getpass; print(passwd(getpass.getpass(), algorithm="sha256"))')"
+PW="$(python3 -c 'from jupyter_server.auth import passwd; import getpass; print(passwd(getpass.getpass(), algorithm="sha256"))')"
 jlab_start="\'mamba activate jupyter && jupyter lab --no-browser --autoreload --port=9889 --ip=\'127.0.0.1\' --NotebookApp.token=\'\' --NotebookApp.password=\"$PW\" --notebook-dir=\"~/ECCO-v4-Python-Tutorial/Tutorials_as_Jupyter_Notebooks\" \'"
-tmux new-session -d -s jupyterlab ${jlab_start}
+tmux new -d -s jupyterlab ${jlab_start}
 
 echo -e "${red_start}Started Jupyter lab in tmux session jupyterlab"
 echo -e "${red_start}Access from your local machine in a browser window at"
