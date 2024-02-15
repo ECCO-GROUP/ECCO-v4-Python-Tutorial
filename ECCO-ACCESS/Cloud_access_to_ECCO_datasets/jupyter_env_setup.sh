@@ -50,7 +50,7 @@ source ~/.bashrc
 
 # create jupyter environment under /tmp/conda/envs/
 # (in EBS storage to save space in home directory)
-mamba create --name jupyter python=3.8 -y
+mamba create --name jupyter python=3.11 -y
 echo -e "${red_start}Created jupyter environment${nocolor_start}"
 
 # install python packages (using mamba) in jupyter environment
@@ -82,6 +82,8 @@ mamba install qt-main -y
 mamba install pyqt -y
 mamba install matplotlib -y
 mamba install netcdf4 -y
+mamba install h5netcdf -y
+mamba install boto3 lxml -y
 mamba install scipy -y
 mamba install geos -y
 mamba install proj pyproj -y
@@ -119,16 +121,3 @@ if [ $earthdata_cred_stored -eq 0 ]; then
     echo -e "\n${red_start}NASA Earthdata authentication info archived in ~\/.netrc${nocolor_start}"
 fi
 sudo chmod 400 ~/.netrc
-
-# set up Jupyter lab, to be opened in a tmux session using password
-PW="$(python3 -c 'from jupyter_server.auth import passwd; import getpass; print(passwd(getpass.getpass(), algorithm="sha256"))')"
-jlab_start="\'mamba activate jupyter && jupyter lab --no-browser --autoreload --port=9889 --ip=\'127.0.0.1\' --NotebookApp.token=\'\' --NotebookApp.password=\"$PW\" --notebook-dir=\"~/ECCO-v4-Python-Tutorial/Tutorials_as_Jupyter_Notebooks\" \'"
-tmux new -d -s jupyterlab ${jlab_start}
-
-echo -e "${red_start}Started Jupyter lab in tmux session jupyterlab"
-echo -e "${red_start}Access from your local machine in a browser window at"
-echo -e "${blue_start}http://127.0.0.1:9889/"
-echo -e "${red_start}tmux session can be accessed with"
-echo -e "${blue_start}tmux -a -t jupyterlab"
-echo -e "${red_start}and terminated with"
-echo -e "${blue_start}tmux kill-ses -t jupyterlab${nocolor_start}"
