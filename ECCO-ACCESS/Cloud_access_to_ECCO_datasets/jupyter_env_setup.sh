@@ -1,16 +1,17 @@
 #!/bin/bash
 
-# # Shell script for setting up conda, jupyter, essential Python packages on an AWS EC2 instance.
-# # Assumes that the ECCO-v4-Python-Tutorial Github repository has already been downloaded using:
-# sudo dnf update -y
-# sudo dnf install git -y
-# cd ~
-# git clone https://github.com/ECCO-GROUP/ECCO-v4-Python-Tutorial.git
+# Shell script for setting up conda, jupyter, essential Python packages on an AWS EC2 instance.
+# Assumes that the ECCO-v4-Python-Tutorial Github repository has already been downloaded using:
+# 
+# $ sudo dnf update -y
+# $ sudo dnf install git -y
+# $ cd ~
+# $ git clone https://github.com/ECCO-GROUP/ECCO-v4-Python-Tutorial.git
 
-# # Then run this script:
-# sudo chmod 755 ~/ECCO-v4-Python-Tutorial/ECCO-ACCESS/Cloud_access_to_ECCO_datasets/jupyter_env_setup.sh
-# ~/ECCO-v4-Python-Tutorial/ECCO-ACCESS/Cloud_access_to_ECCO_datasets/jupyter_env_setup.sh
-
+# Then run this script:
+# 
+# $ sudo chmod 755 ~/ECCO-v4-Python-Tutorial/ECCO-ACCESS/Cloud_access_to_ECCO_datasets/jupyter_env_setup.sh
+# $ ~/ECCO-v4-Python-Tutorial/ECCO-ACCESS/Cloud_access_to_ECCO_datasets/jupyter_env_setup.sh
 
 
 # # Start body of script
@@ -118,6 +119,6 @@ if [ $earthdata_cred_stored -eq 0 ]; then
     read -sp 'NASA Earthdata password: ' passvar
     echo -e "machine urs.earthdata.nasa.gov\n    login ${uservar}\n    password ${passvar}\n" >> ~/.netrc
     
-    echo -e "\n${red_start}NASA Earthdata authentication info archived in ~\/.netrc${nocolor_start}"
+    echo -e "\n${red_start}NASA Earthdata authentication info archived in ~/.netrc${nocolor_start}"
 fi
 sudo chmod 400 ~/.netrc
