@@ -92,12 +92,14 @@ mamba install cartopy -y
 mamba install notebook -y
 mamba install progressbar -y
 mamba install gsw -y
+mamba install nco -y
 
 # install remaining packages using pip
 # (mamba installs tend to get killed on t2.micro)
 pip install dask
-pip install xarray
+pip install "xarray[complete]"
 pip install jupyterlab
+pip install dask_labextension
 pip install s3fs
 pip install ecco_v4_py
 
