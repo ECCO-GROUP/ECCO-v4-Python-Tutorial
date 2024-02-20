@@ -156,12 +156,14 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
             results = list(tqdm(executor.map(download_file, dls, repeat(download_dir), repeat(force)),\
                                 total=len(dls), desc='DL Progress',\
                                 ascii=True, ncols=75, file=sys.stdout))
-        
+            
             # add up the total downloaded file sizes
-            total_download_size_in_bytes = np.sum(np.asarray(results)[:,-1])
+            total_download_size_in_bytes = 0
+            for result in results:
+                total_download_size_in_bytes += result[-1]
             # calculate total time spent in the download
             total_time_download = time.time() - start_time
-    
+            
             print('\n=====================================')
             print(f'total downloaded: {np.round(total_download_size_in_bytes/1e6,2)} Mb')
             print(f'avg download speed: {np.round(total_download_size_in_bytes/1e6/total_time_download,2)} Mb/s')
@@ -971,7 +973,7 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
               +"-n "+subset_file_id+" -u username -p password")
     elif download_or_list == 'download':
         start = time.time()
-        try:            
+        try:
             # use thread pool to download in parallel, with tqdm progress bar
             with ThreadPoolExecutor(max_workers=n_workers) as executor:
                 results = list(tqdm(executor.map(download_wrapper, grans_urls, repeat(url_append),\
@@ -980,11 +982,14 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
                                     total=len(grans_urls), desc='DL Progress',\
                                     ascii=True, ncols=75, file=sys.stdout))
                 downloaded_files = []
+                download_sizes = []
+                status_codes = []
                 for result in results:
-                    downloaded_files.append(result[0])
-                results_array = np.asarray(results)
-                total_download_size_in_bytes = np.sum(results_array[:,1])
-                status_codes = results_array[:,-1]                              
+                    downloaded_files.append(result[0][0])
+                    download_sizes.append(result[1])
+                    status_codes.append(result[-1])
+                total_download_size_in_bytes = np.sum(np.asarray(download_sizes))
+                status_codes = np.asarray(status_codes)
         except:
             downloaded_files = []
             total_download_size_in_bytes = 0
@@ -992,7 +997,7 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
             for url in grans_urls:
                 downloaded_file,download_size,status_code \
                   = download_wrapper(url,url_append,download_dir,subset_file_id,force_redownload)
-                downloaded_files.append(downloaded_file)
+                downloaded_files.append(downloaded_file[0])
                 total_download_size_in_bytes += download_size
                 status_codes = np.append(status_codes,status_code)
         
