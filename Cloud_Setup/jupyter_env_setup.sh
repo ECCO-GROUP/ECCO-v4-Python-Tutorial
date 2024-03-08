@@ -10,8 +10,9 @@
 
 # Then run this script:
 # 
-# $ sudo chmod 755 ~/ECCO-v4-Python-Tutorial/ECCO-ACCESS/Cloud_access_to_ECCO_datasets/jupyter_env_setup.sh
-# $ ~/ECCO-v4-Python-Tutorial/ECCO-ACCESS/Cloud_access_to_ECCO_datasets/jupyter_env_setup.sh
+# $ sudo chmod 755 ~/ECCO-v4-Python-Tutorial/Cloud_Setup/jupyter_env_setup.sh
+# $ ~/ECCO-v4-Python-Tutorial/Cloud_Setup/jupyter_env_setup.sh
+
 
 
 # # Start body of script
@@ -124,3 +125,6 @@ if [ $earthdata_cred_stored -eq 0 ]; then
     echo -e "\n${red_start}NASA Earthdata authentication info archived in ~/.netrc${nocolor_start}"
 fi
 sudo chmod 400 ~/.netrc
+
+# create symlink to jupyter_lab_start.sh from the user's home directory
+ln -s ~/ECCO-v4-Python-Tutorial/Cloud_Setup/jupyter_lab_start.sh ~/jupyter_lab_start.sh
