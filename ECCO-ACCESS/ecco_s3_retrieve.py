@@ -1,10 +1,11 @@
-### This module contains routines to download ECCO datasets using Python requests
+### This module contains routines to access and retrieve ECCO datasets on the AWS Cloud.
+### These functions will only work when called from an AWS EC2 instance running in region us-west-2.
 
 
 def ecco_podaac_s3_open(ShortName,StartDate,EndDate):
     """
     This routine searches for and opens ECCO datasets from S3 buckets in the PO.DAAC Cloud.
-    It is adapted from the ecco_podaac_download function in the ecco_download.py module.
+    It returns a list of opened file(s) on S3 that can be passed to xarray.
     This function is intended to be called from an EC2 instance running in AWS region us-west-2.
     
     Parameters
@@ -197,7 +198,8 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,download_root_dir=None,n_work
     """
     
     This routine downloads ECCO datasets from PO.DAAC, to be stored locally on a AWS EC2 instance running in region us-west-2. 
-    It is adapted from the ecco_podaac_download function in the ecco_download.py module.
+    It is adapted from the ecco_podaac_download function in the ecco_download.py module, and is the AWS Cloud equivalent of 
+    ecco_podaac_download.
     
     Parameters
     ----------
