@@ -16,7 +16,7 @@ Now let's start a new EC2 instance. We will need to do this using an Amazon Mach
 
 *Instance type*: **t2.medium**/**t3.medium** or larger is recommended, and probably necessary to run a JPL-based EC2 instance successfully. (**t3** is a newer generation, with similar or slightly cheaper costs as **t2**.)
 
-*Key pair (login)*: Click on **Create new key pair**. In the pop-up window, make the name whatever you want (e.g., aws_ec2_jupyter), select *Key pair type*: **RSA** and *Private key file format*: **.pem**, then **Create key pair**. This downloads the private key file to your Downloads folder, and you should move it to your `.ssh` folder: `mv ~/Downloads/aws_ec2_jupyter.pem ~/.ssh/`. Then change the permissions to read-only for the file owner `chmod 400 ~/.ssh/aws_ec2_jupyter.pem`.
+*Key pair (login)*: Click on **Create new key pair**. In the pop-up window, make the name whatever you want (e.g., aws_ec2_jupyter), select *Key pair type*: **RSA** and *Private key file format*: **.pem**, then **Create key pair**. This downloads the key file to your Downloads folder, and you should move it to your `.ssh` folder: `mv ~/Downloads/aws_ec2_jupyter.pem ~/.ssh/`. Then change the permissions to read-only for the file owner `chmod 400 ~/.ssh/aws_ec2_jupyter.pem`.
 
 *Network settings*: Look at **Select existing security group** to see if you can use a security group that has VPC: vpc-0161fa19cefbd9635. If not, you can try **Create security group** and make sure that the boxes for allowing SSH, HTTPS, and HTTP traffic are checked. If you have issues launching or accessing your instance, you may need to consult with another JPL user or submit a ticket to [CloudHelp](https://goto.jpl.nasa.gov/cloudhelp).
 
@@ -46,10 +46,10 @@ sudo ~/ECCO-v4-Python-Tutorial/Cloud_Setup/sshd_enable.sh
 
 The script will ask if you want to move the git repo and change its ownership. Answer **Y** and enter **jpluser** for user name.
 
-Once the script is completed, you should be able to ssh into your new instance. You can close the SSM window and from your machine's terminal window, connect to the instance's *private* IPv4 address (given on the AWS instance summary page). For example, if the private IPv4 address is 100.104.70.37, then:
+Once the script is completed, you should be able to ssh into your new instance. You can close the SSM window and from your machine's terminal window, connect to the instance's *private* IPv4 address (given on the AWS instance summary page) with user name **jpluser**. For example, if the private IPv4 address is 100.104.70.37, then:
 
 ```
-ssh -i "~/.ssh/aws_ec2_jupyter.pem" ec2-user@100.104.70.37 -L 9889:localhost:9889
+ssh -i "~/.ssh/aws_ec2_jupyter.pem" jpluser@100.104.70.37 -L 9889:localhost:9889
 ```
 
 The `-L` option indicates a tunnel from the local machine's port 9889 to the instance's port 9889; this will be used later to open Jupyterlab through your local machine's web browser.
