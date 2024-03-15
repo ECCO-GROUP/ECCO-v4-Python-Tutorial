@@ -67,7 +67,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
 
 .. toctree::
    :maxdepth: 2
-   :caption: Scalar Calculations
+   :caption: Scalar and Vector Calculations
 
    ECCO_v4_Example_calculations_with_scalar_quantities.ipynb
    ECCO_v4_Gradient_calc_on_native_grid.ipynb
