@@ -64,7 +64,7 @@ echo '$ ssh -i "~/.ssh/your_key_pair.pem" jpluser@private_ip_address'
 
 # move git repo to ssh user's directory and change ownership (if requested)
 read -p 'Move ECCO-v4-Python-Tutorial repo to different user? (Y/[N]) ' move_opt
-if [ $move_opt == "Y"] || [ $move_opt == "y" ]; then
+if [ $move_opt == "Y" ] || [ $move_opt == "y" ]; then
     read -p 'User name of new owner [jpluser for JPL]: ' ssh_user
     cd /home
     mv ./ssm-user/ECCO-v4-Python-Tutorial ./${ssh_user}/
