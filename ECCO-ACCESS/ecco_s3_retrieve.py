@@ -239,6 +239,35 @@ def download_file(s3, url, output_dir, force):
 ###================================================================================================================
 
 
+def download_files_concurrently(s3, dls, download_dir, n_workers, force=False):
+    """Download files using thread pool with up to n_workers"""
+
+    pass
+    
+    start_time = time.time()
+
+    # use thread pool for concurrent downloads
+    with ThreadPoolExecutor(max_workers=n_workers) as executor:
+
+        # tqdm makes a cool progress bar
+        downloaded_files = list(tqdm(executor.map(download_file, repeat(s3), dls, repeat(download_dir), repeat(force)),\
+                                     total=len(dls), desc='DL Progress',\
+                                     ascii=True, ncols=75, file=sys.stdout))
+    
+        # calculate total time spent in the download
+        total_time_download = time.time() - start_time
+
+        print('\n=====================================')
+        print('Time spent = ' + str(total_time_download) + ' seconds')
+        print('\n')
+
+    return downloaded_files
+
+
+
+###================================================================================================================
+
+
 def download_files_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload):
     """Wrapper for downloading functions"""
 
@@ -272,6 +301,7 @@ def download_files_wrapper(s3, s3_files_list, download_dir, n_workers, force_red
         
         print('\n=====================================')
         print('Time spent = ' + str(total_time_download) + ' seconds')
+        print('\n')
 
         return downloaded_files
 
@@ -349,6 +379,10 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,download_root_dir=None,n_work
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
     
+    download_root_dir: str, defines parent directory to download files to.
+                       Files will be downloaded to directory download_root_dir/ShortName/.
+                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
+    
     n_workers: int, number of workers to use in concurrent downloads. Benefits typically taper off above 5-6.
     
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
@@ -370,28 +404,6 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,download_root_dir=None,n_work
     
     from concurrent.futures import ThreadPoolExecutor
  
-
-        
-    ### Helper subroutine to download all urls in the list `dls`
-    def download_files_concurrently(s3, dls, download_dir, n_workers, force=False):
-        start_time = time.time()
-    
-        # use 3 threads for concurrent downloads
-        with ThreadPoolExecutor(max_workers=n_workers) as executor:
-    
-            # tqdm makes a cool progress bar
-            downloaded_files = list(tqdm(executor.map(download_file, repeat(s3), dls, repeat(download_dir), repeat(force)),\
-                                         total=len(dls), desc='DL Progress',\
-                                         ascii=True, ncols=75, file=sys.stdout))
-        
-            # calculate total time spent in the download
-            total_time_download = time.time() - start_time
-    
-            print('\n=====================================')
-            print('Time spent = ' + str(total_time_download) + ' seconds')
-
-        return downloaded_files
-    
 
     # set default download parent directory
     if download_root_dir==None:
@@ -428,7 +440,7 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,download_root_dir=None,n_work
 ###================================================================================================================
 
 
-def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5,snapshot_opt=None,download_root_dir=None,n_workers=6,\
+def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5,snapshot_interval=None,download_root_dir=None,n_workers=6,\
                                  force_redownload=False):
     
     """
@@ -454,9 +466,13 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
                     This determines whether the dataset files are stored on the current instance, or opened on S3.
                     Valid range is [0,0.9]. If number provided is outside this range, it is replaced by the closer endpoint of the range.
 
-    snapshot_opt: ('monthly', 'daily', or None), if snapshot datasets are included in ShortNames, this determines whether
-                  snapshots are included for only the beginning/end of each month ('monthly'), or for every day ('daily').
-                  If None or not specified, defaults to 'daily' if any daily mean ShortNames are included and 'monthly' otherwise.
+    snapshot_interval: ('monthly', 'daily', or None), if snapshot datasets are included in ShortNames, this determines whether
+                       snapshots are included for only the beginning/end of each month ('monthly'), or for every day ('daily').
+                       If None or not specified, defaults to 'daily' if any daily mean ShortNames are included and 'monthly' otherwise.
+
+    download_root_dir: str, defines parent directory to download files to.
+                       Files will be downloaded to directory download_root_dir/ShortName/.
+                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
     
     n_workers: int, number of workers to use in concurrent downloads. Benefits typically taper off above 5-6.
                Applies only if files are downloaded.
@@ -483,13 +499,17 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
     # initiate S3 access
     s3 = init_S3FileSystem()
 
-    # determine value of snapshot_opt if None or not specified
-    if snapshot_opt == None:
-        snapshot_opt = 'monthly'
+    # determine value of snapshot_interval if None or not specified
+    if snapshot_interval == None:
+        snapshot_interval = 'monthly'
         for curr_shortname in ShortNames:
             if 'DAILY' in curr_shortname:
-                snapshot_opt = 'daily'
+                snapshot_interval = 'daily'
                 break
+
+    # set default download parent directory
+    if download_root_dir==None:
+        download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
 
     # add up total size of files that would be downloaded
     dataset_sizes = np.array([])
@@ -499,8 +519,8 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
         # get list of files
         s3_files_list = ecco_podaac_s3_query(curr_shortname,StartDate,EndDate)
 
-        # for snapshot datasets with monthly snapshot_opt, only include snapshots at beginning/end of months
-        if (('SNAPSHOT' in curr_shortname) and (snapshot_opt == 'monthly')):
+        # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
+        if (('SNAPSHOT' in curr_shortname) and (snapshot_interval == 'monthly')):
             s3_files_list_copy = list(tuple(s3_files_list))
             for s3_file in s3_files_list:
                 snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",url)[0][1:]
@@ -509,6 +529,7 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
             s3_files_list = s3_files_list_copy
             
         # compute size of current dataset
+        download_dir = Path(download_root_dir) / curr_shortname
         curr_dataset_size = 0
         for s3_file in s3_files_list:
             if isfile(join(download_dir,basename(s3_file))) == False:
@@ -527,8 +548,8 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
             query_disk_completed = True
         except:
             try:
-                query_dir = join(os.path.split(query_dir)[:-1])
-            except:
+                query_dir = join(*os.path.split(query_dir)[:-1])
+            except:                
                 print('Error: can not detect available disk space for download_root_dir: '+download_root_dir)
                 return -1
 
@@ -536,8 +557,8 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
     sizes_sum = np.sum(dataset_sizes)
     avail_frac = sizes_sum/avail_storage
 
-    print(f'Size of files to be downloaded to instance is {sizes_sum/(2**30)} GB,\n'\
-                +f'which is {.01*np.round((1.e4)*avail_frac)}% of the {avail_storage/(2**30)} GB available storage.')
+    print(f'Size of files to be downloaded to instance is {(1.e-3)*np.round((1.e3)*sizes_sum/(2**30))} GB,\n'\
+                +f'which is {.01*np.round((1.e4)*avail_frac)}% of the {(1.e-3)*np.round((1.e3)*avail_storage/(2**30))} GB available storage.')
 
     retrieved_files = {}
     if avail_frac <= max_avail_frac:
