@@ -365,9 +365,9 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,download_root_dir=None,n_work
 
     """
     
-    This routine downloads ECCO datasets from PO.DAAC, to be stored locally on a AWS EC2 instance running in region us-west-2. 
-    It is adapted from the ecco_podaac_download function in the ecco_download.py module, and is the AWS Cloud equivalent of 
-    ecco_podaac_download.
+    This routine downloads ECCO datasets from PO.DAAC, to be stored locally on a AWS EC2 instance running in 
+    region us-west-2. It is adapted from the ecco_podaac_download function in the ecco_download.py module, 
+    and is the AWS Cloud equivalent of ecco_podaac_download.
     
     Parameters
     ----------
@@ -390,9 +390,9 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,download_root_dir=None,n_work
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False, existing files will not be replaced.
     
-    return_downloaded_files: bool, if True, string or list of downloaded file(s) (including files that were already on disk
-                                   and not replaced) is returned.
-                                   if False (default), the function returns nothing.
+    return_downloaded_files: bool, if True, string or list of downloaded file(s) (including files that were 
+                             already on disk and not replaced) is returned.
+                             If False (default), the function returns nothing.
 
     Returns
     -------
