@@ -227,7 +227,7 @@ def download_file(s3, url, output_dir, force):
     # if the file has already been downloaded, skip    
     if isfile(target_file) and force is False:
         print(f'\n{basename(url)} already exists, and force=False, not re-downloading')
-        return target_file,0
+        return target_file
 
     # download file to local (output) file directory
     s3.get_file(url, target_file)

@@ -700,7 +700,7 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
         # if the file has already been downloaded, skip    
         if isfile(output_file) and force is False:
             print(output_filename + ' already exists, and force=False, not re-downloading')
-            return 0
+            return output_file,0
         
         with requests.get(url) as r:
             if not r.status_code // 100 == 2: 
