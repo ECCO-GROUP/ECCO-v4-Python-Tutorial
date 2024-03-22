@@ -27,7 +27,7 @@ tmux send-keys -t jupyterlab ${jlab_start} Enter
 # Print info about tmux session
 echo -e "${red_start}Started Jupyter lab in tmux session jupyterlab"
 echo -e "${red_start}Access from your local machine in a browser window at"
-echo -e "${blue_start}http://127.0.0.1:9889/"
+echo -e "${blue_start}http://127.0.0.1:9889/ ${red_start}or ${blue_start}http://localhost:9889/"
 echo -e "${red_start}tmux session can be accessed with"
 echo -e "${blue_start}tmux a -t jupyterlab"
 echo -e "${red_start}and detached from current window by pressing keys"

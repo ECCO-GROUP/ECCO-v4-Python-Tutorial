@@ -20,6 +20,10 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
                        ECCOv4r4 date range is '1992-01-01' to '2017-12-31'.
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
+
+    download_root_dir: str, defines parent directory to download files to.
+                       Files will be downloaded to directory download_root_dir/ShortName/.
+                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
     
     n_workers: int, number of workers to use in concurrent downloads. Benefits typically taper off above 5-6.
     
@@ -168,6 +172,7 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
             print(f'total downloaded: {np.round(total_download_size_in_bytes/1e6,2)} Mb')
             print(f'avg download speed: {np.round(total_download_size_in_bytes/1e6/total_time_download,2)} Mb/s')
             print('Time spent = ' + str(total_time_download) + ' seconds')
+            print('\n')
             
             # return list of downloaded files
             downloaded_files = []
@@ -309,6 +314,7 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
         print(f'total downloaded: {np.round(total_download_size_in_bytes/1e6,2)} Mb')
         print(f'avg download speed: {np.round(total_download_size_in_bytes/1e6/total_time_download,2)} Mb/s')
         print('Time spent = ' + str(total_time_download) + ' seconds')
+        print('\n')
 
     if return_downloaded_files == True:
         if len(downloaded_files) == 1:
@@ -694,7 +700,7 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
         # if the file has already been downloaded, skip    
         if isfile(output_file) and force is False:
             print(output_filename + ' already exists, and force=False, not re-downloading')
-            return 0
+            return output_file,0
         
         with requests.get(url) as r:
             if not r.status_code // 100 == 2: 
@@ -1007,7 +1013,8 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
         print('\n=====================================')
         print(f'total downloaded: {np.round(total_download_size_in_bytes/1e6,2)} Mb')
         print(f'avg download speed: {np.round(total_download_size_in_bytes/1e6/total_time_download,2)} Mb/s')
-        print('Time spent = ' + str(total_time_download) + ' seconds')        
+        print('Time spent = ' + str(total_time_download) + ' seconds')
+        print('\n')
         
         # Display dates of granules that were not downloaded successfully
         status_codes_bad = (status_codes < 0).nonzero()[0]
