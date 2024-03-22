@@ -33,7 +33,8 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
 
     Returns
     -------
-    s3_files_list: str or list, opened file(s) on S3 that can be passed directly to xarray (open_dataset or open_mfdataset)
+    s3_files_list: str or list, opened file(s) on S3 that can be passed directly to xarray 
+                   (open_dataset or open_mfdataset)
     
     """
 
@@ -149,7 +150,8 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
     # actually log in with this command:
     setup_earthdata_login_auth()
     
-    # Query the NASA Common Metadata Repository to find the URL of every granule associated with the desired ECCO Dataset and date range of interest.
+    # Query the NASA Common Metadata Repository to find the URL of every granule associated with the desired 
+    # ECCO Dataset and date range of interest.
     
     # create a Python dictionary with our search criteria:  `ShortName` and `temporal`
     input_search_params = {'ShortName': ShortName,
@@ -440,15 +442,18 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,download_root_dir=None,n_work
 ###================================================================================================================
 
 
-def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5,snapshot_interval=None,download_root_dir=None,n_workers=6,\
-                                 force_redownload=False):
+def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5,snapshot_interval=None,\
+                                 download_root_dir=None,n_workers=6,force_redownload=False):
     
     """
     
-    This function estimates the storage footprint of ECCO datasets, given ShortName(s), a date range, and which files (if any) are already present.
-    If the current instance's available storage is at least twice the footprint of the new files, they are downloaded and stored locally on the instance 
-    using ecco_podaac_s3_get (hosting files locally typically speeds up loading and computation).
-    Otherwise, the files are "opened" using ecco_podaac_s3_open so that they can be accessed directly on S3 without occupying local storage.
+    This function estimates the storage footprint of ECCO datasets, given ShortName(s), a date range, and which 
+    files (if any) are already present.
+    If the footprint of the files to be downloaded (not including files already on the instance or re-downloads) 
+    is <= the max_avail_frac specified of the instance's available storage, they are downloaded and stored locally 
+    on the instance (hosting files locally typically speeds up loading and computation).
+    Otherwise, the files are "opened" using ecco_podaac_s3_open so that they can be accessed directly 
+    on S3 without occupying local storage.
 
     Parameters
     ----------
@@ -464,11 +469,14 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
 
     max_avail_frac: float, maximum fraction of remaining available disk space to use in storing current ECCO datasets.
                     This determines whether the dataset files are stored on the current instance, or opened on S3.
-                    Valid range is [0,0.9]. If number provided is outside this range, it is replaced by the closer endpoint of the range.
+                    Valid range is [0,0.9]. If number provided is outside this range, it is replaced by the closer 
+                    endpoint of the range.
 
-    snapshot_interval: ('monthly', 'daily', or None), if snapshot datasets are included in ShortNames, this determines whether
-                       snapshots are included for only the beginning/end of each month ('monthly'), or for every day ('daily').
-                       If None or not specified, defaults to 'daily' if any daily mean ShortNames are included and 'monthly' otherwise.
+    snapshot_interval: ('monthly', 'daily', or None), if snapshot datasets are included in ShortNames, 
+                       this determines whether snapshots are included for only the beginning/end of each month 
+                       ('monthly'), or for every day ('daily').
+                       If None or not specified, defaults to 'daily' if any daily mean ShortNames are included 
+                       and 'monthly' otherwise.
 
     download_root_dir: str, defines parent directory to download files to.
                        Files will be downloaded to directory download_root_dir/ShortName/.
@@ -484,8 +492,8 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
     
     Returns
     -------
-    retrieved_files: dict, with keys: ShortNames and values: downloaded or opened file(s) with path on local instance or on S3, 
-                     that can be passed directly to xarray (open_dataset or open_mfdataset).
+    retrieved_files: dict, with keys: ShortNames and values: downloaded or opened file(s) with path on local instance 
+                     or on S3, that can be passed directly to xarray (open_dataset or open_mfdataset).
     
     """
 
