@@ -86,17 +86,25 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
                                 headers=headers).json()
         return response    
     
-    def get_granules(params: dict):
+    def get_granules(params: dict, ShortName: str, SingleDay_flag: bool):
         response = get_results(params=params)
         if 'feed' in response.keys():
+            time_start = np.array([]).astype('datetime64[ns]')
             s3_files_list = []
             for curr_entry in response['feed']['entry']:
+                time_start = np.append(time_start,np.datetime64(curr_entry['time_start'],'ns'))
                 for curr_link in curr_entry['links']:
                     if "direct download access via S3" in curr_link['title']:
                         s3_files_list.append(curr_link['href'])
                         break
         elif 'errors' in response.keys():
             raise Exception(response['errors'][0])
+
+        # reduce granule list to single day if only one day in requested range
+        if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
+            if ((SingleDay_flag == True) and (len(s3_files_list) > 1)):
+                day_index = np.argmin(np.abs(time_start - np.datetime64(StartDate,'D')))
+                s3_files_list = s3_files_list[day_index:(day_index+1)]
 
         return s3_files_list    
     
@@ -130,12 +138,12 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
                  +'Program will exit now !\n')
     
     
-    # for monthly and daily datasets, do not include the month or day before
+    SingleDay_flag = False
     if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
         if np.datetime64(EndDate,'D') - np.datetime64(StartDate,'D') \
           > np.timedelta64(1,'D'):
+            # for monthly and daily datasets, do not include the month or day before
             StartDate = str(np.datetime64(StartDate,'D') + np.timedelta64(1,'D'))
-            SingleDay_flag = False
         else:
             # for single day ranges we need to make the adjustment
             # after the CMR request
@@ -162,8 +170,9 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
     ### Query CMR for the desired ECCO Dataset
     
     # grans means 'granules', PO.DAAC's term for individual files in a dataset
-    s3_files_list = get_granules(input_search_params)
-
+    s3_files_list = get_granules(input_search_params,ShortName,SingleDay_flag)
+    
+    
     return s3_files_list
 
 
