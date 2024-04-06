@@ -94,6 +94,7 @@ mamba install notebook -y
 mamba install progressbar -y
 mamba install gsw -y
 mamba install nco -y
+mamba install pympler -y
 
 # install remaining packages using pip
 # (mamba installs tend to get killed on t2.micro)
@@ -105,6 +106,7 @@ pip install s3fs
 pip install ecco_v4_py
 
 echo -e "${red_start}Completed Python package installations${nocolor_start}"
+
 
 echo -e "${red_start}Setting up NASA Earthdata authentication${nocolor_start}"
 # NASA Earthdata authentication
