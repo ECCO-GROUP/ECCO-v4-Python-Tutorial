@@ -86,19 +86,37 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
                                 headers=headers).json()
         return response    
     
-    def get_granules(params: dict):
-        response = get_results(params=params)
-        if 'feed' in response.keys():
-            s3_files_list = []
-            for curr_entry in response['feed']['entry']:
-                for curr_link in curr_entry['links']:
-                    if "direct download access via S3" in curr_link['title']:
-                        s3_files_list.append(curr_link['href'])
-                        break
-        elif 'errors' in response.keys():
-            raise Exception(response['errors'][0])
+    def get_granules(params: dict, ShortName: str, SingleDay_flag: bool):
+        time_start = np.array([]).astype('datetime64[ns]')
+        s3_files_list = []
+        completed_query = False
+        while completed_query == False:
+            response = get_results(params=params)
+            if 'feed' in response.keys():
+                for curr_entry in response['feed']['entry']:
+                    time_start = np.append(time_start,np.datetime64(curr_entry['time_start'],'ns'))
+                    for curr_link in curr_entry['links']:
+                        if "direct download access via S3" in curr_link['title']:
+                            s3_files_list.append(curr_link['href'])
+                            break
+            elif 'errors' in response.keys():
+                raise Exception(response['errors'][0])
+            
+            if len(response['feed']['entry']) < 2000:
+                completed_query = True
+            else:
+                # do another CMR search since previous search hit the allowed maximum
+                # number of entries (2000)
+                params['temporal'] = str(np.datetime64(response['feed']['entry'][-1]['time_end'],'D')\
+                                         + np.timedelta64(1,'D'))+params['temporal'][10:]
 
-        return s3_files_list    
+        # reduce granule list to single day if only one day in requested range
+        if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
+            if ((SingleDay_flag == True) and (len(s3_files_list) > 1)):
+                day_index = np.argmin(np.abs(time_start - np.datetime64(StartDate,'D')))
+                s3_files_list = s3_files_list[day_index:(day_index+1)]
+
+        return s3_files_list
     
 
     # # Adjust StartDate and EndDate to CMR query values
@@ -130,12 +148,12 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
                  +'Program will exit now !\n')
     
     
-    # for monthly and daily datasets, do not include the month or day before
+    SingleDay_flag = False
     if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
         if np.datetime64(EndDate,'D') - np.datetime64(StartDate,'D') \
           > np.timedelta64(1,'D'):
+            # for monthly and daily datasets, do not include the month or day before
             StartDate = str(np.datetime64(StartDate,'D') + np.timedelta64(1,'D'))
-            SingleDay_flag = False
         else:
             # for single day ranges we need to make the adjustment
             # after the CMR request
@@ -162,8 +180,9 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
     ### Query CMR for the desired ECCO Dataset
     
     # grans means 'granules', PO.DAAC's term for individual files in a dataset
-    s3_files_list = get_granules(input_search_params)
-
+    s3_files_list = get_granules(input_search_params,ShortName,SingleDay_flag)
+    
+    
     return s3_files_list
 
 
@@ -499,8 +518,9 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
 
     pass
 
-    import shutil    
-
+    import shutil
+    
+    
     # force max_avail_frac to be within limits [0,0.9]
     max_avail_frac = np.fmin(np.fmax(max_avail_frac,0),0.9)
     
@@ -529,9 +549,10 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
 
         # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
         if (('SNAPSHOT' in curr_shortname) and (snapshot_interval == 'monthly')):
+            import re
             s3_files_list_copy = list(tuple(s3_files_list))
             for s3_file in s3_files_list:
-                snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",url)[0][1:]
+                snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",s3_file)[0][1:]
                 if snapshot_date[8:] != '01':
                     s3_files_list_copy.remove(s3_file)
             s3_files_list = s3_files_list_copy

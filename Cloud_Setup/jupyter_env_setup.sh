@@ -29,29 +29,22 @@ echo -e "${red_start}Installed wget${nocolor_start}"
 sudo dnf install tmux -y
 echo -e "${red_start}Installed tmux${nocolor_start}"
 
-# retrieve and install miniforge in /tmp/
-# assuming EBS volume is already attached to instance
+# retrieve and install miniforge
 echo -e "${red_start}Starting Miniforge3 installation${nocolor_start}"
 mkdir -p /tmp
 wget "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh" -O /tmp/Miniforge3.sh
-bash /tmp/Miniforge3.sh -b -p /tmp/conda
+bash /tmp/Miniforge3.sh -b -p ~/conda
 rm -f /tmp/Miniforge.sh
-source "/tmp/conda/etc/profile.d/conda.sh"
-source "/tmp/conda/etc/profile.d/mamba.sh"
+source ~/conda/bin/activate
 
 echo -e "${red_start}Completed Miniforge3 installation${nocolor_start}"
 
 # add conda and mamba to path
 mamba init
 
-# set paths to environment and package directories
-printf '\n# set conda environment and package directories' >> ~/.bashrc
-printf '\nexport CONDA_ENVS_PATH=/tmp/conda/envs' >> ~/.bashrc
-printf '\nexport CONDA_PKGS_DIRS=/tmp/conda/pkgs' >> ~/.bashrc
-source ~/.bashrc
+# # set paths to environment and package directories
 
-# create jupyter environment under /tmp/conda/envs/
-# (in EBS storage to save space in home directory)
+# create jupyter environment
 mamba create --name jupyter python=3.11 -y
 echo -e "${red_start}Created jupyter environment${nocolor_start}"
 
@@ -94,6 +87,7 @@ mamba install notebook -y
 mamba install progressbar -y
 mamba install gsw -y
 mamba install nco -y
+mamba install pympler -y
 
 # install remaining packages using pip
 # (mamba installs tend to get killed on t2.micro)
@@ -105,6 +99,7 @@ pip install s3fs
 pip install ecco_v4_py
 
 echo -e "${red_start}Completed Python package installations${nocolor_start}"
+
 
 echo -e "${red_start}Setting up NASA Earthdata authentication${nocolor_start}"
 # NASA Earthdata authentication

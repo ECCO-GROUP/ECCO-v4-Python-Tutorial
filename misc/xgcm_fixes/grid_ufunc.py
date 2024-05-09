@@ -939,9 +939,25 @@ def _map_func_over_core_dims(
 
     # Need to transpose the numpy axis arguments to leave core dims at end
     # else they won't match up inside mapped_func after xr.apply_ufunc does its transposition
-    transposed_original_args = [
-        arg.transpose(..., *in_core_dims[i]) for i, arg in enumerate(original_args)
-    ]
+    if isinstance(original_args[0],dict):
+#         transposed_original_args = []
+#         for i, arg in enumerate(original_args):
+#             transposed_original_args.append(
+#               {axis: da.transpose(..., *in_core_dims[i]) for axis,da in arg.items()}
+#             )
+        transposed_original_args = [
+            tuple(arg.values())[0].transpose(..., *in_core_dims[i]) for i, arg in enumerate(original_args)
+        ]
+    
+#         boundary_width_per_numpy_axis = {
+#             grid.axes[ax_name]._get_axis_dim_num(tuple(transposed_original_args[0].values())[0]): width
+#             for ax_name, width in boundary_width_real_axes.items()
+#         }
+        
+    else:
+        transposed_original_args = [
+            arg.transpose(..., *in_core_dims[i]) for i, arg in enumerate(original_args)
+        ]
 
     boundary_width_per_numpy_axis = {
         grid.axes[ax_name]._get_axis_dim_num(transposed_original_args[0]): width
@@ -959,6 +975,9 @@ def _map_func_over_core_dims(
     # Our rechunking means dask.map_overlap needs to be explicitly told what chunks output should have
     # But in this case output chunks are the same as input chunks
     # (as we disallowed axis positions for which this is not the case)
+#     if isinstance(transposed_original_args[0],dict):
+#         original_chunksizes = [tuple(arg.values())[0].variable.chunksizes for arg in transposed_original_args]
+#     else:
     original_chunksizes = [arg.variable.chunksizes for arg in transposed_original_args]
     # TODO first argument only because map_overlap can't handle multiple return values (I think)
     true_chunksizes = original_chunksizes[0]

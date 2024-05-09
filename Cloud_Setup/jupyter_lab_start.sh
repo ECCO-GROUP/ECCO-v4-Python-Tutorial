@@ -7,7 +7,7 @@ red_start='\033[0;31m'
 blue_start='\033[0;34m'
 nocolor_start='\033[0m'
 
-source /tmp/conda/bin/activate
+source ~/conda/bin/activate
 conda activate jupyter
 
 # Start configuration for Jupyter lab
@@ -20,7 +20,7 @@ jlab_start="jupyter Space lab Space --no-browser Space --autoreload Space --port
 tmux new -d -s jupyterlab
 
 # Execute commands in tmux window using send-keys
-tmux send-keys -t jupyterlab source Space /tmp/conda/bin/activate Enter
+tmux send-keys -t jupyterlab source Space ~/conda/bin/activate Enter
 tmux send-keys -t jupyterlab conda Space activate Space jupyter Enter
 tmux send-keys -t jupyterlab ${jlab_start} Enter
 
