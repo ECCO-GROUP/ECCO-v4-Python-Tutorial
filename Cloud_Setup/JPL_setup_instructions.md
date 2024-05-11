@@ -1,5 +1,7 @@
 # JPL setup for AWS EC2 instances
 
+(valid as of 2024-05-10) 
+
 If you are based at JPL and setting up an AWS EC2 instance, there are some steps you need to take to successfully set up the instance to comply with JPL's security requirements and enable `ssh` access on your instance (which is no longer enabled by default). Please follow these steps in place of Steps 2 and 3 of the [AWS Cloud: getting started](https://ecco-v4-python-tutorial.readthedocs.io/AWS_Cloud_getting_started.html) for general users.
 
 ## Step 2: Start a JPL EC2 instance
