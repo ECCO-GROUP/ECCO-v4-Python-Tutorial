@@ -1,5 +1,7 @@
 # JPL setup for AWS EC2 instances
 
+(valid as of 2024-05-10) 
+
 If you are based at JPL and setting up an AWS EC2 instance, there are some steps you need to take to successfully set up the instance to comply with JPL's security requirements and enable `ssh` access on your instance (which is no longer enabled by default). Please follow these steps in place of Steps 2 and 3 of the [AWS Cloud: getting started](https://ecco-v4-python-tutorial.readthedocs.io/AWS_Cloud_getting_started.html) for general users.
 
 ## Step 2: Start a JPL EC2 instance
@@ -35,13 +37,18 @@ JPL does not enable `ssh` access to AWS instances by default, instead preferring
 - *Initial set up and download GitHub repository*: Copy the following commands and paste in your SSM window (using shift-insert or right-click then **Paste**):
 
 ```
-cd ~ && sudo dnf update -y && sudo dnf install git -y && git clone https://github.com/ECCO-GROUP/ECCO-v4-Python-Tutorial.git
+$ cd ~ && sudo dnf update -y && sudo dnf install git -y
+$ sudo su jpluser
+$ cd ~/
+$ mkdir git_repos
+$ cd git_repos
+$ git clone https://github.com/ECCO-GROUP/ECCO-v4-Python-Tutorial.git
 ```
 
 - *Enable ssh access*: There is a script in the GitHub repository to enable ssh access `sshd_enable.sh`. You want to run it as the *root* user, otherwise you will not have the necessary permissions. Again, copy and paste the following in your SSM window:
 
 ```
-sudo ~/ECCO-v4-Python-Tutorial/Cloud_Setup/sshd_enable.sh
+$ sudo ~/git_repos/ECCO-v4-Python-Tutorial/Cloud_Setup/sshd_enable.sh
 ```
 
 The script will ask if you want to move the git repo and change its ownership. Answer **Y** and enter **jpluser** for user name.
@@ -49,7 +56,7 @@ The script will ask if you want to move the git repo and change its ownership. A
 Once the script is completed, you should be able to ssh into your new instance. You can **Terminate** the SSM window. Then from your machine's terminal window, connect to the instance's *private* IPv4 address (given on the AWS instance summary page) with user name **jpluser**. For example, if the key file is `~/.ssh/aws_ec2_jupyter.pem` and the private IPv4 address is 100.104.70.37, then:
 
 ```
-ssh -i "~/.ssh/aws_ec2_jupyter.pem" jpluser@100.104.70.37 -L 9889:localhost:9889
+$ ssh -i "~/.ssh/aws_ec2_jupyter.pem" jpluser@100.104.70.37 -L 9889:localhost:9889
 ```
 
 The `-L` option indicates a tunnel from the local machine's port 9889 to the instance's port 9889; this will be used later to open Jupyterlab through your local machine's web browser.
@@ -62,7 +69,7 @@ Now you need to install software (conda/miniconda/miniforge) to run Python, and 
 
 1. Installing `tmux` (which allows us to persist tasks on a remote machine even when disconnected).
 
-1. Downloading `Miniforge.sh` from *conda-forge* which enables us to install `conda` and `mamba` (a faster, C-based `conda`) in the `/tmp` directory.
+1. Downloading `Miniforge.sh` from *conda-forge* which enables us to install `conda` and `mamba` (a faster, C-based `conda`)
 
 1. Creating a new conda environment called `jupyter` that will contain the packages we need to run the notebooks.
 
@@ -73,7 +80,7 @@ Now you need to install software (conda/miniconda/miniforge) to run Python, and 
 To run `jupyter_env_setup.sh`, copy, paste, and execute the following two commands on the instance:
 
 ```
-sudo chmod 755 ~/ECCO-v4-Python-Tutorial/Cloud_Setup/jupyter_env_setup.sh && ~/ECCO-v4-Python-Tutorial/Cloud_Setup/jupyter_env_setup.sh
+$ sudo chmod 755 ~/git_repos/ECCO-v4-Python-Tutorial/Cloud_Setup/jupyter_env_setup.sh && ~/git_repos/ECCO-v4-Python-Tutorial/Cloud_Setup/jupyter_env_setup.sh
 ```
 
-The script takes a few minutes to run, but it should set up our environment with the packages we need. Now you can return to Step 4 of the [AWS Cloud: getting started](https://ecco-v4-python-tutorial.readthedocs.io/AWS_Cloud_getting_started.html) tutorial.
+The script takes several minutes to run, but it should set up our environment with the packages we need. Now you can return to Step 4 of the [AWS Cloud: getting started](https://ecco-v4-python-tutorial.readthedocs.io/AWS_Cloud_getting_started.html) tutorial.
