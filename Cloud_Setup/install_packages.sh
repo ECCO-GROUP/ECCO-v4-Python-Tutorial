@@ -21,7 +21,7 @@ red_start='\033[0;31m'
 blue_start='\033[0;34m'
 nocolor_start='\033[0m'
 
-# # set paths to environment and package directories
+mamba init
 
 # create jupyter environment
 mamba create --name jupyter python=3.11 -y

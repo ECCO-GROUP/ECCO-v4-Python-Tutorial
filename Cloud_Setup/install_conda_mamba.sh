@@ -25,7 +25,7 @@ fi
 echo -e "${red_start}Starting Miniforge3 installation${nocolor_start}"
 
 # download Miniforge 
-if [ -f ~/Miniforge3.sh ]; then
+if [ ! -f ~/Miniforge3.sh ]; then
    wget "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh" -O ~/Miniforge3.sh
 else
    echo "Miniforge already downloaded!"
@@ -34,16 +34,23 @@ fi
 # install Miniforge 
 # default directory is ~/miniforge3
 
+if [ -d ~/miniforge3 ]; then
+    echo "~/miniforge3 directory already exists"
+    echo "deleting and re-installing Miniforge"
+    rm -r ~/miniforge3
+fi
 sh ~/Miniforge3.sh -b
 
 # add conda and mamba to .bashrc or equivalent
 ~/miniforge3/bin/conda init
 ~/miniforge3/bin/mamba init
+source ~/.bashrc
 
 echo -e "${red_start}Completed Miniforge3 installation${nocolor_start}"
-echo -e "${red_start}Restart your shell${nocolor_start}"
+# echo -e "${red_start}Restart your shell${nocolor_start}"
 
-mamba update -n base -c conda-forge conda
+mamba update -n base -c conda-forge conda -y
 
 # this one is a bit of a mystery, but required
 echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/miniforge3/lib" >> ~/.bashrc
+source ~/.bashrc

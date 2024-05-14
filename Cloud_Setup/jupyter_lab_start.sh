@@ -7,10 +7,12 @@ red_start='\033[0;31m'
 blue_start='\033[0;34m'
 nocolor_start='\033[0m'
 
-source ~/conda/bin/activate
+
+conda init
+source ~/miniforge3/bin/activate
 conda activate jupyter
 
-echo "Staring Jupyter lab session!"
+echo "Starting Jupyter lab session!"
 echo ""
 
 read -p 'Which port do you want to use [default 9889]: ' user_port
