@@ -9,7 +9,7 @@ nocolor_start='\033[0m'
 
 
 # Add Earthdata credentials to ~/.netrc if they are not already present
-sh ./ECCO-v4-Python-Tutorial/Docker/earthdata_auth_docker.sh
+sh ~/ECCO-v4-Python-Tutorial/Docker/earthdata_auth_docker.sh
 
 echo "Starting Jupyter lab session!"
 echo ""
@@ -29,7 +29,7 @@ PW="$(python3 -c 'from jupyter_server.auth import passwd; import getpass; print(
 # Start Jupyter lab
 source /srv/conda/bin/activate
 conda activate jupyter
-jupyter lab --no-browser --autoreload --port=${user_port} --ip='0.0.0.0' --NotebookApp.token='' --NotebookApp.password=\"$PW\" --notebook-dir=\"./ECCO-v4-Python-Tutorial\"
+jupyter lab --no-browser --autoreload --port=${user_port} --ip='0.0.0.0' --NotebookApp.token='' --NotebookApp.password=\"$PW\" --notebook-dir=\"~/ECCO-v4-Python-Tutorial\"
 
 # Print info about session
 echo -e "${red_start}Started Jupyter lab in Docker container"

@@ -82,13 +82,17 @@ RUN echo "Installing Miniforge..." \
     && find ${CONDA_DIR} -follow -type f -name '*.a' -delete
 
 
-COPY --chown=${NB_USER}:${NB_USER} ./ECCO-v4-Python-Tutorial /home/${NB_USER}/ECCO-v4-Python-Tutorial
+COPY --chown=${NB_USER}:${NB_USER} ./ECCO-v4-Python-Tutorial ${HOME}/ECCO-v4-Python-Tutorial
 
 RUN echo "Using environment.yml to create conda environment ${CONDA_ENV}" & \
         mamba env create --name ${CONDA_ENV} \
-        -f ./ECCO-v4-Python-Tutorial/Docker/environment.yml
+        -f ${HOME}/ECCO-v4-Python-Tutorial/Docker/environment.yml
+
+# create symlink from home directory to jupyter_lab_start_docker.sh
+RUN ln -s ${HOME}/ECCO-v4-Python-Tutorial/Docker/jupyter_lab_start_docker.sh \
+            ${HOME}/jupyter_lab_start_docker.sh
 
 EXPOSE 8888
 
 # start jupyter lab inside the container
-ENTRYPOINT ["./ECCO-v4-Python-Tutorial/Docker/jupyter_lab_start_docker.sh"]
+ENTRYPOINT ["${HOME}/jupyter_lab_start_docker.sh"]

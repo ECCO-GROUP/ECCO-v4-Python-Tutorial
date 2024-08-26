@@ -28,16 +28,32 @@ As Jupyter lab is launched, you will see a lot of output tagged `ServerApp` or `
 
 ## Open Jupyter lab in your browser
 
-Now you need to open a connection between your local machine and the EC2 instance with the correct port forwarding. This will look something like
+Now you need to open a connection between your local machine and the EC2 instance with the correct port forwarding. On your local machine you can use any unused port; note that if you are already running Jupyter lab/notebooks locally that port 8888 will likely already be in use. This example uses 9889 as the local port
 
 ```bash
 ssh -i ~/.ssh/aws_ec2.pem -L 9889:localhost:8888 ec2-user@100.104.70.127
 ```
 
-and then in a browser window on your local machine, access the port you specified before `localhost` above
+and in a browser window on your local machine, access the port you specified before `localhost` above
 
 ```bash
 http://localhost:9889
 ```
 
-You will see a screen that asks for a password, but if you didn't enter any before, you can just go ahead and click `Login`. Now you have access to the tutorial repository, and the tutorials are in the directory `Tutorials_as_Jupyter_Notebooks`. Enjoy!
+You will see a screen that asks for a password, but if you didn't enter any before, you can just go ahead and click `Login`. Now you have access to the tutorial repository, and the tutorials are in the directory `Tutorials_as_Jupyter_Notebooks`.
+
+## Re-connect to Jupyter lab in Docker container
+
+If the Docker container is stopped or exited, the Jupyter lab session will also exit. To restart a Docker container use `docker ps -a` to find the container name and ID, and then use
+
+```bash
+docker start <container-name or id>
+```
+
+to re-start the container. Then you may need to run the following on your instance to re-start Jupyter lab within the container:
+
+```bash
+docker exec -it <container-name or id> ~/jupyter_lab_start_docker.sh
+```
+
+and you should see the `ServerApp` and `LabApp` output appear indicating that the session has started. Then you can use `Ctrl-p` `Ctrl-q` to escape that window from the container.
