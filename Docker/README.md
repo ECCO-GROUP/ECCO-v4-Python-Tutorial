@@ -1,6 +1,6 @@
 # Run tutorials on an AWS EC2 instance using a Docker container
 
-(valid as of 2024-08-13)
+(valid as of 2024-08-26)
 
 ## Getting started
 
