@@ -7,10 +7,12 @@ red_start='\033[0;31m'
 blue_start='\033[0;34m'
 nocolor_start='\033[0m'
 
-source ~/conda/bin/activate
+
+conda init
+source ~/miniforge3/bin/activate
 conda activate jupyter
 
-echo "Staring Jupyter lab session!"
+echo "Starting Jupyter lab session!"
 echo ""
 
 read -p 'Which port do you want to use [default 9889]: ' user_port
@@ -24,7 +26,7 @@ echo "Enter password to access Jupyter lab from browser,"
 echo "or leave blank to not require a password."
 
 PW="$(python3 -c 'from jupyter_server.auth import passwd; import getpass; print(passwd(getpass.getpass(), algorithm="sha256"))')"
-jlab_start="jupyter Space lab Space --no-browser Space --autoreload Space --port=\"${user_port}\" Space --ip='127.0.0.1' Space --NotebookApp.token='' Space --NotebookApp.password=\"$PW\" Space --notebook-dir=\"~/ECCO-v4-Python-Tutorial\""
+jlab_start="jupyter Space lab Space --no-browser Space --autoreload Space --port=\"${user_port}\" Space --ip='127.0.0.1' Space --IdentityProvider.token='' Space --PasswordIdentityProvider.hashed_password=\"$PW\" Space --notebook-dir=\"~/ECCO-v4-Python-Tutorial\""
 
 # Start new tmux session
 tmux new -d -s jupyterlab

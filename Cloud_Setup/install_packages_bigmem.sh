@@ -14,7 +14,9 @@ red_start='\033[0;31m'
 blue_start='\033[0;34m'
 nocolor_start='\033[0m'
 
-# # set paths to environment and package directories
+
+conda init
+
 # create conda environment called 'jupyter'
 env_name='jupyter'
 
@@ -47,7 +49,6 @@ mamba install -n ${env_name} xarray[complete] jupyterlab dask_labextension s3fs 
 mamba install -n ${env_name} pyresample -y
 
 # install remaining packages using pip
-# (mamba installs tend to get killed on t2.micro)
 pip install ecco_v4_py --no-cache-dir
 
 echo -e "${red_start}Completed Python package installations${nocolor_start}"

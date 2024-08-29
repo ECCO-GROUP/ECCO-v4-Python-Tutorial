@@ -57,6 +57,7 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
 
    ECCO_v4_Accessing_and_Subsetting_Variables
    ECCO_v4_Operating_on_Numpy_Arrays
+   ECCO_v4_Memory_management
 
 .. toctree::
    :maxdepth: 2
