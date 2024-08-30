@@ -7,7 +7,6 @@ ENV HOME=/home/${NB_USER}
 # USER ${NB_USER}
 WORKDIR ${HOME}
 
-
 # retrieve ECCO Python tutorials
 RUN git clone https://github.com/ECCO-GROUP/ECCO-v4-Python-Tutorial.git
 
@@ -16,7 +15,8 @@ RUN mamba install -y -n notebook matplotlib ecco_v4_py
 
 # install packages needed to run Julia notebooks
 RUN julia -e 'import Pkg; Pkg.add("Pluto"); using Pluto'
-RUN julia -e 'import Pkg; Pkg.add("OceanStateEstimation")'
+RUN julia -e 'import Pkg; Pkg.add("MITgcmTools"); using MITgcmTools'
+RUN julia -e 'import Pkg; Pkg.add("OceanStateEstimation"); using OceanStateEstimation'
 
 # create symlink from home directory to jupyter_lab_start_docker.sh
 RUN ln -s ${HOME}/ECCO-v4-Python-Tutorial/Docker/smce/jupyter_lab_start_smce.sh \
