@@ -1,11 +1,36 @@
 ### This module contains routines to download ECCO datasets using Python requests
 
 
-def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_workers=6,\
-                         force_redownload=False,return_downloaded_files=False):
+## Initalize Python libraries
+import numpy as np
+import pandas as pd
+import requests
+import shutil
+import time as time
+
+# for concurrent simulatenous downloads
+from concurrent.futures import ThreadPoolExecutor
+from getpass import getpass
+from http.cookiejar import CookieJar
+from io import StringIO
+from itertools import repeat
+from pathlib import Path
+from platform import system
+from netrc import netrc
+from os.path import basename, isfile, isdir, join, expanduser
+import sys
+# progress bar
+from tqdm import tqdm
+# library to download files
+from urllib import request    
+
+
+
+def ecco_podaac_query(ShortName,StartDate,EndDate):
+    
     """
     
-    This routine downloads ECCO datasets from PO.DAAC. It is adapted from the Jupyter notebooks 
+    This routine queries NASA Earthdata to find ECCO datasets hosted by PO.DAAC. It is adapted from the Jupyter notebooks 
     created by Jack McNelis and Ian Fenty 
     (https://github.com/ECCO-GROUP/ECCO-ACCESS/blob/master/PODAAC/Downloading_ECCO_datasets_from_PODAAC/README.md)
     and modified by Andrew Delman (https://ecco-v4-python-tutorial.readthedocs.io).
@@ -21,51 +46,14 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
 
-    download_root_dir: str, defines parent directory to download files to.
-                       Files will be downloaded to directory download_root_dir/ShortName/.
-                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
-    
-    n_workers: int, number of workers to use in concurrent downloads. Benefits typically taper off above 5-6.
-    
-    force_redownload: bool, if True, existing files will be redownloaded and replaced;
-                            if False (default), existing files will not be replaced.
-
-    return_downloaded_files: bool, if True, string or list of downloaded file(s) (including files that were already on disk
-                                   and not replaced) is returned.
-                                   if False (default), the function returns nothing.
 
     Returns
     -------
-    downloaded_files: str or list, downloaded file(s) with local path that can be passed 
-                      directly to xarray (open_dataset or open_mfdataset).
-                      Only returned if return_downloaded_files=True.
+    urls,sizes: list, file URLs and sizes; this list can be used to download the files
     
     """
     
     pass
-    
-    ## Initalize Python libraries
-    import numpy as np
-    import pandas as pd
-    import requests
-    import shutil
-    import time as time
-    
-    # for concurrent simulatenous downloads
-    from concurrent.futures import ThreadPoolExecutor
-    from getpass import getpass
-    from http.cookiejar import CookieJar
-    from io import StringIO
-    from itertools import repeat
-    from pathlib import Path
-    from platform import system
-    from netrc import netrc
-    from os.path import basename, isfile, isdir, join, expanduser
-    import sys
-    # progress bar
-    from tqdm import tqdm
-    # library to download files
-    from urllib import request    
     
     #=====================================================
     
@@ -117,6 +105,116 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
             df = pd.concat([df, data])
         return df
     
+    
+    #=====================================================
+    
+    
+    # # Adjust StartDate and EndDate to CMR query values
+    
+    if StartDate=='yesterday':
+        StartDate = yesterday()
+    if EndDate==-1:
+        EndDate = StartDate
+    elif StartDate=='yesterday':
+        StartDate = yesterday()
+    elif EndDate=='today':
+        EndDate = today()
+    
+    if len(StartDate) == 4:
+        StartDate += '-01-01'
+    elif len(StartDate) == 7:
+        StartDate += '-01'
+    elif len(StartDate) != 10:
+        sys.exit('\nStart date should be in format ''YYYY'', ''YYYY-MM'', or ''YYYY-MM-DD''!\n'\
+                 +'Program will exit now !\n')
+    
+    if len(EndDate) == 4:
+        EndDate += '-12-31'
+    elif len(EndDate) == 7:
+        EndDate = str(np.datetime64(str(np.datetime64(EndDate,'M')+np.timedelta64(1,'M'))+'-01','D')\
+                      -np.timedelta64(1,'D'))
+    elif len(EndDate) != 10:
+        sys.exit('\nEnd date should be in format ''YYYY'', ''YYYY-MM'', or ''YYYY-MM-DD''!\n'\
+                 +'Program will exit now !\n')
+    
+    
+    # for monthly and daily datasets, do not include the month or day before
+    if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
+        if np.datetime64(EndDate,'D') - np.datetime64(StartDate,'D') \
+          > np.timedelta64(1,'D'):
+            StartDate = str(np.datetime64(StartDate,'D') + np.timedelta64(1,'D'))
+            SingleDay_flag = False
+        else:
+            # for single day ranges we need to make the adjustment
+            # after the CMR request
+            SingleDay_flag = True
+    # for snapshot datasets, move EndDate one day later
+    if 'SNAPSHOT' in ShortName:
+        EndDate = str(np.datetime64(EndDate,'D') + np.timedelta64(1,'D'))
+    
+    
+    ## Log into Earthdata using your username and password
+    
+    # Predict the path of the netrc file depending on os/platform type.
+    _netrc = join(expanduser('~'), "_netrc" if system()=="Windows" else ".netrc")
+    
+    # actually log in with this command:
+    setup_earthdata_login_auth()
+    
+    
+    # Query the NASA Common Metadata Repository to find the URL of every granule associated with the desired ECCO Dataset and date range of interest.
+    
+    # create a Python dictionary with our search criteria:  `ShortName` and `temporal`
+    input_search_params = {'ShortName': ShortName,
+                           'temporal': ",".join([StartDate, EndDate])}
+    
+    
+    ### Query CMR for the desired ECCO Dataset
+    
+    # grans means 'granules', PO.DAAC's term for individual files in a dataset
+    grans = get_granules(input_search_params)
+    
+    
+    ## Prepare results of query
+    
+    # reduce granule list to single day if only one day in requested range
+    if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
+        if ((SingleDay_flag == True) and (len(grans['Granule UR']) > 1)):
+            day_index = np.argmin(np.abs(np.asarray(grans['Start Time'])\
+              .astype('datetime64[ns]') - np.datetime64(StartDate,'D')))
+            grans = grans[day_index:(day_index+1)]
+    
+    # convert the rows of the 'Online Access URLS' column to a Python list
+    urls = grans['Online Access URLs'].tolist()
+    
+    # estimate granule sizes where this info is missing from CMR
+    sizes = (2**20)*np.asarray(grans['Size']).astype('float64')
+    sizes = np.where(sizes > (2**10),np.nan) 
+    if np.sum(~np.isnan(sizes)) >= 1:
+        sizes = np.where(~np.isnan(sizes),np.nanmean(sizes))
+    else:
+        input_search_params['temporal'] = ['1992-01-01','2017-12-31']
+        grans_all = get_granules(input_search_params)
+        sizes_all = (2**20)*np.asarray(grans_all['Size']).astype('float64')
+        sizes_all = np.where(sizes_all > (2**10),np.nan) 
+        sizes = np.where(~np.isnan(sizes),np.nanmean(sizes_all))
+    sizes = list(sizes)
+    urls = grans['Online Access URLs'].tolist()
+    
+    return urls,sizes
+
+
+###================================================================================================================
+
+
+def download_files_wrapper(urls, download_dir, n_workers, force_redownload):
+    """Wrapper for downloading functions"""
+    
+    pass
+    
+    #=====================================================
+    
+    ### Define Helper Subroutines
     
     ### Helper subroutine to gracefully download single files and avoids re-downloading if file already exists.
     # To force redownload of the file, pass **True** to the boolean argument *force* (default **False**)\n,
@@ -184,110 +282,12 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
     
     #=====================================================
     
-    
-    # # Adjust StartDate and EndDate to CMR query values
-    
-    if StartDate=='yesterday':
-        StartDate = yesterday()
-    if EndDate==-1:
-        EndDate = StartDate
-    elif StartDate=='yesterday':
-        StartDate = yesterday()
-    elif EndDate=='today':
-        EndDate = today()
-    
-    if len(StartDate) == 4:
-        StartDate += '-01-01'
-    elif len(StartDate) == 7:
-        StartDate += '-01'
-    elif len(StartDate) != 10:
-        sys.exit('\nStart date should be in format ''YYYY'', ''YYYY-MM'', or ''YYYY-MM-DD''!\n'\
-                 +'Program will exit now !\n')
-    
-    if len(EndDate) == 4:
-        EndDate += '-12-31'
-    elif len(EndDate) == 7:
-        EndDate = str(np.datetime64(str(np.datetime64(EndDate,'M')+np.timedelta64(1,'M'))+'-01','D')\
-                      -np.timedelta64(1,'D'))
-    elif len(EndDate) != 10:
-        sys.exit('\nEnd date should be in format ''YYYY'', ''YYYY-MM'', or ''YYYY-MM-DD''!\n'\
-                 +'Program will exit now !\n')
-    
-    
-    # for monthly and daily datasets, do not include the month or day before
-    if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
-        if np.datetime64(EndDate,'D') - np.datetime64(StartDate,'D') \
-          > np.timedelta64(1,'D'):
-            StartDate = str(np.datetime64(StartDate,'D') + np.timedelta64(1,'D'))
-            SingleDay_flag = False
-        else:
-            # for single day ranges we need to make the adjustment
-            # after the CMR request
-            SingleDay_flag = True
-    # for snapshot datasets, move EndDate one day later
-    if 'SNAPSHOT' in ShortName:
-        EndDate = str(np.datetime64(EndDate,'D') + np.timedelta64(1,'D'))
-    
-    
-    # set default download parent directory
-    if download_root_dir==None:
-        download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
-
-    # define the directory where the downloaded files will be saved
-    download_dir = Path(download_root_dir) / ShortName
-    
-    # create the download directory
-    download_dir.mkdir(exist_ok = True, parents=True)
-    
-    print(f'created download directory {download_dir}')
-    
-    
-    ## Log into Earthdata using your username and password
-    
-    # Predict the path of the netrc file depending on os/platform type.
-    _netrc = join(expanduser('~'), "_netrc" if system()=="Windows" else ".netrc")
-    
-    # actually log in with this command:
-    setup_earthdata_login_auth()
-    
-    
-    # Query the NASA Common Metadata Repository to find the URL of every granule associated with the desired ECCO Dataset and date range of interest.
-    
-    # create a Python dictionary with our search criteria:  `ShortName` and `temporal`
-    input_search_params = {'ShortName': ShortName,
-                           'temporal': ",".join([StartDate, EndDate])}
-    
-    
-    ### Query CMR for the desired ECCO Dataset
-    
-    # grans means 'granules', PO.DAAC's term for individual files in a dataset
-    grans = get_granules(input_search_params)
-    
-    # reduce granule list to single day if only one day in requested range
-    if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
-        if ((SingleDay_flag == True) and (len(grans['Granule UR']) > 1)):
-            day_index = np.argmin(np.abs(np.asarray(grans['Start Time'])\
-              .astype('datetime64[ns]') - np.datetime64(StartDate,'D')))
-            grans = grans[day_index:(day_index+1)]
-    
-    # grans.info()
-    
-    num_grans = len( grans['Granule UR'] )
-    print (f'\nTotal number of matching granules: {num_grans}')
-    
-    
-    ### Download the granules
-    
-    # convert the rows of the 'Online Access URLS' column to a Python list
-    dls = grans['Online Access URLs'].tolist()
-    
-    
     try:
         # Attempt concurrent downloads, but if error arises switch to sequential downloads
         ### Method 1: Concurrent downloads        
        
         # Force redownload (or not) depending on value of force_redownload
-        downloaded_files = download_files_concurrently(dls, download_dir, n_workers, force_redownload)
+        downloaded_files = download_files_concurrently(urls, download_dir, n_workers, force_redownload)
         
     except:
         ### Method 2: Sequential Downloads
@@ -299,8 +299,8 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
         downloaded_files = []
         total_download_size_in_bytes = 0
         
-        # loop through all urls in dls
-        for u in dls:
+        # loop through all urls
+        for u in urls:
             u_name = u.split('/')[-1]
             print(f'downloading {u_name}')
             result = download_file(url=u, output_dir=download_dir, force=force_redownload)
@@ -315,13 +315,246 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
         print(f'avg download speed: {np.round(total_download_size_in_bytes/1e6/total_time_download,2)} Mb/s')
         print('Time spent = ' + str(total_time_download) + ' seconds')
         print('\n')
+    
+    return downloaded_files
 
-    if return_downloaded_files == True:
+
+
+###================================================================================================================
+
+
+def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_workers=6,\
+                         force_redownload=False,return_downloaded_files=False):
+    """
+    
+    This routine downloads ECCO datasets from PO.DAAC. It is adapted from the Jupyter notebooks 
+    created by Jack McNelis and Ian Fenty 
+    (https://github.com/ECCO-GROUP/ECCO-ACCESS/blob/master/PODAAC/Downloading_ECCO_datasets_from_PODAAC/README.md)
+    and modified by Andrew Delman (https://ecco-v4-python-tutorial.readthedocs.io).
+    
+    Parameters
+    ----------    
+    ShortName: str, the ShortName that identifies the dataset on PO.DAAC.
+    
+    StartDate,EndDate: str, in 'YYYY', 'YYYY-MM', or 'YYYY-MM-DD' format, 
+                       define date range [StartDate,EndDate] for download.
+                       EndDate is included in the time range (unlike typical Python ranges).
+                       ECCOv4r4 date range is '1992-01-01' to '2017-12-31'.
+                       For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
+                       within the specified date range.
+
+    download_root_dir: str, defines parent directory to download files to.
+                       Files will be downloaded to directory download_root_dir/ShortName/.
+                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
+    
+    n_workers: int, number of workers to use in concurrent downloads. Benefits typically taper off above 5-6.
+    
+    force_redownload: bool, if True, existing files will be redownloaded and replaced;
+                            if False (default), existing files will not be replaced.
+
+    return_downloaded_files: bool, if True, string or list of downloaded file(s) (including files that were already on disk
+                                   and not replaced) is returned.
+                                   if False (default), the function returns nothing.
+
+    Returns
+    -------
+    downloaded_files: str or list, downloaded file(s) with local path that can be passed 
+                      directly to xarray (open_dataset or open_mfdataset).
+                      Only returned if return_downloaded_files=True.
+    
+    """
+    
+    pass
+    
+    
+    # set default download parent directory
+    if download_root_dir==None:
+        download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+
+    # define the directory where the downloaded files will be saved
+    download_dir = Path(download_root_dir) / ShortName
+    
+    # create the download directory
+    download_dir.mkdir(exist_ok = True, parents=True)
+    
+    print(f'created download directory {download_dir}')
+    
+    # query CMR for granules matching the request
+    urls,sizes = ecco_podaac_query(ShortName,StartDate,EndDate)
+    
+    # Download the granules
+    
+    downloaded_files = download_files_wrapper(urls, download_dir, n_workers, force_redownload)
+    
+    if return_downloaded_files:
         if len(downloaded_files) == 1:
             # if only 1 file is downloaded, return a string of filename instead of a list
             downloaded_files = downloaded_files[0]
         return downloaded_files
     
+
+
+###================================================================================================================
+
+
+def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5,snapshot_interval=None,\
+                                 download_root_dir=None,n_workers=6,force_redownload=False,\
+                                 return_downloaded_files=
+    
+    """
+    
+    This function estimates the storage footprint of ECCO datasets, given ShortName(s), a date range, and which 
+    files (if any) are already present.
+    If the footprint of the files to be downloaded (not including files already on the instance or re-downloads) 
+    is <= the max_avail_frac specified of the environment's available storage, they are downloaded to the user's machine.
+    Otherwise, an error is returned.
+    
+    Parameters
+    ----------
+    
+    ShortNames: str or list, the ShortName(s) that identify the dataset on PO.DAAC.
+    
+    StartDate,EndDate: str, in 'YYYY', 'YYYY-MM', or 'YYYY-MM-DD' format, 
+                       define date range [StartDate,EndDate] for download.
+                       EndDate is included in the time range (unlike typical Python ranges).
+                       ECCOv4r4 date range is '1992-01-01' to '2017-12-31'.
+                       For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
+                       within the specified date range.
+
+    max_avail_frac: float, maximum fraction of remaining available disk space to use in storing current ECCO datasets.
+                    If storing the datasets exceeds this fraction, an error is returned.
+                    Valid range is [0,0.9]. If number provided is outside this range, it is replaced by the closer 
+                    endpoint of the range.
+
+    snapshot_interval: ('monthly', 'daily', or None), if snapshot datasets are included in ShortNames, 
+                       this determines whether snapshots are included for only the beginning/end of each month 
+                       ('monthly'), or for every day ('daily').
+                       If None or not specified, defaults to 'daily' if any daily mean ShortNames are included 
+                       and 'monthly' otherwise.
+
+    download_root_dir: str, defines parent directory to download files to.
+                       Files will be downloaded to directory download_root_dir/ShortName/.
+                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
+    
+    n_workers: int, number of workers to use in concurrent downloads. Benefits typically taper off above 5-6.
+               Applies only if files are downloaded.
+    
+    force_redownload: bool, if True, existing files will be redownloaded and replaced;
+                            if False, existing files will not be replaced.
+                            Applies only if files are downloaded.
+    
+    
+    Returns
+    -------
+    downloaded_files: dict, with keys: ShortNames and values: downloaded or opened file(s) with path on local machine,
+                     that can be passed directly to xarray (open_dataset or open_mfdataset).
+    
+    """
+
+    pass
+
+    import shutil
+    
+    
+    # force max_avail_frac to be within limits [0,0.9]
+    max_avail_frac = np.fmin(np.fmax(max_avail_frac,0),0.9)
+    
+    # determine value of snapshot_interval if None or not specified
+    if snapshot_interval == None:
+        snapshot_interval = 'monthly'
+        for curr_shortname in ShortNames:
+            if 'DAILY' in curr_shortname:
+                snapshot_interval = 'daily'
+                break
+
+    # set default download parent directory
+    if download_root_dir==None:
+        download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+
+    # add up total size of files that would be downloaded
+    dataset_sizes = np.array([])
+    urls_list_all = []
+    for curr_shortname in ShortNames:
+        
+        # get list of files
+        urls,sizes = ecco_podaac_query(curr_shortname,StartDate,EndDate)
+
+        # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
+        if (('SNAPSHOT' in curr_shortname) and (snapshot_interval == 'monthly')):
+            import re
+            urls_list_copy = list(tuple(urls))
+            for url in urls:
+                snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",url)[0][1:]
+                if snapshot_date[8:] != '01':
+                    urls_list_copy.remove(urls)
+            urls = urls_list_copy
+            
+        # compute size of current dataset
+        download_dir = Path(download_root_dir) / curr_shortname
+        curr_dataset_size = 0
+        for url,size in zip(urls,sizes):
+            if not isfile(join(download_dir,basename(url))):
+                curr_dataset_size += size
+
+        dataset_sizes = np.append(dataset_sizes,curr_dataset_size)
+        urls_list_all.append(urls)
+            
+
+    # query available disk space at download location
+    query_disk_completed = False
+    query_dir = [download_root_dir][0]
+    while query_disk_completed == False:
+        try:
+            avail_storage = shutil.disk_usage(query_dir).free
+            query_disk_completed = True
+        except:
+            try:
+                query_dir = join(*os.path.split(query_dir)[:-1])
+            except:                
+                print('Error: can not detect available disk space for download_root_dir: '+download_root_dir)
+                return -1
+
+    # fraction of available storage that would be occupied by downloads
+    sizes_sum = np.sum(dataset_sizes)
+    avail_frac = sizes_sum/avail_storage
+
+    print(f'Size of files to be downloaded to instance is {(1.e-3)*np.round((1.e3)*sizes_sum/(2**30))} GB,\n'\
+                +f'which is {.01*np.round((1.e4)*avail_frac)}% of the {(1.e-3)*np.round((1.e3)*avail_storage/(2**30))} GB available storage.')
+
+    downloaded_files = {}
+    if avail_frac <= max_avail_frac:
+        # proceed with file downloads
+        print('Proceeding with file downloads from S3')
+        for curr_shortname,s3_files_list in zip(ShortNames,s3_files_list_all):
+            # set default download parent directory
+            if download_root_dir==None:
+                download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+        
+            # define the directory where the downloaded files will be saved
+            download_dir = Path(download_root_dir) / curr_shortname
+            
+            # create the download directory
+            download_dir.mkdir(exist_ok = True, parents=True)
+            
+            print(f'created download directory {download_dir}')
+
+            # download files
+            downloaded_files = download_files_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload)
+
+            if len(downloaded_files) == 1:
+                # if only 1 file is downloaded, return a string of filename instead of a list
+                downloaded_files = downloaded_files[0]
+
+            downloaded_files[curr_shortname] = downloaded_files
+
+    else:
+        # raise error
+        raise StorageError('Download size is larger than specified fraction of available storage.\n'\
+              +'Please modify your request to reduce its storage footprint.')
+
+    return downloaded_files
+
+
     
     
 ###================================================================================================================

@@ -289,7 +289,7 @@ def download_files_concurrently(s3, dls, download_dir, n_workers, force=False):
 ###================================================================================================================
 
 
-def download_files_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload):
+def download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload):
     """Wrapper for downloading functions"""
 
     pass
@@ -448,7 +448,7 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,download_root_dir=None,n_work
     s3 = init_S3FileSystem()
 
     # download files
-    downloaded_files = download_files_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload)
+    downloaded_files = download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload)
     
     if return_downloaded_files == True:
         if len(downloaded_files) == 1:
@@ -607,7 +607,7 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
             print(f'created download directory {download_dir}')
 
             # download files
-            downloaded_files = download_files_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload)
+            downloaded_files = download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload)
 
             if len(downloaded_files) == 1:
                 # if only 1 file is downloaded, return a string of filename instead of a list
