@@ -10,6 +10,7 @@ import time as time
 import os.path
 from os.path import basename, isfile, isdir, join, expanduser
 from pathlib import Path
+import glob
 
 
 def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
@@ -373,6 +374,67 @@ def ecco_podaac_s3_open(ShortName,StartDate,EndDate):
         open_files = open_files[0]
 
     return open_files
+
+
+
+###================================================================================================================
+
+
+def ecco_podaac_s3_open_fsspec(ShortName,jsons_root_dir):
+    
+    """
+    
+    This routine searches for and opens ECCO datasets from S3 buckets in the PO.DAAC Cloud.
+    It returns a list of opened file(s) on S3 that can be passed to xarray.
+    This function is intended to be called from an EC2 instance running in AWS region us-west-2.
+    
+    Parameters
+    ----------
+    ShortName: str, the ShortName that identifies the dataset on PO.DAAC.
+    
+    jsons_root_dir: str, the root/parent directory where the 
+                    fsspec/kerchunk-generated jsons are found.
+                    jsons are generated using the steps described here:
+                    https://medium.com/pangeo/fake-it-until-you-make-it-reading-goes-netcdf4-data-on-aws-s3-as-zarr
+                    -for-rapid-data-access-61e33f8fe685
+                    and stored as {jsons_root_dir}/MZZ_{GRIDTYPE}_{TIME_RES}/{SHORTNAME}.json.
+                    For v4r4, GRIDTYPE is '05DEG' or 'LLC0090GRID'.
+                    TIME_RES is one of: ('MONTHLY','DAILY','SNAPSHOT','GEOMETRY','MIXING_COEFFS').
+
+    Returns
+    -------
+    fsmap_obj: fsspec.mapping.FSMap object, can be passed directly to xarray.open_dataset 
+               (with engine='zarr')
+    
+    """
+
+    pass
+    
+    import fsspec
+    
+    
+    # identify where json file is found
+    shortname_split = ShortName.split('_')
+    gridtype = shortname_split[-3]
+    if 'GEOMETRY' in ShortName:
+        time_res = 'GEOMETRY'
+    elif 'MIX_COEFFS' in ShortName:
+        time_res = 'MIXING_COEFFS'
+    else:
+        time_res = shortname_split[-2]
+    json_subdir = join(jsons_root_dir,"_".join(['MZZ',gridtype,time_res]))
+    json_file = glob.glob(join(json_subdir,'*.json'))[0]
+    
+    # generate map object
+    fs = fsspec.filesystem(\
+                "reference", 
+                fo=json_file,\
+                remote_protocol="s3", 
+                remote_options={"anon":True},
+                skip_instance_cache=True)
+    fsmap_obj = fs.get_mapper("")
+
+    return fsmap_obj
 
 
 

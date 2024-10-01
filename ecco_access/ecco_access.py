@@ -9,9 +9,9 @@ from .ecco_download import ecco_podaac_download_subset
 
 from .ecco_s3_retrieve import ecco_podaac_s3_query
 from .ecco_s3_retrieve import ecco_podaac_s3_open
+from .ecco_s3_retrieve import ecco_podaac_s3_open_fsspec
 from .ecco_s3_retrieve import ecco_podaac_s3_get
 from .ecco_s3_retrieve import ecco_podaac_s3_get_diskaware
-
 
 
 def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
@@ -54,7 +54,7 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
     StartDate,EndDate: str, in 'YYYY', 'YYYY-MM', or 'YYYY-MM-DD' format, 
                        define date range [StartDate,EndDate] for download.
                        EndDate is included in the time range (unlike typical Python ranges).
-                       ECCOv4r4 date range is '1992-01-01' to '2017-12-31'.
+                       Full ECCOv4r4 date range (default) is '1992-01-01' to '2017-12-31'.
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
     
@@ -72,13 +72,13 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
                              to see keyword arguments that can be used in this mode.
           The following modes work within the AWS cloud only:
           's3_open': Access datasets on S3 without downloading.
+          's3_open_fsspec': Use json files (generated with `fsspec` and `kerchunk`) 
+                            for expedited opening of datasets.
           's3_get': Download from S3 (to AWS EC2 instance).
           's3_get_ifspace': Check storage availability before downloading; 
                             download if storage footprint 
                             <= max_avail_frac*(available storage).
                             Otherwise data are opened "remotely" from S3 bucket.
-          's3_fsspec': Use `fsspec` json files (generated with `kerchunk`) 
-                       for expedited loading of datasets.
 
     download_root_dir: str, defines parent directory to download files to.
                        Files will be downloaded to directory download_root_dir/ShortName/.
@@ -94,6 +94,15 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
                     If storing the datasets exceeds this fraction, an error is returned.
                     Valid range is [0,0.9]. If number provided is outside this range, it is replaced by the closer 
                     endpoint of the range.
+    
+    jsons_root_dir: str, for s3_open_fsspec mode only, the root/parent directory where the 
+                    fsspec/kerchunk-generated jsons are found.
+                    jsons are generated using the steps described here:
+                    https://medium.com/pangeo/fake-it-until-you-make-it-reading-goes-netcdf4-data-on-aws-s3-as-zarr
+                    -for-rapid-data-access-61e33f8fe685
+                    and stored as {jsons_root_dir}/MZZ_{GRIDTYPE}_{TIME_RES}/{SHORTNAME}.json.
+                    For v4r4, GRIDTYPE is '05DEG' or 'LLC0090GRID'.
+                    TIME_RES is one of: ('MONTHLY','DAILY','SNAPSHOT','GEOMETRY','MIXING_COEFFS').
     
     n_workers: int, number of workers to use in concurrent downloads. Benefits typically taper off above 5-6.
     
@@ -153,14 +162,22 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
     
     possible_mode_list = "['ls','query','s3_ls','s3_query','download',\n"\
                          +"'download_ifspace','download_subset',\n"\
-                         +"'s3_open','s3_get','s3_get_ifspace','s3_fsspec']"
+                         +"'s3_open','s3_get','s3_get_ifspace','s3_open_fsspec']"
     
     # set some default keyword arguments
     if (('n_workers' not in kwargs.keys()) and (mode != 'download_subset')):
         kwargs['n_workers'] = 6
     if 'force_redownload' not in kwargs.keys():
         kwargs['force_redownload'] = False
-    
+
+    # remove unneeded keyword arguments
+    if mode == 's3_open_fsspec':
+        for kwarg in list(kwargs.keys()):
+            if kwarg != 'jsons_root_dir':
+                del kwargs[kwarg]
+    else:
+        if 'jsons_root_dir' in kwargs.keys():
+            del kwargs['jsons_root_dir']
     
     # download or otherwise access granules, depending on mode
     
@@ -206,14 +223,16 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
             elif mode == 's3_open':
                 granule_files[shortname] = ecco_podaac_s3_open(\
                                               shortname,StartDate,EndDate)
+            elif mode == 's3_open_fsspec':
+                # granule_files will consist of mapper objects rather than URL/path or file lists
+                granule_files[shortname] = ecco_podaac_s3_open_fsspec(\
+                                              shortname,**kwargs)
             elif mode == 's3_get':
                 kwargs['return_downloaded_files'] = True
                 granule_files[shortname] = ecco_podaac_s3_get(\
                                               shortname,StartDate,EndDate,\
                                               download_root_dir=download_root_dir,\
                                               **kwargs)
-            elif mode == 's3_fsspec':
-                print('Placeholder for jsons')
             else:
                 raise ValueError('Invalid mode specified; please specify one of the following:'\
                   +'\n'+possible_mode_list)
@@ -225,7 +244,7 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
         return_granules = True
     if return_granules:
         for shortname in granule_files.keys():
-            if len(granule_files[shortname]) == 1:
+            if ((len(granule_files[shortname]) == 1) and (mode != 's3_open_fsspec')):
                 # if only 1 file is downloaded, return a string of filename instead of a list
                 granule_files[shortname] = granule_files[shortname][0]
         
