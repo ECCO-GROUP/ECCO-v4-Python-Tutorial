@@ -189,15 +189,15 @@ def ecco_podaac_query(ShortName,StartDate,EndDate):
     
     # estimate granule sizes where this info is missing from CMR
     sizes = (2**20)*np.asarray(grans['Size']).astype('float64')
-    sizes = np.where(sizes > (2**10),np.nan) 
+    sizes = np.where(sizes > (2**10),sizes,np.nan) 
     if np.sum(~np.isnan(sizes)) >= 1:
-        sizes = np.where(~np.isnan(sizes),np.nanmean(sizes))
+        sizes = np.where(~np.isnan(sizes),sizes,np.nanmean(sizes))
     else:
         input_search_params['temporal'] = ['1992-01-01','2017-12-31']
         grans_all = get_granules(input_search_params)
         sizes_all = (2**20)*np.asarray(grans_all['Size']).astype('float64')
-        sizes_all = np.where(sizes_all > (2**10),np.nan) 
-        sizes = np.where(~np.isnan(sizes),np.nanmean(sizes_all))
+        sizes_all = np.where(sizes_all > (2**10),sizes_all,np.nan) 
+        sizes = np.where(~np.isnan(sizes),sizes,np.nanmean(sizes_all))
     sizes = list(sizes)
     urls = grans['Online Access URLs'].tolist()
     
@@ -398,8 +398,7 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
 
 
 def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5,snapshot_interval=None,\
-                                 download_root_dir=None,n_workers=6,force_redownload=False,\
-                                 return_downloaded_files=
+                                 download_root_dir=None,n_workers=6,force_redownload=False):
     
     """
     
@@ -455,7 +454,6 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0
 
     import shutil
     
-    
     # force max_avail_frac to be within limits [0,0.9]
     max_avail_frac = np.fmin(np.fmax(max_avail_frac,0),0.9)
     
@@ -489,8 +487,11 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0
                     urls_list_copy.remove(urls)
             urls = urls_list_copy
             
-        # compute size of current dataset
+        # create the download directory if it does not already exist
         download_dir = Path(download_root_dir) / curr_shortname
+        download_dir.mkdir(exist_ok = True, parents=True)
+        
+        # compute size of current dataset
         curr_dataset_size = 0
         for url,size in zip(urls,sizes):
             if not isfile(join(download_dir,basename(url))):
@@ -524,32 +525,24 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0
     downloaded_files = {}
     if avail_frac <= max_avail_frac:
         # proceed with file downloads
-        print('Proceeding with file downloads from S3')
-        for curr_shortname,s3_files_list in zip(ShortNames,s3_files_list_all):
-            # set default download parent directory
-            if download_root_dir==None:
-                download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+        print('Proceeding with file downloads via NASA Earthdata URLs')
+        for curr_shortname,urls_list in zip(ShortNames,urls_list_all):
         
             # define the directory where the downloaded files will be saved
             download_dir = Path(download_root_dir) / curr_shortname
             
-            # create the download directory
-            download_dir.mkdir(exist_ok = True, parents=True)
-            
-            print(f'created download directory {download_dir}')
-
             # download files
-            downloaded_files = download_files_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload)
+            curr_downloaded_files = download_files_wrapper(urls_list, download_dir, n_workers, force_redownload)
 
             if len(downloaded_files) == 1:
                 # if only 1 file is downloaded, return a string of filename instead of a list
-                downloaded_files = downloaded_files[0]
+                curr_downloaded_files = curr_downloaded_files[0]
 
-            downloaded_files[curr_shortname] = downloaded_files
+            downloaded_files[curr_shortname] = curr_downloaded_files
 
     else:
-        # raise error
-        raise StorageError('Download size is larger than specified fraction of available storage.\n'\
+        # raise exception and prevent download
+        raise Exception('Download size is larger than specified fraction of available storage.\n'\
               +'Please modify your request to reduce its storage footprint.')
 
     return downloaded_files
@@ -1207,8 +1200,8 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
         print("URL list written/appended to "+list_filename+".\n"\
               +"To download these files with wget,\n"\
               +"the bash shell script wget_download_fromlist.sh may be invoked, e.g.:\n\n"\
-              +"bash ./wget_download_fromlist.sh -i "+list_filename+" \ \n"\
-              +"-P ~/Downloads/ECCO_V4r4_PODAAC/"+ShortName+"/ \ \n"\
+              +"bash ./wget_download_fromlist.sh -i "+list_filename+" \n"\
+              +"-P ~/Downloads/ECCO_V4r4_PODAAC/"+ShortName+"/ \n"\
               +"-n "+subset_file_id+" -u username -p password")
     elif download_or_list == 'download':
         start = time.time()

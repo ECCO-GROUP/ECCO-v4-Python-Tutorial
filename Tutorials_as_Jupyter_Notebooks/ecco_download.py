@@ -1,1 +1,1 @@
-../ECCO-ACCESS/ecco_download.py
+../ecco_access/ecco_download.py

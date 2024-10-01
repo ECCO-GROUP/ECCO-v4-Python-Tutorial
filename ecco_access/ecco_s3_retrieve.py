@@ -436,8 +436,6 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,download_root_dir=None,n_work
     # create the download directory
     download_dir.mkdir(exist_ok = True, parents=True)
     
-    print(f'created download directory {download_dir}')
-    
     # get list of files
     s3_files_list = ecco_podaac_s3_query(ShortName,StartDate,EndDate)
     
@@ -556,9 +554,12 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
                 if snapshot_date[8:] != '01':
                     s3_files_list_copy.remove(s3_file)
             s3_files_list = s3_files_list_copy
-            
-        # compute size of current dataset
+        
+        # create the download directory if it does not already exist
         download_dir = Path(download_root_dir) / curr_shortname
+        download_dir.mkdir(exist_ok = True, parents=True)
+        
+        # compute size of current dataset
         curr_dataset_size = 0
         for s3_file in s3_files_list:
             if isfile(join(download_dir,basename(s3_file))) == False:
@@ -601,11 +602,6 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
             # define the directory where the downloaded files will be saved
             download_dir = Path(download_root_dir) / curr_shortname
             
-            # create the download directory
-            download_dir.mkdir(exist_ok = True, parents=True)
-            
-            print(f'created download directory {download_dir}')
-
             # download files
             downloaded_files = download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload)
 

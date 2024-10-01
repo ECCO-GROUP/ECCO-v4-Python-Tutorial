@@ -1,6 +1,19 @@
 ### This function allows users to query ECCO variables and datasets, and then gain access via direct download, or opening files remotely on S3
 
 
+from .ecco_download import ecco_podaac_query
+from .ecco_download import ecco_podaac_download
+from .ecco_download import ecco_podaac_download_diskaware
+from .ecco_download import ecco_podaac_download
+from .ecco_download import ecco_podaac_download_subset
+
+from .ecco_s3_retrieve import ecco_podaac_s3_query
+from .ecco_s3_retrieve import ecco_podaac_s3_open
+from .ecco_s3_retrieve import ecco_podaac_s3_get
+from .ecco_s3_retrieve import ecco_podaac_s3_get_diskaware
+
+
+
 def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
                 StartDate=None,EndDate=None,\
                 mode='download_ifspace',download_root_dir=None,**kwargs):
@@ -55,7 +68,7 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
                               Download only if storage footprint of downloads 
                               <= max_avail_frac*(available storage)
           'download_subset': Download spatial and temporal subsets of datasets 
-                             via Opendap; query help(ecco_podaac_download_subset)
+                             via Opendap; query help(ecco_access.ecco_podaac_download_subset)
                              to see keyword arguments that can be used in this mode.
           The following modes work within the AWS cloud only:
           's3_open': Access datasets on S3 without downloading.
@@ -73,7 +86,7 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
     
     Additional keyword arguments*:
     *This is not an exhaustive list, especially for 
-    'download_subset' mode; use help(ecco_podaac_download_subset) to display 
+    'download_subset' mode; use help(ecco_access.ecco_podaac_download_subset) to display 
     options specific to that mode
     
     max_avail_frac: float, maximum fraction of remaining available disk space to 
@@ -117,6 +130,7 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
             if 'ECCO_' in query_item:
                 shortnames_list.append(query_item)
             else:
+                print('query is not a ShortName')
         
         return shortnames_list
     
@@ -136,85 +150,70 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
     
     
     ## query NASA Earthdata CMR and download granules
-          'ls' or 'query': Query dataset ShortNames and variable names/
-                           descriptions only; no downloads.
-          's3_ls' or 's3_query': Query dataset ShortNames and variable names/
-                                 descriptions only; return paths on S3.
-          'download': Download datasets using NASA Earthdata URLs
-          'download_ifspace': Check storage availability before downloading.
-                              Download only if storage footprint of downloads 
-                              <= max_avail_frac*(available storage)
-          'download_subset': Download spatial and temporal subsets of datasets 
-                             via Opendap; query help(ecco_podaac_download_subset)
-                             to see keyword arguments that can be used in this mode.
-          The following modes work within the AWS cloud only:
-          's3_open': Access datasets on S3 without downloading.
-          's3_get': Download from S3 (to AWS EC2 instance).
-          's3_get_ifspace': Check storage availability before downloading; 
-                            download if storage footprint 
-                            <= max_avail_frac*(available storage).
-                            Otherwise data are opened "remotely" from S3 bucket.
-          's3_fsspec': Use `fsspec` json files (generated with `kerchunk`) 
-                       for expedited loading of datasets.
     
     possible_mode_list = "['ls','query','s3_ls','s3_query','download',\n"\
                          +"'download_ifspace','download_subset',\n"\
                          +"'s3_open','s3_get','s3_get_ifspace','s3_fsspec']"
+    
     # set some default keyword arguments
-    kwargs_dict = {}
-    if (('n_workers' not in locals()) and (mode != 'download_subset')):
-        kwargs_dict['n_workers'] = 6
-    if 'force_redownload' not in locals():
-        kwargs_dict['force_redownload'] = False
+    if (('n_workers' not in kwargs.keys()) and (mode != 'download_subset')):
+        kwargs['n_workers'] = 6
+    if 'force_redownload' not in kwargs.keys():
+        kwargs['force_redownload'] = False
     
     
     # download or otherwise access granules, depending on mode
     
     if mode in ['download_ifspace','s3_get_ifspace']:
-        if 'max_avail_frac' not in locals():
-            kwargs_dict['max_avail_frac'] = 0.5
+        if 'max_avail_frac' not in kwargs.keys():
+            kwargs['max_avail_frac'] = 0.5
         if mode == 'download_ifspace':
             granule_files = ecco_podaac_download_diskaware(\
-                               shortnames,StartDate,EndDate,**kwargs_dict)
+                               shortnames,StartDate,EndDate,\
+                               download_root_dir=download_root_dir,**kwargs)
         elif mode == 's3_get_ifspace':
             granule_files = ecco_podaac_s3_get_diskaware(\
-                               shortnames,StartDate,EndDate,**kwargs_dict)
+                               shortnames,StartDate,EndDate,\
+                               download_root_dir=download_root_dir,**kwargs)
         else:
             raise ValueError('Invalid mode specified; please specify one of the following:'\
               +'\n'+possible_mode_list)
     else:
+        if 'max_avail_frac' in kwargs.keys():
+            del kwargs['max_avail_frac']
         granule_files = {}
         for shortname in shortnames:
             if mode in ['ls','query']:
-                urls = ecco_podaac_query(shortname,StartDate,EndDate)
+                urls,sizes = ecco_podaac_query(shortname,StartDate,EndDate)
                 granule_files[shortname] = urls
             elif mode in ['s3_ls','s3_query']:
                 granule_files[shortname] = ecco_podaac_s3_query(\
                                               shortname,StartDate,EndDate)
             elif mode == 'download':
-                kwargs_dict['return_downloaded_files'] = True
+                kwargs['return_downloaded_files'] = True
                 granule_files[shortname] = ecco_podaac_download(\
                                               shortname,StartDate,EndDate,\
                                               download_root_dir=download_root_dir,\
-                                              **kwargs_dict)
+                                              **kwargs)
             elif mode == 'download_subset':
-                if 'n_workers' not in locals():
-                    kwargs_dict['n_workers'] = 4
-                kwargs_dict['return_downloaded_files'] = True
+                if 'n_workers' not in kwargs.keys():
+                    kwargs['n_workers'] = 4
+                kwargs['return_downloaded_files'] = True
                 granule_files[shortname] = ecco_podaac_download_subset(\
                                               shortname,StartDate,EndDate,\
-                                              **kwargs_dict)
+                                              download_root_dir=download_root_dir,\
+                                              **kwargs)
             elif mode == 's3_open':
                 granule_files[shortname] = ecco_podaac_s3_open(\
                                               shortname,StartDate,EndDate)
             elif mode == 's3_get':
-                kwargs_dict['return_downloaded_files'] = True
+                kwargs['return_downloaded_files'] = True
                 granule_files[shortname] = ecco_podaac_s3_get(\
                                               shortname,StartDate,EndDate,\
                                               download_root_dir=download_root_dir,\
-                                              **kwargs_dict)
+                                              **kwargs)
             elif mode == 's3_fsspec':
-                
+                print('Placeholder for jsons')
             else:
                 raise ValueError('Invalid mode specified; please specify one of the following:'\
                   +'\n'+possible_mode_list)
@@ -222,12 +221,12 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
     
     # return granule/file list
     
-    if 'return_granules' not in locals():
+    if 'return_granules' not in kwargs.keys():
         return_granules = True
     if return_granules:
         for shortname in granule_files.keys():
             if len(granule_files[shortname]) == 1:
                 # if only 1 file is downloaded, return a string of filename instead of a list
-                granule_files = granule_files[0]
+                granule_files[shortname] = granule_files[shortname][0]
         
         return granule_files
