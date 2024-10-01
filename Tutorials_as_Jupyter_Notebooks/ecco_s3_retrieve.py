@@ -1,1 +1,1 @@
-../ECCO-ACCESS/ecco_s3_retrieve.py
+../ecco_access/ecco_s3_retrieve.py

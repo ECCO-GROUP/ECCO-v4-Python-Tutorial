@@ -1,1 +1,1 @@
-../ECCO-ACCESS/Downloading_ECCO_datasets_from_PODAAC/Tutorial_wget_Command_Line_HTTPS_Downloading_ECCO_Datasets_from_PODAAC.md
+../ecco_access/Downloading_ECCO_datasets_from_PODAAC/Tutorial_wget_Command_Line_HTTPS_Downloading_ECCO_Datasets_from_PODAAC.md
