@@ -47,7 +47,7 @@ def date_adjustment(ShortName,StartDate,EndDate,CMR_query=True):
         EndDate = str(np.datetime64(EndDate,'D') + np.timedelta64(1,'D'))
     
     # CMR request adjustments
-    if CMR_request:
+    if CMR_query:
         SingleDay_flag = False
         if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
             if np.datetime64(EndDate,'D') - np.datetime64(StartDate,'D') \

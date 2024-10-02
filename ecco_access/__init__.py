@@ -7,6 +7,8 @@ from .ecco_download import ecco_podaac_download_diskaware
 from .ecco_download import ecco_podaac_download
 from .ecco_download import ecco_podaac_download_subset
 
+from .ecco_s3_retrieve import setup_earthdata_login_auth
+from .ecco_s3_retrieve import init_S3FileSystem
 from .ecco_s3_retrieve import ecco_podaac_s3_query
 from .ecco_s3_retrieve import ecco_podaac_s3_open
 from .ecco_s3_retrieve import ecco_podaac_s3_open_fsspec

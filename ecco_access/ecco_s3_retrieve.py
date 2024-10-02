@@ -1,7 +1,6 @@
 ### This module contains routines to access and retrieve ECCO datasets on the AWS Cloud.
 ### These functions will only work when called from an AWS EC2 instance running in region us-west-2.
 
-
 from .ecco_acc_dates import date_adjustment
 
 ## Initalize Python libraries for module
@@ -12,6 +11,48 @@ import time as time
 import os.path
 from os.path import basename, isfile, isdir, join, expanduser
 from pathlib import Path
+from platform import system
+from netrc import netrc
+from urllib import request
+from http.cookiejar import CookieJar
+from getpass import getpass
+import requests
+    
+
+def setup_earthdata_login_auth(url: str='urs.earthdata.nasa.gov'):
+    """Helper subroutine to log into NASA EarthData"""
+
+    # Predict the path of the netrc file depending on os/platform type.
+    _netrc = join(expanduser('~'), "_netrc" if system()=="Windows" else ".netrc")
+    
+    # look for the netrc file and use the login/password
+    try:
+        username, _, password = netrc(file=_netrc).authenticators(url)
+    
+    # if the file is not found, prompt the user for the login/password
+    except (FileNotFoundError, TypeError):
+        print('Please provide Earthdata Login credentials for access.')
+        username, password = input('Username: '), getpass('Password: ')
+        
+        # write credentials to netrc file
+        with open(_netrc,'a') as file:
+            lines = ["machine urs.earthdata.nasa.gov\n",\
+                     "    login "+username+"\n",\
+                     "    password "+password]
+            file.writelines(lines)
+            file.close()
+    
+    manager = request.HTTPPasswordMgrWithDefaultRealm()
+    manager.add_password(None, url, username, password)
+    auth = request.HTTPBasicAuthHandler(manager)
+    jar = CookieJar()
+    processor = request.HTTPCookieProcessor(jar)
+    opener = request.build_opener(auth, processor)
+    request.install_opener(opener)
+
+
+
+###================================================================================================================
 
 
 def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
@@ -42,40 +83,8 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
 
     pass
 
-    ## Initalize Python libraries
-    from platform import system
-    from netrc import netrc
-    from os.path import basename, isfile, isdir, join, expanduser
-    from urllib import request
-    from http.cookiejar import CookieJar
-    
-
-    # Predict the path of the netrc file depending on os/platform type.
-    _netrc = join(expanduser('~'), "_netrc" if system()=="Windows" else ".netrc")
-    
 
     ## Define Helper Subroutines
-    
-    ### Helper subroutine to log into NASA EarthData
-    
-    # not pretty but it works
-    def setup_earthdata_login_auth(url: str='urs.earthdata.nasa.gov'):
-        # look for the netrc file and use the login/password
-        try:
-            username, _, password = netrc(file=_netrc).authenticators(url)
-    
-        # if the file is not found, prompt the user for the login/password
-        except (FileNotFoundError, TypeError):
-            print('Please provide Earthdata Login credentials for access.')
-            username, password = input('Username: '), getpass('Password: ')
-        
-        manager = request.HTTPPasswordMgrWithDefaultRealm()
-        manager.add_password(None, url, username, password)
-        auth = request.HTTPBasicAuthHandler(manager)
-        jar = CookieJar()
-        processor = request.HTTPCookieProcessor(jar)
-        opener = request.build_opener(auth, processor)
-        request.install_opener(opener)
     
     ### Helper subroutines to make the API calls to search CMR and parse response
     def set_params(params: dict):
@@ -127,8 +136,6 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
                                          StartDate,EndDate,CMR_query=True)
     
     ## Log into Earthdata using your username and password
-    
-    # actually log in with this command:
     setup_earthdata_login_auth()
     
     # Query the NASA Common Metadata Repository to find the URL of every granule associated with the desired 
@@ -167,7 +174,6 @@ def init_S3FileSystem():
     
     """
     
-    import requests
     import s3fs
     
     creds = requests.get('https://archive.podaac.earthdata.nasa.gov/s3credentials').json()
@@ -372,30 +378,46 @@ def ecco_podaac_s3_open_fsspec(ShortName,jsons_root_dir):
 
     pass
     
+    import glob
     import fsspec
     
     
     # identify where json file is found
     shortname_split = ShortName.split('_')
-    gridtype = shortname_split[-3]
     if 'GEOMETRY' in ShortName:
+        gridtype = shortname_split[-2]
         time_res = 'GEOMETRY'
     elif 'MIX_COEFFS' in ShortName:
+        gridtype = shortname_split[-2]
         time_res = 'MIXING_COEFFS'
     else:
+        gridtype = shortname_split[-3]
         time_res = shortname_split[-2]
     json_subdir = join(jsons_root_dir,"_".join(['MZZ',gridtype,time_res]))
-    json_file = join(json_subdir,ShortName+'.json')
+    if (('GEOMETRY' in ShortName) or ('MIX_COEFFS' in ShortName)):
+        if 'LLC' in gridtype:
+            json_file = glob.glob(join(json_subdir,'*native*.json'))[0]
+        elif 'DEG' in gridtype:
+            json_file = glob.glob(join(json_subdir,'*latlon*.json'))[0]
+    else:
+        json_file = join(json_subdir,ShortName+'.json')
+    
+    
+    # get NASA Earthdata credentials for S3
+    creds = requests.get('https://archive.podaac.earthdata.nasa.gov/s3credentials').json()
     
     # generate map object
     fs = fsspec.filesystem(\
                 "reference", 
                 fo=json_file,\
                 remote_protocol="s3", 
-                remote_options={"anon":True},
+                remote_options={"anon":False,\
+                                "key":creds['accessKeyId'],
+                                "secret":creds['secretAccessKey'], 
+                                "token":creds['sessionToken']},\
                 skip_instance_cache=True)
     fsmap_obj = fs.get_mapper("")
-
+    
     return fsmap_obj
 
 

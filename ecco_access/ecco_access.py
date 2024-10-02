@@ -392,7 +392,7 @@ def ecco_podaac_access_to_xrdataset(query,version='v4r4',grid=None,time_res='all
             ds_out[shortname] = xr.open_dataset(access_out,engine='zarr',consolidated=False)
             if 'time' in ds_out[shortname].dims:
                 # isolate time range specified
-                startdate,enddate = date_adjustment(ShortName,\
+                startdate,enddate = date_adjustment(shortname,\
                                                     StartDate,EndDate,CMR_query=False)
                 time_values = ds_out[shortname].time.values.astype('datetime64[D]')
                 in_time_range = np.logical_and(time_values >= startdate,\
