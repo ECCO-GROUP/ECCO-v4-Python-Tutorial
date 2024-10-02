@@ -13,6 +13,8 @@ from .ecco_s3_retrieve import ecco_podaac_s3_open_fsspec
 from .ecco_s3_retrieve import ecco_podaac_s3_get
 from .ecco_s3_retrieve import ecco_podaac_s3_get_diskaware
 
+from .ecco_acc_dates import date_adjustment
+
 
 def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
                 StartDate=None,EndDate=None,\
@@ -249,3 +251,160 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
                 granule_files[shortname] = granule_files[shortname][0]
         
         return granule_files
+
+
+
+###================================================================================================================
+
+
+def ecco_podaac_access_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
+                                  StartDate=None,EndDate=None,\
+                                  mode='download_ifspace',download_root_dir=None,**kwargs):
+    """
+    
+    This function queries and accesses ECCO datasets from PO.DAAC. The core query and download functions are adapted from Jupyter notebooks 
+    created by Jack McNelis and Ian Fenty 
+    (https://github.com/ECCO-GROUP/ECCO-ACCESS/blob/master/PODAAC/Downloading_ECCO_datasets_from_PODAAC/README.md)
+    and modified by Andrew Delman (https://ecco-v4-python-tutorial.readthedocs.io).
+    It is similar to ecco_podaac_access, except instead of a list of URLs or files, 
+    an xarray Dataset with all of the queried ECCO datasets is returned.
+
+    Parameters
+    ----------    
+    query: str, list, or dict, defines datasets or variables to access.
+           If query is str, it specifies either a dataset ShortName (which is 
+           assumed if the string begins with 'ECCO_'), or a text string that 
+           can be used to search the ShortNames, variable names, and descriptions.
+           A query may also be a list of multiple ShortNames and/or text searches, 
+           or a dict that contains grid,time_res specifiers as keys and ShortNames 
+           or text searches as values, e.g.,
+           {'native,monthly':['ECCO_L4_SSH_LLC0090GRID_MONTHLY_V4R4',
+                              'THETA']}
+           will query the native grid monthly SSH datasets, and all native grid 
+           monthly datasets with variables or descriptions matching 'THETA'.
+    
+    version: ('v4r4'), specifies ECCO version to query
+    
+    grid: ('native','latlon',None), specifies whether to query datasets with output
+          on the native grid or the interpolated lat/lon grid.
+          The default None will query both types of grids, unless specified 
+          otherwise in a query dict (e.g., the example above).
+    
+    time_res: ('monthly','daily','snapshot','all'), specifies which time resolution 
+              to include in query and downloads. 'all' includes all time resolutions, 
+              and datasets that have no time dimension, such as the grid parameter 
+              and mixing coefficient datasets.
+
+    
+    StartDate,EndDate: str, in 'YYYY', 'YYYY-MM', or 'YYYY-MM-DD' format, 
+                       define date range [StartDate,EndDate] for download.
+                       EndDate is included in the time range (unlike typical Python ranges).
+                       Full ECCOv4r4 date range (default) is '1992-01-01' to '2017-12-31'.
+                       For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
+                       within the specified date range.
+    
+    mode: str, one of the following:
+          'ls' or 'query': Query dataset ShortNames and variable names/
+                           descriptions only; no downloads.
+          's3_ls' or 's3_query': Query dataset ShortNames and variable names/
+                                 descriptions only; return paths on S3.
+          'download': Download datasets using NASA Earthdata URLs
+          'download_ifspace': Check storage availability before downloading.
+                              Download only if storage footprint of downloads 
+                              <= max_avail_frac*(available storage)
+          'download_subset': Download spatial and temporal subsets of datasets 
+                             via Opendap; query help(ecco_access.ecco_podaac_download_subset)
+                             to see keyword arguments that can be used in this mode.
+          The following modes work within the AWS cloud only:
+          's3_open': Access datasets on S3 without downloading.
+          's3_open_fsspec': Use json files (generated with `fsspec` and `kerchunk`) 
+                            for expedited opening of datasets.
+          's3_get': Download from S3 (to AWS EC2 instance).
+          's3_get_ifspace': Check storage availability before downloading; 
+                            download if storage footprint 
+                            <= max_avail_frac*(available storage).
+                            Otherwise data are opened "remotely" from S3 bucket.
+
+    download_root_dir: str, defines parent directory to download files to.
+                       Files will be downloaded to directory download_root_dir/ShortName/.
+                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
+    
+    Additional keyword arguments*:
+    *This is not an exhaustive list, especially for 
+    'download_subset' mode; use help(ecco_access.ecco_podaac_download_subset) to display 
+    options specific to that mode
+    
+    max_avail_frac: float, maximum fraction of remaining available disk space to 
+                    use in storing ECCO datasets.
+                    If storing the datasets exceeds this fraction, an error is returned.
+                    Valid range is [0,0.9]. If number provided is outside this range, it is replaced by the closer 
+                    endpoint of the range.
+    
+    jsons_root_dir: str, for s3_open_fsspec mode only, the root/parent directory where the 
+                    fsspec/kerchunk-generated jsons are found.
+                    jsons are generated using the steps described here:
+                    https://medium.com/pangeo/fake-it-until-you-make-it-reading-goes-netcdf4-data-on-aws-s3-as-zarr
+                    -for-rapid-data-access-61e33f8fe685
+                    and stored as {jsons_root_dir}/MZZ_{GRIDTYPE}_{TIME_RES}/{SHORTNAME}.json.
+                    For v4r4, GRIDTYPE is '05DEG' or 'LLC0090GRID'.
+                    TIME_RES is one of: ('MONTHLY','DAILY','SNAPSHOT','GEOMETRY','MIXING_COEFFS').
+    
+    n_workers: int, number of workers to use in concurrent downloads. Benefits typically taper off above 5-6.
+    
+    force_redownload: bool, if True, existing files will be redownloaded and replaced;
+                            if False (default), existing files will not be replaced.
+
+    return_granules: bool, if True (default), str or list of queried or 
+                           downloaded granules/files (including ones that 
+                           were already on disk and not replaced) is returned.
+                           if False, the function returns nothing.
+
+    Returns
+    -------
+    ds_out: xarray Dataset or dict of xarray Datasets (with ShortNames as keys), 
+            containing all of the accessed datasets.
+            Does not work with the query modes: 'ls','query','s3_ls','s3_query'.
+    """
+    
+    pass
+    
+    
+    import numpy as np
+    import xarray as xr
+    
+
+    # raise error if mode is ls/query only
+    if mode in ['ls','query','s3_ls','s3_query']:
+        raise ValueError("ecco_podaac_access_to_xrdataset does not work with 'ls'/'query' modes. \n"\
+                         +"Please use ecco_podaac_access with these modes.")
+        
+        return -1
+    
+    # submit access query (and download if needed)
+    access_output = ecco_podaac_access(query,version,grid,time_res,\
+                                       StartDate,EndDate,\
+                                       mode,download_root_dir,**kwargs)
+    
+    # open xarray datasets
+    ds_out = {}
+    for shortname,access_out in access_output.items():
+        if mode == 's3_open_fsspec':
+            ds_out[shortname] = xr.open_dataset(access_out,engine='zarr',consolidated=False)
+            if 'time' in ds_out[shortname].dims:
+                # isolate time range specified
+                startdate,enddate = date_adjustment(ShortName,\
+                                                    StartDate,EndDate,CMR_query=False)
+                time_values = ds_out[shortname].time.values.astype('datetime64[D]')
+                in_time_range = np.logical_and(time_values >= startdate,\
+                                               time_values <= enddate).nonzero()[0]
+                ds_out[shortname] = ds_out[shortname].isel(time=in_time_range)
+        else:
+            ds_out[shortname] = xr.open_mfdataset(access_out,\
+                                       compat='override',data_vars='minimal',coords='minimal',\
+                                       parallel=True)
+    
+    # if only one ShortName is involved, then extract dataset from dictionary
+    if len(ds_out) == 1:
+        ds_out = list(ds_out.values())[0]
+    
+    return ds_out

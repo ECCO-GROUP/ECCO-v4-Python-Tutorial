@@ -2,6 +2,8 @@
 ### These functions will only work when called from an AWS EC2 instance running in region us-west-2.
 
 
+from .ecco_acc_dates import date_adjustment
+
 ## Initalize Python libraries for module
 import numpy as np
 import pandas as pd
@@ -10,7 +12,6 @@ import time as time
 import os.path
 from os.path import basename, isfile, isdir, join, expanduser
 from pathlib import Path
-import glob
 
 
 def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
@@ -119,50 +120,11 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
 
         return s3_files_list
     
-
+    
+    
     # # Adjust StartDate and EndDate to CMR query values
-    
-    if StartDate=='yesterday':
-        StartDate = yesterday()
-    if EndDate==-1:
-        EndDate = StartDate
-    elif StartDate=='yesterday':
-        StartDate = yesterday()
-    elif EndDate=='today':
-        EndDate = today()
-    
-    if len(StartDate) == 4:
-        StartDate += '-01-01'
-    elif len(StartDate) == 7:
-        StartDate += '-01'
-    elif len(StartDate) != 10:
-        sys.exit('\nStart date should be in format ''YYYY'', ''YYYY-MM'', or ''YYYY-MM-DD''!\n'\
-                 +'Program will exit now !\n')
-    
-    if len(EndDate) == 4:
-        EndDate += '-12-31'
-    elif len(EndDate) == 7:
-        EndDate = str(np.datetime64(str(np.datetime64(EndDate,'M')+np.timedelta64(1,'M'))+'-01','D')\
-                      -np.timedelta64(1,'D'))
-    elif len(EndDate) != 10:
-        sys.exit('\nEnd date should be in format ''YYYY'', ''YYYY-MM'', or ''YYYY-MM-DD''!\n'\
-                 +'Program will exit now !\n')
-    
-    
-    SingleDay_flag = False
-    if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
-        if np.datetime64(EndDate,'D') - np.datetime64(StartDate,'D') \
-          > np.timedelta64(1,'D'):
-            # for monthly and daily datasets, do not include the month or day before
-            StartDate = str(np.datetime64(StartDate,'D') + np.timedelta64(1,'D'))
-        else:
-            # for single day ranges we need to make the adjustment
-            # after the CMR request
-            SingleDay_flag = True
-    # for snapshot datasets, move EndDate one day later
-    if 'SNAPSHOT' in ShortName:
-        EndDate = str(np.datetime64(EndDate,'D') + np.timedelta64(1,'D'))
-
+    StartDate,EndDate,SingleDay_flag = date_adjustment(ShortName,\
+                                         StartDate,EndDate,CMR_query=True)
     
     ## Log into Earthdata using your username and password
     
@@ -423,7 +385,7 @@ def ecco_podaac_s3_open_fsspec(ShortName,jsons_root_dir):
     else:
         time_res = shortname_split[-2]
     json_subdir = join(jsons_root_dir,"_".join(['MZZ',gridtype,time_res]))
-    json_file = glob.glob(join(json_subdir,'*.json'))[0]
+    json_file = join(json_subdir,ShortName+'.json')
     
     # generate map object
     fs = fsspec.filesystem(\

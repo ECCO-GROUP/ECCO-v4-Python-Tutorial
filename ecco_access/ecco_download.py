@@ -1,6 +1,8 @@
 ### This module contains routines to download ECCO datasets using Python requests
 
 
+from .ecco_acc_dates import date_adjustment
+
 ## Initalize Python libraries
 import numpy as np
 import pandas as pd
@@ -106,51 +108,13 @@ def ecco_podaac_query(ShortName,StartDate,EndDate):
         return df
     
     
+    
     #=====================================================
     
     
     # # Adjust StartDate and EndDate to CMR query values
-    
-    if StartDate=='yesterday':
-        StartDate = yesterday()
-    if EndDate==-1:
-        EndDate = StartDate
-    elif StartDate=='yesterday':
-        StartDate = yesterday()
-    elif EndDate=='today':
-        EndDate = today()
-    
-    if len(StartDate) == 4:
-        StartDate += '-01-01'
-    elif len(StartDate) == 7:
-        StartDate += '-01'
-    elif len(StartDate) != 10:
-        sys.exit('\nStart date should be in format ''YYYY'', ''YYYY-MM'', or ''YYYY-MM-DD''!\n'\
-                 +'Program will exit now !\n')
-    
-    if len(EndDate) == 4:
-        EndDate += '-12-31'
-    elif len(EndDate) == 7:
-        EndDate = str(np.datetime64(str(np.datetime64(EndDate,'M')+np.timedelta64(1,'M'))+'-01','D')\
-                      -np.timedelta64(1,'D'))
-    elif len(EndDate) != 10:
-        sys.exit('\nEnd date should be in format ''YYYY'', ''YYYY-MM'', or ''YYYY-MM-DD''!\n'\
-                 +'Program will exit now !\n')
-    
-    
-    # for monthly and daily datasets, do not include the month or day before
-    if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
-        if np.datetime64(EndDate,'D') - np.datetime64(StartDate,'D') \
-          > np.timedelta64(1,'D'):
-            StartDate = str(np.datetime64(StartDate,'D') + np.timedelta64(1,'D'))
-            SingleDay_flag = False
-        else:
-            # for single day ranges we need to make the adjustment
-            # after the CMR request
-            SingleDay_flag = True
-    # for snapshot datasets, move EndDate one day later
-    if 'SNAPSHOT' in ShortName:
-        EndDate = str(np.datetime64(EndDate,'D') + np.timedelta64(1,'D'))
+    StartDate,EndDate,SingleDay_flag = date_adjustment(ShortName,\
+                                         StartDate,EndDate,CMR_query=True)    
     
     
     ## Log into Earthdata using your username and password
@@ -1011,46 +975,8 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
     
     
     # # Adjust StartDate and EndDate to CMR query values
-    
-    if StartDate=='yesterday':
-        StartDate = yesterday()
-    if EndDate==-1:
-        EndDate = StartDate
-    elif StartDate=='yesterday':
-        StartDate = yesterday()
-    elif EndDate=='today':
-        EndDate = today()
-    
-    if len(StartDate) == 4:
-        StartDate += '-01-01'
-    elif len(StartDate) == 7:
-        StartDate += '-01'
-    elif len(StartDate) != 10:
-        sys.exit('\nStart date should be in format ''YYYY'', ''YYYY-MM'', or ''YYYY-MM-DD''!\n'\
-                 +'Program will exit now !\n')
-    
-    if len(EndDate) == 4:
-        EndDate += '-12-31'
-    elif len(EndDate) == 7:
-        EndDate = str(np.datetime64(str(np.datetime64(EndDate,'M')+np.timedelta64(1,'M'))+'-01','D')\
-                      -np.timedelta64(1,'D'))
-    elif len(EndDate) != 10:
-        sys.exit('\nEnd date should be in format ''YYYY-MM-DD''!\n'\
-                 +'Program will exit now !\n')
-    
-    # for monthly and daily datasets, do not include the month or day before
-    if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
-        if np.datetime64(EndDate,'D') - np.datetime64(StartDate,'D') \
-          > np.timedelta64(1,'D'):
-            StartDate = str(np.datetime64(StartDate,'D') + np.timedelta64(1,'D'))
-            SingleDay_flag = False
-        else:
-            # for single day ranges we need to make the adjustment
-            # after the CMR request
-            SingleDay_flag = True
-    # for snapshot datasets, move EndDate one day later
-    if 'SNAPSHOT' in ShortName:
-        EndDate = str(np.datetime64(EndDate,'D') + np.timedelta64(1,'D'))
+    StartDate,EndDate,SingleDay_flag = date_adjustment(ShortName,\
+                                         StartDate,EndDate,CMR_query=True)
     
     
     # set default download parent directory
