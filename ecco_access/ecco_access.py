@@ -118,14 +118,13 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
 
     Returns
     -------
-    download_files: str, list, or dict, queried or downloaded file(s) 
-                    with either URLs (if in 'query' mode), or paths that can be 
+    download_files: dict, with keys: ShortNames and values:
+                    URLs (if in 'query' mode), or paths of files that can be 
                     passed directly to xarray (open_dataset or open_mfdataset).
-                    A str is returned if query finds only one granule/file.
-                    A list is returned if query finds multiple granules in the 
-                    same dataset.
-                    A dict (with ShortNames as keys) is returned if the query 
-                    finds granules in multiple datasets.
+                    Values are of type str if query finds only one granule/file
+                    for that ShortName; of type list if query finds 
+                    multiple granules in the same dataset; 
+                    or of type fsspec.mapping.FSMap if mode = 's3_open_fsspec'.
                     Only returned if return_granules=True (default).
     
     """
@@ -367,7 +366,6 @@ def ecco_podaac_access_to_xrdataset(query,version='v4r4',grid=None,time_res='all
     """
     
     pass
-    
     
     import numpy as np
     import xarray as xr
