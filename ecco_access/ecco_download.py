@@ -27,8 +27,7 @@ from tqdm import tqdm
 from urllib import request    
 
 
-
-def ecco_podaac_query(ShortName,StartDate,EndDate):
+def ecco_podaac_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
     
     """
     
@@ -48,14 +47,19 @@ def ecco_podaac_query(ShortName,StartDate,EndDate):
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
 
+    snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
+                       determines whether snapshots are included for only the beginning/end of each month 
+                       ('monthly'), or for every day ('daily'). Defaults to 'monthly'.
+
 
     Returns
     -------
-    urls,sizes: list, file URLs and sizes; this list can be used to download the files
+    urls,sizes: list, file URLs that match the query and sizes; this list can be used to download the files
     
     """
     
     pass
+    
     
     #=====================================================
     
@@ -164,6 +168,20 @@ def ecco_podaac_query(ShortName,StartDate,EndDate):
         sizes = np.where(~np.isnan(sizes),sizes,np.nanmean(sizes_all))
     sizes = list(sizes)
     urls = grans['Online Access URLs'].tolist()
+    
+    # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
+    if 'SNAPSHOT' in ShortName:
+        if snapshot_interval == 'monthly':
+            import re
+            urls_list_copy = list(tuple(urls))
+            sizes_list_copy = list(tuple(sizes))
+            for idx,(url,size) in enumerate(zip(urls,sizes)):
+                snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",url)[0][1:]
+                if snapshot_date[8:] != '01':
+                    urls_list_copy.remove(url)
+                    del sizes_list_copy[idx]
+            urls = urls_list_copy
+            sizes = sizes_list_copy
     
     return urls,sizes
 
@@ -287,7 +305,7 @@ def download_files_wrapper(urls, download_dir, n_workers, force_redownload):
 ###================================================================================================================
 
 
-def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_workers=6,\
+def ecco_podaac_download(ShortName,StartDate,EndDate,snapshot_interval='monthly',download_root_dir=None,n_workers=6,\
                          force_redownload=False,return_downloaded_files=False):
     """
     
@@ -306,6 +324,10 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
                        ECCOv4r4 date range is '1992-01-01' to '2017-12-31'.
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
+
+    snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
+                       determines whether snapshots are included for only the beginning/end of each month 
+                       ('monthly'), or for every day ('daily'). Defaults to 'monthly'.
 
     download_root_dir: str, defines parent directory to download files to.
                        Files will be downloaded to directory download_root_dir/ShortName/.
@@ -344,7 +366,7 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
     print(f'created download directory {download_dir}')
     
     # query CMR for granules matching the request
-    urls,sizes = ecco_podaac_query(ShortName,StartDate,EndDate)
+    urls,sizes = ecco_podaac_query(ShortName,StartDate,EndDate,snapshot_interval)
     
     # Download the granules
     
@@ -362,7 +384,7 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,download_root_dir=None,n_wo
 
 
 def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5,snapshot_interval=None,\
-                                 download_root_dir=None,n_workers=6,force_redownload=False):
+                                   download_root_dir=None,n_workers=6,force_redownload=False):
     
     """
     
@@ -388,13 +410,13 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0
                     If storing the datasets exceeds this fraction, an error is returned.
                     Valid range is [0,0.9]. If number provided is outside this range, it is replaced by the closer 
                     endpoint of the range.
-
+    
     snapshot_interval: ('monthly', 'daily', or None), if snapshot datasets are included in ShortNames, 
                        this determines whether snapshots are included for only the beginning/end of each month 
                        ('monthly'), or for every day ('daily').
                        If None or not specified, defaults to 'daily' if any daily mean ShortNames are included 
                        and 'monthly' otherwise.
-
+    
     download_root_dir: str, defines parent directory to download files to.
                        Files will be downloaded to directory download_root_dir/ShortName/.
                        If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
@@ -439,18 +461,8 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0
     for curr_shortname in ShortNames:
         
         # get list of files
-        urls,sizes = ecco_podaac_query(curr_shortname,StartDate,EndDate)
-
-        # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
-        if (('SNAPSHOT' in curr_shortname) and (snapshot_interval == 'monthly')):
-            import re
-            urls_list_copy = list(tuple(urls))
-            for url in urls:
-                snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",url)[0][1:]
-                if snapshot_date[8:] != '01':
-                    urls_list_copy.remove(urls)
-            urls = urls_list_copy
-            
+        urls,sizes = ecco_podaac_query(curr_shortname,StartDate,EndDate,snapshot_interval)
+        
         # create the download directory if it does not already exist
         download_dir = Path(download_root_dir) / curr_shortname
         download_dir.mkdir(exist_ok = True, parents=True)
@@ -517,7 +529,7 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0
 ###================================================================================================================
 
 
-def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
+def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_interval=None,\
                                 n_workers=4,force_redownload=False,\
                                 vars_to_include='all',vars_to_omit=None,\
                                 times_to_include='all',\
@@ -550,6 +562,12 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
                        within the specified date range.
                        If StartDate or EndDate are not specified, they are inferred from times_to_include;
                        if times_to_include is also not specified an error is returned.
+    
+    snapshot_interval: ('monthly', 'daily', or None), if ShortName refers to a snapshot dataset, 
+                       this determines whether snapshots are included for only the beginning/end of each month 
+                       ('monthly'), or for every day ('daily').
+                       If None or not specified, defaults to the type of the date(s) in times_to_include,
+                       or StartDate if times_to_include not specified.
     
     n_workers: int, number of workers to use in concurrent downloads.
     
@@ -733,8 +751,8 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
     
     ### Create datetime arrays from times_to_include and granule URLs to parse which granules should be included in download
     
-    def datetimes_to_include(times_to_include):
-        # create array of datetimes indiciated by times_to_include
+    def datetimes_to_include(times_to_include,ShortName,StartDate,EndDate,snapshot_interval):
+        # create array of datetimes indicated by times_to_include
         if 'MONTHLY' in ShortName:
             include_datetimes = np.array([]).astype('datetime64[M]')
         else:
@@ -777,17 +795,19 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
                 # include first day of succeeding month for snapshot datasets
                 if curr_time.dtype == 'datetime64[Y]':
                     include_datetimes = np.append(include_datetimes,\
-                                                  np.arange(curr_time.astype('datetime64[D]'),\
-                                                  (curr_time+np.timedelta64(1,'Y')).astype('datetime64[D]') \
-                                                  + np.timedelta64(1,'D'),\
-                                                  np.timedelta64(1,'D')))
-                elif curr_time.dtype == 'datetime64[M]':
+                                                  np.arange(curr_time.astype('datetime64[M]'),\
+                                                  (curr_time+np.timedelta64(1,'Y')).astype('datetime64[M]') \
+                                                  + np.timedelta64(1,'M'),\
+                                                  np.timedelta64(1,'M')))
+                elif ((snapshot_interval == 'monthly') \
+                  or (curr_time.dtype == 'datetime64[M]') or (len(StartDate) <= 7)):
+
                     curr_month = int(str(curr_time)[5:7])
                     include_datetimes = np.append(include_datetimes,\
-                                                  np.arange(curr_time.astype('datetime64[D]'),\
-                                                  (curr_time+np.timedelta64(1,'M')).astype('datetime64[D]') \
-                                                  + np.timedelta64(1,'D'),\
-                                                  np.timedelta64(1,'D')))
+                                                  np.arange(curr_time.astype('datetime64[M]'),\
+                                                  curr_time.astype('datetime64[M]') \
+                                                  + np.timedelta64(2,'M'),\
+                                                  np.timedelta64(1,'M')).astype('datetime64[D]'))
                 else:
                     include_datetimes = np.append(include_datetimes,\
                                                   curr_time.astype('datetime64[D]'))
@@ -961,7 +981,9 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,\
         if times_to_include != 'all':
             subset_datetimes = True
     if subset_datetimes == True:
-        include_datetimes = datetimes_to_include(times_to_include)
+        include_datetimes = datetimes_to_include(times_to_include,\
+                                                 ShortName,StartDate,EndDate,\
+                                                 snapshot_interval)
     
     
     # # If no StartDate or EndDate provided, obtain them from times_to_include

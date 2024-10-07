@@ -1,5 +1,5 @@
 from .ecco_access import ecco_podaac_access
-from .ecco_access import ecco_podaac_access_to_xrdataset
+from .ecco_access import ecco_podaac_to_xrdataset
 
 from .ecco_download import ecco_podaac_query
 from .ecco_download import ecco_podaac_download

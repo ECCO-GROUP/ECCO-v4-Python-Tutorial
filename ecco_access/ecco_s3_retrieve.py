@@ -55,7 +55,7 @@ def setup_earthdata_login_auth(url: str='urs.earthdata.nasa.gov'):
 ###================================================================================================================
 
 
-def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
+def ecco_podaac_s3_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
     
     """
     
@@ -74,10 +74,13 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
 
+    snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
+                       determines whether snapshots are included for only the beginning/end of each month 
+                       ('monthly'), or for every day ('daily'). Defaults to 'monthly'.
+
     Returns
     -------
-    s3_files_list: str or list, opened file(s) on S3 that can be passed directly to xarray 
-                   (open_dataset or open_mfdataset)
+    s3_files_list: str or list, unopened file paths on S3 that match the query
     
     """
 
@@ -151,6 +154,17 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
     
     # grans means 'granules', PO.DAAC's term for individual files in a dataset
     s3_files_list = get_granules(input_search_params,ShortName,SingleDay_flag)
+    
+    # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
+    if 'SNAPSHOT' in ShortName:
+        if snapshot_interval == 'monthly':
+            import re
+            s3_files_list_copy = list(tuple(s3_files_list))
+            for s3_file in s3_files_list:
+                snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",s3_file)[0][1:]
+                if snapshot_date[8:] != '01':
+                    s3_files_list_copy.remove(s3_file)
+            s3_files_list = s3_files_list_copy
     
     
     return s3_files_list
@@ -300,7 +314,7 @@ def download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_
 ###================================================================================================================
 
 
-def ecco_podaac_s3_open(ShortName,StartDate,EndDate):
+def ecco_podaac_s3_open(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
     
     """
     
@@ -318,6 +332,10 @@ def ecco_podaac_s3_open(ShortName,StartDate,EndDate):
                        ECCOv4r4 date range is '1992-01-01' to '2017-12-31'.
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
+
+    snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
+                       determines whether snapshots are included for only the beginning/end of each month 
+                       ('monthly'), or for every day ('daily'). Defaults to 'monthly'.
 
     Returns
     -------
@@ -425,8 +443,8 @@ def ecco_podaac_s3_open_fsspec(ShortName,jsons_root_dir):
 ###================================================================================================================
 
 
-def ecco_podaac_s3_get(ShortName,StartDate,EndDate,download_root_dir=None,n_workers=6,\
-                       force_redownload=False,return_downloaded_files=False):
+def ecco_podaac_s3_get(ShortName,StartDate,EndDate,snapshot_interval='monthly',download_root_dir=None,\
+                       n_workers=6,force_redownload=False,return_downloaded_files=False):
 
     """
     
@@ -445,6 +463,10 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,download_root_dir=None,n_work
                        ECCOv4r4 date range is '1992-01-01' to '2017-12-31'.
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
+
+    snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
+                       determines whether snapshots are included for only the beginning/end of each month 
+                       ('monthly'), or for every day ('daily'). Defaults to 'monthly'.
     
     download_root_dir: str, defines parent directory to download files to.
                        Files will be downloaded to directory download_root_dir/ShortName/.
@@ -589,17 +611,7 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
     for curr_shortname in ShortNames:
         
         # get list of files
-        s3_files_list = ecco_podaac_s3_query(curr_shortname,StartDate,EndDate)
-
-        # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
-        if (('SNAPSHOT' in curr_shortname) and (snapshot_interval == 'monthly')):
-            import re
-            s3_files_list_copy = list(tuple(s3_files_list))
-            for s3_file in s3_files_list:
-                snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",s3_file)[0][1:]
-                if snapshot_date[8:] != '01':
-                    s3_files_list_copy.remove(s3_file)
-            s3_files_list = s3_files_list_copy
+        s3_files_list = ecco_podaac_s3_query(curr_shortname,StartDate,EndDate,snapshot_interval)
         
         # create the download directory if it does not already exist
         download_dir = Path(download_root_dir) / curr_shortname

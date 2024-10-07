@@ -17,7 +17,7 @@ from .ecco_acc_dates import date_adjustment
 
 
 def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
-                StartDate=None,EndDate=None,\
+                StartDate=None,EndDate=None,snapshot_interval=None,\
                 mode='download_ifspace',download_root_dir=None,**kwargs):
     """
     
@@ -59,6 +59,12 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
                        Full ECCOv4r4 date range (default) is '1992-01-01' to '2017-12-31'.
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
+    
+    snapshot_interval: ('monthly', 'daily', or None), if snapshot datasets are included in ShortNames, 
+                       this determines whether snapshots are included for only the beginning/end of each month 
+                       ('monthly'), or for every day ('daily').
+                       If None or not specified, defaults to 'daily' if any daily mean ShortNames are included 
+                       and 'monthly' otherwise.
     
     mode: str, one of the following:
           'ls' or 'query': Query dataset ShortNames and variable names/
@@ -187,11 +193,11 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
             kwargs['max_avail_frac'] = 0.5
         if mode == 'download_ifspace':
             granule_files = ecco_podaac_download_diskaware(\
-                               shortnames,StartDate,EndDate,\
+                               shortnames,StartDate,EndDate,snapshot_interval,\
                                download_root_dir=download_root_dir,**kwargs)
         elif mode == 's3_get_ifspace':
             granule_files = ecco_podaac_s3_get_diskaware(\
-                               shortnames,StartDate,EndDate,\
+                               shortnames,StartDate,EndDate,snapshot_interval,\
                                download_root_dir=download_root_dir,**kwargs)
         else:
             raise ValueError('Invalid mode specified; please specify one of the following:'\
@@ -200,17 +206,27 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
         if 'max_avail_frac' in kwargs.keys():
             del kwargs['max_avail_frac']
         granule_files = {}
+        
+        # determine value of snapshot_interval if None or not specified
+        if snapshot_interval == None:
+            snapshot_interval = 'monthly'
+            for curr_shortname in shortnames:
+                if 'DAILY' in curr_shortname:
+                    snapshot_interval = 'daily'
+                    break
+        
         for shortname in shortnames:
+            
             if mode in ['ls','query']:
-                urls,sizes = ecco_podaac_query(shortname,StartDate,EndDate)
+                urls,sizes = ecco_podaac_query(shortname,StartDate,EndDate,snapshot_interval)
                 granule_files[shortname] = urls
             elif mode in ['s3_ls','s3_query']:
                 granule_files[shortname] = ecco_podaac_s3_query(\
-                                              shortname,StartDate,EndDate)
+                                              shortname,StartDate,EndDate,snapshot_interval)
             elif mode == 'download':
                 kwargs['return_downloaded_files'] = True
                 granule_files[shortname] = ecco_podaac_download(\
-                                              shortname,StartDate,EndDate,\
+                                              shortname,StartDate,EndDate,snapshot_interval,\
                                               download_root_dir=download_root_dir,\
                                               **kwargs)
             elif mode == 'download_subset':
@@ -218,12 +234,12 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
                     kwargs['n_workers'] = 4
                 kwargs['return_downloaded_files'] = True
                 granule_files[shortname] = ecco_podaac_download_subset(\
-                                              shortname,StartDate,EndDate,\
+                                              shortname,StartDate,EndDate,snapshot_interval,\
                                               download_root_dir=download_root_dir,\
                                               **kwargs)
             elif mode == 's3_open':
                 granule_files[shortname] = ecco_podaac_s3_open(\
-                                              shortname,StartDate,EndDate)
+                                              shortname,StartDate,EndDate,snapshot_interval)
             elif mode == 's3_open_fsspec':
                 # granule_files will consist of mapper objects rather than URL/path or file lists
                 granule_files[shortname] = ecco_podaac_s3_open_fsspec(\
@@ -231,7 +247,7 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
             elif mode == 's3_get':
                 kwargs['return_downloaded_files'] = True
                 granule_files[shortname] = ecco_podaac_s3_get(\
-                                              shortname,StartDate,EndDate,\
+                                              shortname,StartDate,EndDate,snapshot_interval,\
                                               download_root_dir=download_root_dir,\
                                               **kwargs)
             else:
@@ -256,9 +272,9 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
 ###================================================================================================================
 
 
-def ecco_podaac_access_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
-                                  StartDate=None,EndDate=None,\
-                                  mode='download_ifspace',download_root_dir=None,**kwargs):
+def ecco_podaac_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
+                             StartDate=None,EndDate=None,snapshot_interval=None,\
+                             mode='download_ifspace',download_root_dir=None,**kwargs):
     """
     
     This function queries and accesses ECCO datasets from PO.DAAC. The core query and download functions are adapted from Jupyter notebooks 
@@ -301,6 +317,12 @@ def ecco_podaac_access_to_xrdataset(query,version='v4r4',grid=None,time_res='all
                        Full ECCOv4r4 date range (default) is '1992-01-01' to '2017-12-31'.
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
+    
+    snapshot_interval: ('monthly', 'daily', or None), if snapshot datasets are included in ShortNames, 
+                       this determines whether snapshots are included for only the beginning/end of each month 
+                       ('monthly'), or for every day ('daily').
+                       If None or not specified, defaults to 'daily' if any daily mean ShortNames are included 
+                       and 'monthly' otherwise.
     
     mode: str, one of the following:
           'ls' or 'query': Query dataset ShortNames and variable names/
@@ -367,39 +389,61 @@ def ecco_podaac_access_to_xrdataset(query,version='v4r4',grid=None,time_res='all
     
     pass
     
+    
     import numpy as np
     import xarray as xr
     
 
     # raise error if mode is ls/query only
     if mode in ['ls','query','s3_ls','s3_query']:
-        raise ValueError("ecco_podaac_access_to_xrdataset does not work with 'ls'/'query' modes. \n"\
+        raise ValueError("ecco_podaac_to_xrdataset does not work with 'ls'/'query' modes. \n"\
                          +"Please use ecco_podaac_access with these modes.")
         
         return -1
     
     # submit access query (and download if needed)
     access_output = ecco_podaac_access(query,version,grid,time_res,\
-                                       StartDate,EndDate,\
+                                       StartDate,EndDate,snapshot_interval,\
                                        mode,download_root_dir,**kwargs)
+    
+    # determine value of snapshot_interval if None or not specified
+    if snapshot_interval == None:
+        snapshot_interval = 'monthly'
+        for curr_shortname in access_output.keys():
+            if 'DAILY' in curr_shortname:
+                snapshot_interval = 'daily'
+                break
     
     # open xarray datasets
     ds_out = {}
     for shortname,access_out in access_output.items():
         if mode == 's3_open_fsspec':
-            ds_out[shortname] = xr.open_dataset(access_out,engine='zarr',consolidated=False)
-            if 'time' in ds_out[shortname].dims:
+            curr_ds = xr.open_dataset(access_out,engine='zarr',consolidated=False)
+            if 'time' in curr_ds.dims:
                 # isolate time range specified
                 startdate,enddate = date_adjustment(shortname,\
                                                     StartDate,EndDate,CMR_query=False)
-                time_values = ds_out[shortname].time.values.astype('datetime64[D]')
+                time_values = curr_ds.time.values.astype('datetime64[D]')
                 in_time_range = np.logical_and(time_values >= startdate,\
                                                time_values <= enddate).nonzero()[0]
-                ds_out[shortname] = ds_out[shortname].isel(time=in_time_range)
+                curr_ds = curr_ds.isel(time=in_time_range)
+                if (('SNAPSHOT' in shortname) and (snapshot_interval == 'monthly')):
+                    month_bounds_list = np.arange(np.datetime64('1992-01','M'),\
+                                                  np.datetime64('2040-01','M'),\
+                                                  np.timedelta64(1,'M'))\
+                                                  .astype('datetime64[D]')
+                    time_values = curr_ds.time.values.astype('datetime64[D]')
+                    time_subind = list(np.arange(0,len(time_values)).astype('int64'))
+                    for count,time_val in enumerate(time_values):
+                        if time_val not in month_bounds_list:
+                            time_subind.remove(count)
+                    curr_ds = curr_ds.isel(time=time_subind)
         else:
-            ds_out[shortname] = xr.open_mfdataset(access_out,\
-                                       compat='override',data_vars='minimal',coords='minimal',\
-                                       parallel=True)
+            curr_ds = xr.open_mfdataset(access_out,\
+                                         compat='override',data_vars='minimal',coords='minimal',\
+                                         parallel=True)
+        ds_out[shortname] = curr_ds
+    
     
     # if only one ShortName is involved, then extract dataset from dictionary
     if len(ds_out) == 1:
