@@ -1,6 +1,7 @@
 ### This module contains routines to access and retrieve ECCO datasets on the AWS Cloud.
 ### These functions will only work when called from an AWS EC2 instance running in region us-west-2.
 
+from .ecco_acc_dates import date_adjustment
 
 ## Initalize Python libraries for module
 import numpy as np
@@ -10,9 +11,51 @@ import time as time
 import os.path
 from os.path import basename, isfile, isdir, join, expanduser
 from pathlib import Path
+from platform import system
+from netrc import netrc
+from urllib import request
+from http.cookiejar import CookieJar
+from getpass import getpass
+import requests
+    
+
+def setup_earthdata_login_auth(url: str='urs.earthdata.nasa.gov'):
+    """Helper subroutine to log into NASA EarthData"""
+
+    # Predict the path of the netrc file depending on os/platform type.
+    _netrc = join(expanduser('~'), "_netrc" if system()=="Windows" else ".netrc")
+    
+    # look for the netrc file and use the login/password
+    try:
+        username, _, password = netrc(file=_netrc).authenticators(url)
+    
+    # if the file is not found, prompt the user for the login/password
+    except (FileNotFoundError, TypeError):
+        print('Please provide Earthdata Login credentials for access.')
+        username, password = input('Username: '), getpass('Password: ')
+        
+        # write credentials to netrc file
+        with open(_netrc,'a') as file:
+            lines = ["machine urs.earthdata.nasa.gov\n",\
+                     "    login "+username+"\n",\
+                     "    password "+password]
+            file.writelines(lines)
+            file.close()
+    
+    manager = request.HTTPPasswordMgrWithDefaultRealm()
+    manager.add_password(None, url, username, password)
+    auth = request.HTTPBasicAuthHandler(manager)
+    jar = CookieJar()
+    processor = request.HTTPCookieProcessor(jar)
+    opener = request.build_opener(auth, processor)
+    request.install_opener(opener)
 
 
-def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
+
+###================================================================================================================
+
+
+def ecco_podaac_s3_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
     
     """
     
@@ -31,49 +74,20 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
 
+    snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
+                       determines whether snapshots are included for only the beginning/end of each month 
+                       ('monthly'), or for every day ('daily'). Defaults to 'monthly'.
+
     Returns
     -------
-    s3_files_list: str or list, opened file(s) on S3 that can be passed directly to xarray 
-                   (open_dataset or open_mfdataset)
+    s3_files_list: str or list, unopened file paths on S3 that match the query
     
     """
 
     pass
 
-    ## Initalize Python libraries
-    from platform import system
-    from netrc import netrc
-    from os.path import basename, isfile, isdir, join, expanduser
-    from urllib import request
-    from http.cookiejar import CookieJar
-    
-
-    # Predict the path of the netrc file depending on os/platform type.
-    _netrc = join(expanduser('~'), "_netrc" if system()=="Windows" else ".netrc")
-    
 
     ## Define Helper Subroutines
-    
-    ### Helper subroutine to log into NASA EarthData
-    
-    # not pretty but it works
-    def setup_earthdata_login_auth(url: str='urs.earthdata.nasa.gov'):
-        # look for the netrc file and use the login/password
-        try:
-            username, _, password = netrc(file=_netrc).authenticators(url)
-    
-        # if the file is not found, prompt the user for the login/password
-        except (FileNotFoundError, TypeError):
-            print('Please provide Earthdata Login credentials for access.')
-            username, password = input('Username: '), getpass('Password: ')
-        
-        manager = request.HTTPPasswordMgrWithDefaultRealm()
-        manager.add_password(None, url, username, password)
-        auth = request.HTTPBasicAuthHandler(manager)
-        jar = CookieJar()
-        processor = request.HTTPCookieProcessor(jar)
-        opener = request.build_opener(auth, processor)
-        request.install_opener(opener)
     
     ### Helper subroutines to make the API calls to search CMR and parse response
     def set_params(params: dict):
@@ -118,54 +132,13 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
 
         return s3_files_list
     
-
+    
+    
     # # Adjust StartDate and EndDate to CMR query values
-    
-    if StartDate=='yesterday':
-        StartDate = yesterday()
-    if EndDate==-1:
-        EndDate = StartDate
-    elif StartDate=='yesterday':
-        StartDate = yesterday()
-    elif EndDate=='today':
-        EndDate = today()
-    
-    if len(StartDate) == 4:
-        StartDate += '-01-01'
-    elif len(StartDate) == 7:
-        StartDate += '-01'
-    elif len(StartDate) != 10:
-        sys.exit('\nStart date should be in format ''YYYY'', ''YYYY-MM'', or ''YYYY-MM-DD''!\n'\
-                 +'Program will exit now !\n')
-    
-    if len(EndDate) == 4:
-        EndDate += '-12-31'
-    elif len(EndDate) == 7:
-        EndDate = str(np.datetime64(str(np.datetime64(EndDate,'M')+np.timedelta64(1,'M'))+'-01','D')\
-                      -np.timedelta64(1,'D'))
-    elif len(EndDate) != 10:
-        sys.exit('\nEnd date should be in format ''YYYY'', ''YYYY-MM'', or ''YYYY-MM-DD''!\n'\
-                 +'Program will exit now !\n')
-    
-    
-    SingleDay_flag = False
-    if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
-        if np.datetime64(EndDate,'D') - np.datetime64(StartDate,'D') \
-          > np.timedelta64(1,'D'):
-            # for monthly and daily datasets, do not include the month or day before
-            StartDate = str(np.datetime64(StartDate,'D') + np.timedelta64(1,'D'))
-        else:
-            # for single day ranges we need to make the adjustment
-            # after the CMR request
-            SingleDay_flag = True
-    # for snapshot datasets, move EndDate one day later
-    if 'SNAPSHOT' in ShortName:
-        EndDate = str(np.datetime64(EndDate,'D') + np.timedelta64(1,'D'))
-
+    StartDate,EndDate,SingleDay_flag = date_adjustment(ShortName,\
+                                         StartDate,EndDate,CMR_query=True)
     
     ## Log into Earthdata using your username and password
-    
-    # actually log in with this command:
     setup_earthdata_login_auth()
     
     # Query the NASA Common Metadata Repository to find the URL of every granule associated with the desired 
@@ -181,6 +154,17 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate):
     
     # grans means 'granules', PO.DAAC's term for individual files in a dataset
     s3_files_list = get_granules(input_search_params,ShortName,SingleDay_flag)
+    
+    # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
+    if 'SNAPSHOT' in ShortName:
+        if snapshot_interval == 'monthly':
+            import re
+            s3_files_list_copy = list(tuple(s3_files_list))
+            for s3_file in s3_files_list:
+                snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",s3_file)[0][1:]
+                if snapshot_date[8:] != '01':
+                    s3_files_list_copy.remove(s3_file)
+            s3_files_list = s3_files_list_copy
     
     
     return s3_files_list
@@ -204,7 +188,6 @@ def init_S3FileSystem():
     
     """
     
-    import requests
     import s3fs
     
     creds = requests.get('https://archive.podaac.earthdata.nasa.gov/s3credentials').json()
@@ -331,7 +314,7 @@ def download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_
 ###================================================================================================================
 
 
-def ecco_podaac_s3_open(ShortName,StartDate,EndDate):
+def ecco_podaac_s3_open(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
     
     """
     
@@ -349,6 +332,10 @@ def ecco_podaac_s3_open(ShortName,StartDate,EndDate):
                        ECCOv4r4 date range is '1992-01-01' to '2017-12-31'.
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
+
+    snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
+                       determines whether snapshots are included for only the beginning/end of each month 
+                       ('monthly'), or for every day ('daily'). Defaults to 'monthly'.
 
     Returns
     -------
@@ -379,8 +366,85 @@ def ecco_podaac_s3_open(ShortName,StartDate,EndDate):
 ###================================================================================================================
 
 
-def ecco_podaac_s3_get(ShortName,StartDate,EndDate,download_root_dir=None,n_workers=6,\
-                       force_redownload=False,return_downloaded_files=False):
+def ecco_podaac_s3_open_fsspec(ShortName,jsons_root_dir):
+    
+    """
+    
+    This routine searches for and opens ECCO datasets from S3 buckets in the PO.DAAC Cloud.
+    It returns a list of opened file(s) on S3 that can be passed to xarray.
+    This function is intended to be called from an EC2 instance running in AWS region us-west-2.
+    
+    Parameters
+    ----------
+    ShortName: str, the ShortName that identifies the dataset on PO.DAAC.
+    
+    jsons_root_dir: str, the root/parent directory where the 
+                    fsspec/kerchunk-generated jsons are found.
+                    jsons are generated using the steps described here:
+                    https://medium.com/pangeo/fake-it-until-you-make-it-reading-goes-netcdf4-data-on-aws-s3-as-zarr
+                    -for-rapid-data-access-61e33f8fe685
+                    and stored as {jsons_root_dir}/MZZ_{GRIDTYPE}_{TIME_RES}/{SHORTNAME}.json.
+                    For v4r4, GRIDTYPE is '05DEG' or 'LLC0090GRID'.
+                    TIME_RES is one of: ('MONTHLY','DAILY','SNAPSHOT','GEOMETRY','MIXING_COEFFS').
+
+    Returns
+    -------
+    fsmap_obj: fsspec.mapping.FSMap object, can be passed directly to xarray.open_dataset 
+               (with engine='zarr')
+    
+    """
+
+    pass
+    
+    import glob
+    import fsspec
+    
+    
+    # identify where json file is found
+    shortname_split = ShortName.split('_')
+    if 'GEOMETRY' in ShortName:
+        gridtype = shortname_split[-2]
+        time_res = 'GEOMETRY'
+    elif 'MIX_COEFFS' in ShortName:
+        gridtype = shortname_split[-2]
+        time_res = 'MIXING_COEFFS'
+    else:
+        gridtype = shortname_split[-3]
+        time_res = shortname_split[-2]
+    json_subdir = join(jsons_root_dir,"_".join(['MZZ',gridtype,time_res]))
+    if (('GEOMETRY' in ShortName) or ('MIX_COEFFS' in ShortName)):
+        if 'LLC' in gridtype:
+            json_file = glob.glob(join(json_subdir,'*native*.json'))[0]
+        elif 'DEG' in gridtype:
+            json_file = glob.glob(join(json_subdir,'*latlon*.json'))[0]
+    else:
+        json_file = join(json_subdir,ShortName+'.json')
+    
+    
+    # get NASA Earthdata credentials for S3
+    creds = requests.get('https://archive.podaac.earthdata.nasa.gov/s3credentials').json()
+    
+    # generate map object
+    fs = fsspec.filesystem(\
+                "reference", 
+                fo=json_file,\
+                remote_protocol="s3", 
+                remote_options={"anon":False,\
+                                "key":creds['accessKeyId'],
+                                "secret":creds['secretAccessKey'], 
+                                "token":creds['sessionToken']},\
+                skip_instance_cache=True)
+    fsmap_obj = fs.get_mapper("")
+    
+    return fsmap_obj
+
+
+
+###================================================================================================================
+
+
+def ecco_podaac_s3_get(ShortName,StartDate,EndDate,snapshot_interval='monthly',download_root_dir=None,\
+                       n_workers=6,force_redownload=False,return_downloaded_files=False):
 
     """
     
@@ -399,6 +463,10 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,download_root_dir=None,n_work
                        ECCOv4r4 date range is '1992-01-01' to '2017-12-31'.
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
+
+    snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
+                       determines whether snapshots are included for only the beginning/end of each month 
+                       ('monthly'), or for every day ('daily'). Defaults to 'monthly'.
     
     download_root_dir: str, defines parent directory to download files to.
                        Files will be downloaded to directory download_root_dir/ShortName/.
@@ -543,17 +611,7 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
     for curr_shortname in ShortNames:
         
         # get list of files
-        s3_files_list = ecco_podaac_s3_query(curr_shortname,StartDate,EndDate)
-
-        # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
-        if (('SNAPSHOT' in curr_shortname) and (snapshot_interval == 'monthly')):
-            import re
-            s3_files_list_copy = list(tuple(s3_files_list))
-            for s3_file in s3_files_list:
-                snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",s3_file)[0][1:]
-                if snapshot_date[8:] != '01':
-                    s3_files_list_copy.remove(s3_file)
-            s3_files_list = s3_files_list_copy
+        s3_files_list = ecco_podaac_s3_query(curr_shortname,StartDate,EndDate,snapshot_interval)
         
         # create the download directory if it does not already exist
         download_dir = Path(download_root_dir) / curr_shortname
