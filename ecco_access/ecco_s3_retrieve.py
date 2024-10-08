@@ -527,8 +527,8 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,snapshot_interval='monthly',d
 ###================================================================================================================
 
 
-def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5,snapshot_interval=None,\
-                                 download_root_dir=None,n_workers=6,force_redownload=False):
+def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,snapshot_interval=None,\
+                                 download_root_dir=None,max_avail_frac=0.5,n_workers=6,force_redownload=False):
     
     """
     
@@ -551,12 +551,7 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
                        ECCOv4r4 date range is '1992-01-01' to '2017-12-31'.
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
-
-    max_avail_frac: float, maximum fraction of remaining available disk space to use in storing current ECCO datasets.
-                    This determines whether the dataset files are stored on the current instance, or opened on S3.
-                    Valid range is [0,0.9]. If number provided is outside this range, it is replaced by the closer 
-                    endpoint of the range.
-
+    
     snapshot_interval: ('monthly', 'daily', or None), if snapshot datasets are included in ShortNames, 
                        this determines whether snapshots are included for only the beginning/end of each month 
                        ('monthly'), or for every day ('daily').
@@ -566,6 +561,11 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,max_avail_frac=0.5
     download_root_dir: str, defines parent directory to download files to.
                        Files will be downloaded to directory download_root_dir/ShortName/.
                        If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
+    
+    max_avail_frac: float, maximum fraction of remaining available disk space to use in storing current ECCO datasets.
+                    This determines whether the dataset files are stored on the current instance, or opened on S3.
+                    Valid range is [0,0.9]. If number provided is outside this range, it is replaced by the closer 
+                    endpoint of the range.
     
     n_workers: int, number of workers to use in concurrent downloads. Benefits typically taper off above 5-6.
                Applies only if files are downloaded.
