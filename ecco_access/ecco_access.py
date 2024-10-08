@@ -124,14 +124,14 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
 
     Returns
     -------
-    download_files: dict, with keys: ShortNames and values:
-                    URLs (if in 'query' mode), or paths of files that can be 
-                    passed directly to xarray (open_dataset or open_mfdataset).
-                    Values are of type str if query finds only one granule/file
-                    for that ShortName; of type list if query finds 
-                    multiple granules in the same dataset; 
-                    or of type fsspec.mapping.FSMap if mode = 's3_open_fsspec'.
-                    Only returned if return_granules=True (default).
+    granule_files: dict with ShortNames as keys; values are URLs or S3 paths
+                   (if in 'query' mode), or paths of files that can be 
+                   passed directly to xarray (open_dataset or open_mfdataset).
+                   Values are of type str if query finds only one granule/file
+                   for that ShortName; of type list if query finds 
+                   multiple granules in the same dataset; 
+                   or of type fsspec.mapping.FSMap if mode = 's3_open_fsspec'.
+                   Only returned if return_granules=True (default).
     
     """
     
@@ -272,6 +272,7 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
 ###================================================================================================================
 
 
+
 def ecco_podaac_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
                              StartDate=None,EndDate=None,snapshot_interval=None,\
                              mode='download_ifspace',download_root_dir=None,**kwargs):
@@ -325,10 +326,6 @@ def ecco_podaac_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
                        and 'monthly' otherwise.
     
     mode: str, one of the following:
-          'ls' or 'query': Query dataset ShortNames and variable names/
-                           descriptions only; no downloads.
-          's3_ls' or 's3_query': Query dataset ShortNames and variable names/
-                                 descriptions only; return paths on S3.
           'download': Download datasets using NASA Earthdata URLs
           'download_ifspace': Check storage availability before downloading.
                               Download only if storage footprint of downloads 
@@ -375,16 +372,11 @@ def ecco_podaac_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False (default), existing files will not be replaced.
 
-    return_granules: bool, if True (default), str or list of queried or 
-                           downloaded granules/files (including ones that 
-                           were already on disk and not replaced) is returned.
-                           if False, the function returns nothing.
-
     Returns
     -------
     ds_out: xarray Dataset or dict of xarray Datasets (with ShortNames as keys), 
             containing all of the accessed datasets.
-            Does not work with the query modes: 'ls','query','s3_ls','s3_query'.
+            This function does not work with the query modes: 'ls','query','s3_ls','s3_query'.
     """
     
     pass
