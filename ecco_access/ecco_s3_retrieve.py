@@ -91,7 +91,8 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'
     
     ### Helper subroutines to make the API calls to search CMR and parse response
     def set_params(params: dict):
-        params.update({'scroll': "true", 'page_size': 2000})
+#         params.update({'scroll': "true", 'page_size': 2000})
+        params.update({'page_size': 2000})
         return {par: val for par, val in params.items() if val is not None}
     
     def get_results(params: dict, headers: dict=None):

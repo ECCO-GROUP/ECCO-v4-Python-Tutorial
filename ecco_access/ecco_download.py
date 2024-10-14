@@ -88,7 +88,8 @@ def ecco_podaac_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
     
     ### Helper subroutines to make the API calls to search CMR and parse response
     def set_params(params: dict):
-        params.update({'scroll': "true", 'page_size': 2000})
+#         params.update({'scroll': "true", 'page_size': 2000})
+        params.update({'page_size': 2000})
         return {par: val for par, val in params.items() if val is not None}
     
     def get_results(params: dict, headers: dict=None):
@@ -100,13 +101,14 @@ def ecco_podaac_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
     
     def get_granules(params: dict):
         response, headers = get_results(params=params)
-        scroll = headers['CMR-Scroll-Id']
+#         scroll = headers['CMR-Scroll-Id']
         hits = int(headers['CMR-Hits'])
         if hits==0:
             raise Exception("No granules matched your input parameters.")
         df = pd.read_csv(StringIO(response.text)) 
         while hits > df.index.size:
-            response, _ = get_results(params=params, headers={'CMR-Scroll-Id': scroll})
+#             response, _ = get_results(params=params, headers={'CMR-Scroll-Id': scroll})
+            response, _ = get_results(params=params)
             data = pd.read_csv(StringIO(response.text))
             df = pd.concat([df, data])
         return df
