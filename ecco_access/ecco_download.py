@@ -118,6 +118,12 @@ def ecco_podaac_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
     #=====================================================
     
     
+    # # set default StartDate or EndDate if not previously provided
+    if StartDate == None:
+        StartDate = '1992-01-01'
+    if EndDate == None:
+        EndDate = '2099-12-31'
+    
     # # Adjust StartDate and EndDate to CMR query values
     StartDate,EndDate,SingleDay_flag = date_adjustment(ShortName,\
                                          StartDate,EndDate,CMR_query=True)    

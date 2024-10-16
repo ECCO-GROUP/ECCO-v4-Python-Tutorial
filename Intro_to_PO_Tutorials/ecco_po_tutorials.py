@@ -117,7 +117,7 @@ def mean_weighted_binned(value_field,weighting,bin_field,bin_bounds):
 #----------------------------------------------------------------------------------------
 
 
-def geos_vel_compute(dens_press_filename,grid_filename="~/Downloads/ECCO_V4r4_PODAAC/ECCO_L4_GEOMETRY_LLC0090GRID_V4R4/GRID_GEOMETRY_ECCO_V4r4_native_llc0090.nc",fc_filename="llc_13tile_fc.txt"):
+def geos_vel_compute(dens_press_filename,grid_filename="~/Downloads/ECCO_V4r4_PODAAC/ECCO_L4_GEOMETRY_LLC0090GRID_V4R4/GRID_GEOMETRY_ECCO_V4r4_native_llc0090.nc",subset=None):
     """
     This routine computes geostrophic velocities from an input netCDF file containing ECCO v4r4 density and pressure anomalies on the native llc90 grid.
     
@@ -126,8 +126,8 @@ def geos_vel_compute(dens_press_filename,grid_filename="~/Downloads/ECCO_V4r4_PO
     dens_press_filename: the name (including path if not in current directory) of the netCDF file containing the density and pressure anomalies
     
     grid_filename: the name (including path if not in current directory) of the netCDF file containing the latitudes ('YC') and grid parameters ('dxC','dyC') needed to compute horizontal derivatives
-    
-    fc_filename: text file containing a Python dictionary specifying the tile/face connections in the ECCO llc90 grid
+
+    subset: dictionary containing dimension names and index values, e.g., {'k': [0,1,2]}. The index values can be integers, slice objects, or arrays. This object is passed directly to xarray.Dataset.isel as an indexer. If not specified, the entire global domain will be used.
     """
     
     import numpy as np
@@ -141,8 +141,7 @@ def geos_vel_compute(dens_press_filename,grid_filename="~/Downloads/ECCO_V4r4_PO
     import ecco_v4_py as ecco
     
     # load file into workspace
-    ds_denspress = xr.open_dataset(dens_press_filename, data_vars='minimal',\
-                                     coords='minimal', compat='override')
+    ds_denspress = xr.open_dataset(dens_press_filename)
     
     densanom = ds_denspress.RHOAnoma
     

@@ -55,6 +55,7 @@ def setup_earthdata_login_auth(url: str='urs.earthdata.nasa.gov'):
 ###================================================================================================================
 
 
+
 def ecco_podaac_s3_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
     
     """
@@ -134,6 +135,12 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'
         return s3_files_list
     
     
+    
+    # # set default StartDate or EndDate if not previously provided
+    if StartDate == None:
+        StartDate = '1992-01-01'
+    if EndDate == None:
+        EndDate = '2099-12-31'
     
     # # Adjust StartDate and EndDate to CMR query values
     StartDate,EndDate,SingleDay_flag = date_adjustment(ShortName,\
