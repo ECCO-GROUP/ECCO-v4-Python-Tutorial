@@ -425,7 +425,7 @@ def ecco_podaac_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
     ds_out = {}
     for shortname,access_out in access_output.items():
         if mode == 's3_open_fsspec':
-            curr_ds = xr.open_dataset(access_out,engine='zarr',consolidated=False)
+            curr_ds = xr.open_dataset(access_out,engine='zarr',chunks='auto',consolidated=False)
             if 'time' in curr_ds.dims:
                 # isolate time range specified
                 startdate,enddate = date_adjustment(shortname,\
