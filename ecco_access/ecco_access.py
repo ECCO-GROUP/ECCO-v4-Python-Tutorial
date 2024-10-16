@@ -275,9 +275,10 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
         return_granules = True
     if return_granules:
         for shortname in granule_files.keys():
-            if ((len(granule_files[shortname]) == 1) and (mode != 's3_open_fsspec')):
-                # if only 1 file is downloaded, return a string of filename instead of a list
-                granule_files[shortname] = granule_files[shortname][0]
+            if isinstance(granule_files[shortname],list):
+                if ((len(granule_files[shortname]) == 1) and (mode != 's3_open_fsspec')):
+                    # if only 1 file is downloaded, return a string of filename instead of a list
+                    granule_files[shortname] = granule_files[shortname][0]
         
         return granule_files
 
@@ -445,11 +446,12 @@ def ecco_podaac_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
                             time_subind.remove(count)
                     curr_ds = curr_ds.isel(time=time_subind)
         else:
+            if not isinstance(access_out,list):
+                access_out = [access_out]
             curr_ds = xr.open_mfdataset(access_out,\
-                                         compat='override',data_vars='minimal',coords='minimal',\
-                                         parallel=True)
+                                        compat='override',data_vars='minimal',coords='minimal',\
+                                        parallel=True)
         ds_out[shortname] = curr_ds
-    
     
     # if only one ShortName is involved, then extract dataset from dictionary
     if len(ds_out) == 1:
