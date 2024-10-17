@@ -93,25 +93,60 @@ def ecco_podaac_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
         return {par: val for par, val in params.items() if val is not None}
     
     def get_results(params: dict, headers: dict=None):
-        response = requests.get(url="https://cmr.earthdata.nasa.gov/search/granules.csv", 
+        response = requests.get(url="https://cmr.earthdata.nasa.gov/search/granules.json", 
                                 params=set_params(params),
-                                headers=headers)
-        return response, response.headers
+                                headers=headers).json()
+        return response
     
     
-    def get_granules(params: dict):
-        response, headers = get_results(params=params)
-#         scroll = headers['CMR-Scroll-Id']
-        hits = int(headers['CMR-Hits'])
-        if hits==0:
-            raise Exception("No granules matched your input parameters.")
-        df = pd.read_csv(StringIO(response.text)) 
-        while hits > df.index.size:
-#             response, _ = get_results(params=params, headers={'CMR-Scroll-Id': scroll})
-            response, _ = get_results(params=params)
-            data = pd.read_csv(StringIO(response.text))
-            df = pd.concat([df, data])
-        return df
+#     def get_granules(params: dict):
+#         time_start = np.array([]).astype('datetime64[ns]')
+#         response, headers = get_results(params=params)
+# #         scroll = headers['CMR-Scroll-Id']
+#         hits = int(headers['CMR-Hits'])
+#         if hits==0:
+#             raise Exception("No granules matched your input parameters.")
+#         df = pd.read_csv(StringIO(response.text)) 
+#         while hits > df.index.size:
+# #             response, _ = get_results(params=params, headers={'CMR-Scroll-Id': scroll})
+#             response, _ = get_results(params=params)
+#             data = pd.read_csv(StringIO(response.text))
+#             df = pd.concat([df, data])
+#         return df
+    
+    def get_granules(params: dict, ShortName: str, SingleDay_flag: bool):
+        time_start = np.array([]).astype('datetime64[ns]')
+        urls = []
+        sizes = []
+        completed_query = False
+        while completed_query == False:
+            response = get_results(params=params)
+            if 'feed' in response.keys():
+                for curr_entry in response['feed']['entry']:
+                    time_start = np.append(time_start,np.datetime64(curr_entry['time_start'],'ns'))
+                    sizes.append(curr_entry['granule_size'])
+                    for curr_link in curr_entry['links']:
+                        if ".nc" in curr_link['title'][-3:]:
+                            urls.append(curr_link['href'])
+                            break
+            elif 'errors' in response.keys():
+                raise Exception(response['errors'][0])
+            
+            if len(response['feed']['entry']) < 2000:
+                completed_query = True
+            else:
+                # do another CMR search since previous search hit the allowed maximum
+                # number of entries (2000)
+                params['temporal'] = str(np.datetime64(response['feed']['entry'][-1]['time_end'],'D')\
+                                         + np.timedelta64(1,'D'))+params['temporal'][10:]
+
+        # reduce granule list to single day if only one day in requested range
+        if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
+            if ((SingleDay_flag == True) and (len(urls) > 1)):
+                day_index = np.argmin(np.abs(time_start - np.datetime64(StartDate,'D')))
+                urls = urls[day_index:(day_index+1)]
+
+        return urls,sizes
     
     
     
@@ -148,48 +183,45 @@ def ecco_podaac_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
     ### Query CMR for the desired ECCO Dataset
     
     # grans means 'granules', PO.DAAC's term for individual files in a dataset
-    grans = get_granules(input_search_params)
+    urls,gran_sizes = get_granules(input_search_params,ShortName,SingleDay_flag)
     
-    
-    ## Prepare results of query
-    
-    # reduce granule list to single day if only one day in requested range
-    if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
-        if ((SingleDay_flag == True) and (len(grans['Granule UR']) > 1)):
-            day_index = np.argmin(np.abs(np.asarray(grans['Start Time'])\
-              .astype('datetime64[ns]') - np.datetime64(StartDate,'D')))
-            grans = grans[day_index:(day_index+1)]
-    
-    # convert the rows of the 'Online Access URLS' column to a Python list
-    urls = grans['Online Access URLs'].tolist()
+#     ## Prepare results of query
+#     
+#     # reduce granule list to single day if only one day in requested range
+#     if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
+#         if ((SingleDay_flag == True) and (len(grans['Granule UR']) > 1)):
+#             day_index = np.argmin(np.abs(np.asarray(grans['Start Time'])\
+#                        .astype('datetime64[ns]') - np.datetime64(StartDate,'D')))
+#             grans = grans[day_index:(day_index+1)]
+#     
+#     # convert the rows of the 'Online Access URLS' column to a Python list
+#     urls = grans['Online Access URLs'].tolist()
     
     # estimate granule sizes where this info is missing from CMR
-    sizes = (2**20)*np.asarray(grans['Size']).astype('float64')
+    sizes = (2**20)*np.asarray(gran_sizes).astype('float64')
     sizes = np.where(sizes > (2**10),sizes,np.nan) 
     if np.sum(~np.isnan(sizes)) >= 1:
         sizes = np.where(~np.isnan(sizes),sizes,np.nanmean(sizes))
     else:
         input_search_params['temporal'] = ['1992-01-01','2017-12-31']
-        grans_all = get_granules(input_search_params)
+        _,gran_sizes_all = get_granules(input_search_params)
         sizes_all = (2**20)*np.asarray(grans_all['Size']).astype('float64')
         sizes_all = np.where(sizes_all > (2**10),sizes_all,np.nan) 
         sizes = np.where(~np.isnan(sizes),sizes,np.nanmean(sizes_all))
     sizes = list(sizes)
-    urls = grans['Online Access URLs'].tolist()
+#     urls = grans['Online Access URLs'].tolist()
     
     # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
     if 'SNAPSHOT' in ShortName:
         if snapshot_interval == 'monthly':
             import re
-            urls_list_copy = list(tuple(urls))
-            sizes_list_copy = list(tuple(sizes))
-            for idx,(url,size) in enumerate(zip(urls,sizes)):
+            url_sizes_dict = {url:size for url,size in zip(urls,sizes)}
+            for url,size in zip(urls,sizes):
                 snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",url)[0][1:]
                 if snapshot_date[8:] != '01':
-                    urls_list_copy.remove(url)
-                    del sizes_list_copy[idx]
-            urls = urls_list_copy
-            sizes = sizes_list_copy
+                    del url_sizes_dict[url]
+            urls = list(url_sizes_dict.keys())
+            sizes = list(url_sizes_dict.values())
     
     return urls,sizes
 
