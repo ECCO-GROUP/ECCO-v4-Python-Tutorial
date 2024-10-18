@@ -550,7 +550,7 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,snapshot_interva
             # download files
             curr_downloaded_files = download_files_wrapper(urls_list, download_dir, n_workers, force_redownload)
 
-            if len(downloaded_files) == 1:
+            if len(curr_downloaded_files) == 1:
                 # if only 1 file is downloaded, return a string of filename instead of a list
                 curr_downloaded_files = curr_downloaded_files[0]
 
