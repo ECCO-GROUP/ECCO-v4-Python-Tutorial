@@ -25,8 +25,8 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
                 mode='download_ifspace',download_root_dir=None,**kwargs):
     """
     
-    This function queries and accesses ECCO datasets from PO.DAAC. The core query and download functions are adapted from Jupyter notebooks 
-    created by Jack McNelis and Ian Fenty 
+    This function queries and accesses ECCO datasets from PO.DAAC. The core query and download functions 
+    are adapted from Jupyter notebooks created by Jack McNelis and Ian Fenty 
     (https://github.com/ECCO-GROUP/ECCO-ACCESS/blob/master/PODAAC/Downloading_ECCO_datasets_from_PODAAC/README.md)
     and modified by Andrew Delman (https://ecco-v4-python-tutorial.readthedocs.io).
     
@@ -61,14 +61,14 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
                        define date range [StartDate,EndDate] for download.
                        EndDate is included in the time range (unlike typical Python ranges).
                        Full ECCOv4r4 date range (default) is '1992-01-01' to '2017-12-31'.
-                       For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
-                       within the specified date range.
+                       For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable 
+                       closed budgets within the specified date range.
     
     snapshot_interval: ('monthly', 'daily', or None), if snapshot datasets are included in ShortNames, 
-                       this determines whether snapshots are included for only the beginning/end of each month 
-                       ('monthly'), or for every day ('daily').
-                       If None or not specified, defaults to 'daily' if any daily mean ShortNames are included 
-                       and 'monthly' otherwise.
+                       this determines whether snapshots are included for only the beginning/end 
+                       of each month ('monthly'), or for every day ('daily').
+                       If None or not specified, defaults to 'daily' if any daily mean ShortNames 
+                       are included and 'monthly' otherwise.
     
     mode: str, one of the following:
           'ls' or 'query': Query dataset ShortNames and variable names/
@@ -104,14 +104,14 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
     max_avail_frac: float, maximum fraction of remaining available disk space to 
                     use in storing ECCO datasets.
                     If storing the datasets exceeds this fraction, an error is returned.
-                    Valid range is [0,0.9]. If number provided is outside this range, it is replaced by the closer 
-                    endpoint of the range.
+                    Valid range is [0,0.9]. If number provided is outside this range, it is replaced 
+                    by the closer endpoint of the range.
     
     jsons_root_dir: str, for s3_open_fsspec mode only, the root/parent directory where the 
                     fsspec/kerchunk-generated jsons are found.
                     jsons are generated using the steps described here:
-                    https://medium.com/pangeo/fake-it-until-you-make-it-reading-goes-netcdf4-data-on-aws-s3-as-zarr
-                    -for-rapid-data-access-61e33f8fe685
+                    https://medium.com/pangeo/fake-it-until-you-make-it-reading-goes-netcdf4-data-on-aws-s3
+                    as-zarr-for-rapid-data-access-61e33f8fe685
                     and stored as {jsons_root_dir}/MZZ_{GRIDTYPE}_{TIME_RES}/{SHORTNAME}.json.
                     For v4r4, GRIDTYPE is '05DEG' or 'LLC0090GRID'.
                     TIME_RES is one of: ('MONTHLY','DAILY','SNAPSHOT','GEOMETRY','MIXING_COEFFS').
@@ -293,8 +293,8 @@ def ecco_podaac_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
                              mode='download_ifspace',download_root_dir=None,**kwargs):
     """
     
-    This function queries and accesses ECCO datasets from PO.DAAC. The core query and download functions are adapted from Jupyter notebooks 
-    created by Jack McNelis and Ian Fenty 
+    This function queries and accesses ECCO datasets from PO.DAAC. The core query and download functions 
+    are adapted from Jupyter notebooks created by Jack McNelis and Ian Fenty 
     (https://github.com/ECCO-GROUP/ECCO-ACCESS/blob/master/PODAAC/Downloading_ECCO_datasets_from_PODAAC/README.md)
     and modified by Andrew Delman (https://ecco-v4-python-tutorial.readthedocs.io).
     It is similar to ecco_podaac_access, except instead of a list of URLs or files, 
@@ -331,14 +331,14 @@ def ecco_podaac_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
                        define date range [StartDate,EndDate] for download.
                        EndDate is included in the time range (unlike typical Python ranges).
                        Full ECCOv4r4 date range (default) is '1992-01-01' to '2017-12-31'.
-                       For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
-                       within the specified date range.
+                       For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable 
+                       closed budgets within the specified date range.
     
     snapshot_interval: ('monthly', 'daily', or None), if snapshot datasets are included in ShortNames, 
-                       this determines whether snapshots are included for only the beginning/end of each month 
-                       ('monthly'), or for every day ('daily').
-                       If None or not specified, defaults to 'daily' if any daily mean ShortNames are included 
-                       and 'monthly' otherwise.
+                       this determines whether snapshots are included for only the beginning/end 
+                       of each month ('monthly'), or for every day ('daily').
+                       If None or not specified, defaults to 'daily' if any daily mean ShortNames 
+                       are included and 'monthly' otherwise.
     
     mode: str, one of the following:
           'download': Download datasets using NASA Earthdata URLs
@@ -370,14 +370,14 @@ def ecco_podaac_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
     max_avail_frac: float, maximum fraction of remaining available disk space to 
                     use in storing ECCO datasets.
                     If storing the datasets exceeds this fraction, an error is returned.
-                    Valid range is [0,0.9]. If number provided is outside this range, it is replaced by the closer 
-                    endpoint of the range.
+                    Valid range is [0,0.9]. If number provided is outside this range, it is replaced 
+                    by the closer endpoint of the range.
     
     jsons_root_dir: str, for s3_open_fsspec mode only, the root/parent directory where the 
                     fsspec/kerchunk-generated jsons are found.
                     jsons are generated using the steps described here:
-                    https://medium.com/pangeo/fake-it-until-you-make-it-reading-goes-netcdf4-data-on-aws-s3-as-zarr
-                    -for-rapid-data-access-61e33f8fe685
+                    https://medium.com/pangeo/fake-it-until-you-make-it-reading-goes-netcdf4-data-on-aws-s3
+                    as-zarr-for-rapid-data-access-61e33f8fe685
                     and stored as {jsons_root_dir}/MZZ_{GRIDTYPE}_{TIME_RES}/{SHORTNAME}.json.
                     For v4r4, GRIDTYPE is '05DEG' or 'LLC0090GRID'.
                     TIME_RES is one of: ('MONTHLY','DAILY','SNAPSHOT','GEOMETRY','MIXING_COEFFS').
