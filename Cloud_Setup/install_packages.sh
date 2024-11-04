@@ -21,6 +21,8 @@ red_start='\033[0;31m'
 blue_start='\033[0;34m'
 nocolor_start='\033[0m'
 
+
+source ~/.bashrc
 mamba init
 
 # create jupyter environment
