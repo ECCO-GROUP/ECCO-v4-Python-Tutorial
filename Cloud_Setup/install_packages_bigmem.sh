@@ -15,6 +15,7 @@ blue_start='\033[0;34m'
 nocolor_start='\033[0m'
 
 
+source ~/.bashrc
 conda init
 
 # create conda environment called 'jupyter'
