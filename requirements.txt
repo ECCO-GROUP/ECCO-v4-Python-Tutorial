@@ -33,7 +33,7 @@ packaging==22.0
     # via sphinx
 pandoc==2.3  
     # from sphinx website
-pygments==2.13.0
+pygments==2.15.0
     # via sphinx
 pytz==2022.7
     # via babel
