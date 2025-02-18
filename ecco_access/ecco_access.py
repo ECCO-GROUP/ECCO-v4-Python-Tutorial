@@ -124,7 +124,17 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
     
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False (default), existing files will not be replaced.
-
+    
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
+    
+    prompt_request_payer: bool, if True (default), user is prompted to approve 
+                                (by entering "y" or "Y") any access to a 
+                                requester pays bucket, otherwise request is canceled; 
+                                if False, data access proceeds without prompting.
+    
     return_granules: bool, if True (default), str or list of queried or 
                            downloaded granules/files (including ones that 
                            were already on disk and not replaced) is returned.
@@ -422,6 +432,16 @@ def ecco_podaac_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
     
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False (default), existing files will not be replaced.
+    
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
+    
+    prompt_request_payer: bool, if True (default), user is prompted to approve 
+                                (by entering "y" or "Y") any access to a 
+                                requester pays bucket, otherwise request is canceled; 
+                                if False, data access proceeds without prompting.
 
     Returns
     -------

@@ -3,6 +3,7 @@
 
 from .ecco_acc_dates import date_adjustment
 
+
 ## Initalize Python libraries for module
 import numpy as np
 import pandas as pd
@@ -255,7 +256,7 @@ def init_S3FileSystem(version):
 ###================================================================================================================
 
 
-def download_file(s3, url, output_dir, force):
+def download_file(s3, url, output_dir, force, show_noredownload_msg):
     
     """
     Helper subroutine to gracefully download single files and avoids re-downloading if file already exists.
@@ -266,6 +267,7 @@ def download_file(s3, url, output_dir, force):
     url: str, the HTTPS url from which the file will download
     output_dir: str, the local path into which the file will download
     force: bool, download even if the file exists locally already
+    show_noredownload_msg (bool): show "no re-download" messages (vs. not showing messages)
 
     Returns
     -------
@@ -282,10 +284,13 @@ def download_file(s3, url, output_dir, force):
     
     # if the file has already been downloaded, skip    
     if isfile(target_file) and force is False:
-        print(f'\n{basename(url)} already exists, and force=False, not re-downloading')
+        if show_noredownload_msg:
+            print(f'\n{basename(url)} already exists, and force=False, not re-downloading')
         return target_file
 
     # download file to local (output) file directory
+    u_name = url.split('/')[-1]
+    print(f'downloading {u_name}')
     s3.get_file(url, target_file)
 
     return target_file
@@ -295,7 +300,7 @@ def download_file(s3, url, output_dir, force):
 ###================================================================================================================
 
 
-def download_files_concurrently(s3, dls, download_dir, n_workers, force=False):
+def download_files_concurrently(s3, dls, download_dir, n_workers, force=False, show_noredownload_msg=True):
     """Download files using thread pool with up to n_workers"""
 
     pass
@@ -306,7 +311,7 @@ def download_files_concurrently(s3, dls, download_dir, n_workers, force=False):
     with ThreadPoolExecutor(max_workers=n_workers) as executor:
 
         # tqdm makes a cool progress bar
-        downloaded_files = list(tqdm(executor.map(download_file, repeat(s3), dls, repeat(download_dir), repeat(force)),\
+        downloaded_files = list(tqdm(executor.map(download_file, repeat(s3), dls, repeat(download_dir), repeat(force), repeat(show_noredownload_msg)),\
                                      total=len(dls), desc='DL Progress',\
                                      ascii=True, ncols=75, file=sys.stdout))
     
@@ -324,7 +329,7 @@ def download_files_concurrently(s3, dls, download_dir, n_workers, force=False):
 ###================================================================================================================
 
 
-def download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload):
+def download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload, show_noredownload_msg):
     """Wrapper for downloading functions"""
 
     pass
@@ -334,7 +339,7 @@ def download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_
         ### Method 1: Concurrent downloads        
         
         # Force redownload (or not) depending on value of force_redownload
-        downloaded_files = download_files_concurrently(s3, s3_files_list, download_dir, n_workers, force_redownload)
+        downloaded_files = download_files_concurrently(s3, s3_files_list, download_dir, n_workers, force_redownload, show_noredownload_msg)
         
     except:
         ### Method 2: Sequential Downloads
@@ -347,9 +352,8 @@ def download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_
         # loop through all files
         downloaded_files = []
         for u in s3_files_list:
-            u_name = u.split('/')[-1]
-            print(f'downloading {u_name}')
-            result = download_file(s3, url=u, output_dir=download_dir, force=force_redownload)
+            result = download_file(s3, url=u, output_dir=download_dir, force=force_redownload,\
+                                   show_noredownload_msg=show_noredownload_msg)
             downloaded_files.append(result)
         
         # calculate total time spent in the download
@@ -366,7 +370,8 @@ def download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_
 ###================================================================================================================
 
 
-def ecco_podaac_s3_open(ShortName,StartDate,EndDate,version,snapshot_interval='monthly'):
+def ecco_podaac_s3_open(ShortName,StartDate,EndDate,version,snapshot_interval='monthly',\
+                        prompt_request_payer=True):
     
     """
     
@@ -391,6 +396,11 @@ def ecco_podaac_s3_open(ShortName,StartDate,EndDate,version,snapshot_interval='m
     snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
                        determines whether snapshots are included for only the beginning/end of each month 
                        ('monthly'), or for every day ('daily'). Defaults to 'monthly'.
+    
+    prompt_request_payer: bool, if True (default), user is prompted to approve 
+                                (by entering "y" or "Y") any access to a 
+                                requester pays bucket, otherwise request is canceled; 
+                                if False, data access proceeds without prompting.
 
     Returns
     -------
@@ -399,7 +409,8 @@ def ecco_podaac_s3_open(ShortName,StartDate,EndDate,version,snapshot_interval='m
     """
 
     pass    
-        
+    
+    
     # get list of files
     s3_files_list = ecco_podaac_s3_query(ShortName,StartDate,EndDate,version)
 
@@ -409,10 +420,10 @@ def ecco_podaac_s3_open(ShortName,StartDate,EndDate,version,snapshot_interval='m
     # initiate S3 access
     s3 = init_S3FileSystem(version)
     
-    if version == 'v4r5':
+    if ((version == 'v4r5') and prompt_request_payer):
         # give requester a chance to opt out of paying data transfer fees
         option_proceed = input("Files will be accessed from a requester pays S3 bucket.\n"\
-                               "Requester is responsible for data transfer fees.\n"\
+                               "Requester is responsible for any data transfer fees.\n"\
                                "Do you want to proceed? [y/n]: ")
         if option_proceed.casefold() != 'y':
             raise Exception("Request canceled; no data transferred.")
@@ -511,7 +522,9 @@ def ecco_podaac_s3_open_fsspec(ShortName,version,jsons_root_dir):
 
 
 def ecco_podaac_s3_get(ShortName,StartDate,EndDate,version,snapshot_interval='monthly',download_root_dir=None,\
-                       n_workers=6,force_redownload=False,return_downloaded_files=False):
+                       n_workers=6,force_redownload=False,show_noredownload_msg=True,\
+                       prompt_request_payer=True,\
+                       return_downloaded_files=False):
 
     """
     
@@ -545,6 +558,16 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,version,snapshot_interval='mo
     
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False, existing files will not be replaced.
+    
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
+    
+    prompt_request_payer: bool, if True (default), user is prompted to approve 
+                                (by entering "y" or "Y") any access to a 
+                                requester pays bucket, otherwise request is canceled; 
+                                if False, data access proceeds without prompting.
     
     return_downloaded_files: bool, if True, string or list of downloaded file(s) (including files that were 
                              already on disk and not replaced) is returned.
@@ -582,7 +605,7 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,version,snapshot_interval='mo
     # initiate S3 access
     s3 = init_S3FileSystem(version)
 
-    if version == 'v4r5':
+    if ((version == 'v4r5') and prompt_request_payer):
         # give requester a chance to opt out of paying data transfer fees
         option_proceed = input("Files will be accessed from a requester pays S3 bucket.\n"\
                                "Requester is responsible for data transfer fees.\n"\
@@ -591,7 +614,7 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,version,snapshot_interval='mo
             raise Exception("Request canceled; no data transferred.")
     
     # download files
-    downloaded_files = download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload)
+    downloaded_files = download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload, show_noredownload_msg)
     
     if return_downloaded_files == True:
         if len(downloaded_files) == 1:
@@ -605,7 +628,8 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,version,snapshot_interval='mo
 
 
 def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,version,snapshot_interval=None,\
-                                 download_root_dir=None,max_avail_frac=0.5,n_workers=6,force_redownload=False):
+                                 download_root_dir=None,max_avail_frac=0.5,n_workers=6,force_redownload=False,\
+                                 show_noredownload_msg=True,prompt_request_payer=True):
     
     """
     
@@ -653,6 +677,16 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,version,snapshot_i
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False, existing files will not be replaced.
                             Applies only if files are downloaded.
+    
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
+    
+    prompt_request_payer: bool, if True (default), user is prompted to approve 
+                                (by entering "y" or "Y") any access to a 
+                                requester pays bucket, otherwise request is canceled; 
+                                if False, data access proceeds without prompting.
     
     
     Returns
@@ -728,7 +762,7 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,version,snapshot_i
     print(f'Size of files to be downloaded to instance is {(1.e-3)*np.round((1.e3)*sizes_sum/(2**30))} GB,\n'\
                 +f'which is {.01*np.round((1.e4)*avail_frac)}% of the {(1.e-3)*np.round((1.e3)*avail_storage/(2**30))} GB available storage.')
     
-    if version == 'v4r5':
+    if ((version == 'v4r5') and prompt_request_payer):
         # give requester a chance to opt out of paying data transfer fees
         option_proceed = input("Files will be accessed from a requester pays S3 bucket.\n"\
                                "Requester is responsible for data transfer fees.\n"\
@@ -739,7 +773,7 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,version,snapshot_i
     retrieved_files = {}
     if avail_frac <= max_avail_frac:
         # proceed with file downloads
-        print('Proceeding with file downloads from S3')
+        print('Proceeding with downloads of any needed files from S3.')
         for curr_shortname,s3_files_list in zip(ShortNames,s3_files_list_all):
             # set default download parent directory
             if download_root_dir==None:
@@ -749,7 +783,7 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,version,snapshot_i
             download_dir = Path(download_root_dir) / curr_shortname
             
             # download files
-            downloaded_files = download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload)
+            downloaded_files = download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload, show_noredownload_msg)
 
             if len(downloaded_files) == 1:
                 # if only 1 file is downloaded, return a string of filename instead of a list

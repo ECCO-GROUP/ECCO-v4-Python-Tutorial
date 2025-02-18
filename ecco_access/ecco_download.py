@@ -236,7 +236,7 @@ def ecco_podaac_query(ShortName,StartDate,EndDate,version,snapshot_interval='mon
 ###================================================================================================================
 
 
-def download_files_wrapper(urls, download_dir, version, n_workers, force_redownload):
+def download_files_wrapper(urls, download_dir, version, n_workers, force_redownload, show_noredownload_msg):
     """Wrapper for downloading functions"""
     
     pass
@@ -247,11 +247,12 @@ def download_files_wrapper(urls, download_dir, version, n_workers, force_redownl
     
     ### Helper subroutine to gracefully download single files and avoids re-downloading if file already exists.
     # To force redownload of the file, pass **True** to the boolean argument *force* (default **False**)\n,
-    def download_file(url: str, output_dir: str, version: str, force: bool=False):
+    def download_file(url: str, output_dir: str, version: str, force: bool=False, show_noredownload_msg: bool=True):
         """url (str): the HTTPS url from which the file will download
         output_dir (str): the local path into which the file will download
         version (str): the version of ECCO to be downloaded
         force (bool): download even if the file exists locally already
+        show_noredownload_msg (bool): show no re-download messages (vs. not showing messages)
         """
         if not isdir(output_dir):
             raise Exception(f"Output directory doesnt exist! ({output_dir})")
@@ -260,7 +261,8 @@ def download_files_wrapper(urls, download_dir, version, n_workers, force_redownl
         
         # if the file has already been downloaded, skip
         if isfile(target_file) and force is False:
-            print(f'\n{basename(url)} already exists, and force=False, not re-downloading')
+            if show_noredownload_msg:
+                print(f'\n{basename(url)} already exists, and force=False, not re-downloading')
             return target_file,0
         elif version == 'v4r5':
             raise Exception('Capability to download v4r5 files via HTTPS has not been added yet.\n'\
@@ -281,7 +283,7 @@ def download_files_wrapper(urls, download_dir, version, n_workers, force_redownl
     
     
     ### Helper subroutine to download all urls in the list `dls`
-    def download_files_concurrently(dls, download_dir, version, n_workers, force=False):
+    def download_files_concurrently(dls, download_dir, version, n_workers, force=False, show_noredownload_msg=True):
         start_time = time.time()
     
         # use thread pool for concurrent downloads
@@ -289,7 +291,7 @@ def download_files_wrapper(urls, download_dir, version, n_workers, force_redownl
     
             # tqdm makes a cool progress bar
             results = list(tqdm(executor.map(download_file, dls, repeat(download_dir),\
-                                repeat(version), repeat(force)),\
+                                repeat(version), repeat(force), repeat(show_noredownload_msg)),\
                                 total=len(dls), desc='DL Progress',\
                                 ascii=True, ncols=75, file=sys.stdout))
             
@@ -321,7 +323,7 @@ def download_files_wrapper(urls, download_dir, version, n_workers, force_redownl
         ### Method 1: Concurrent downloads        
        
         # Force redownload (or not) depending on value of force_redownload
-        downloaded_files = download_files_concurrently(urls, download_dir, version, n_workers, force_redownload)
+        downloaded_files = download_files_concurrently(urls, download_dir, version, n_workers, force_redownload, show_noredownload_msg)
         
     except:
         ### Method 2: Sequential Downloads
@@ -337,7 +339,7 @@ def download_files_wrapper(urls, download_dir, version, n_workers, force_redownl
         for u in urls:
             u_name = u.split('/')[-1]
             print(f'downloading {u_name}')
-            result = download_file(url=u, output_dir=download_dir, force=force_redownload)
+            result = download_file(url=u, output_dir=download_dir, force=force_redownload, show_noredownload_msg=show_noredownload_msg)
             downloaded_files.append(result[0])
             total_download_size_in_bytes += result[-1]
         
@@ -358,7 +360,8 @@ def download_files_wrapper(urls, download_dir, version, n_workers, force_redownl
 
 
 def ecco_podaac_download(ShortName,StartDate,EndDate,version,snapshot_interval='monthly',download_root_dir=None,\
-                         n_workers=6,force_redownload=False,return_downloaded_files=False):
+                         n_workers=6,force_redownload=False,show_noredownload_msg=True,\
+                         return_downloaded_files=False):
     """
     
     This routine downloads ECCO datasets from PO.DAAC. It is adapted from the Jupyter notebooks 
@@ -391,6 +394,11 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,version,snapshot_interval='
     
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False (default), existing files will not be replaced.
+    
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
 
     return_downloaded_files: bool, if True, string or list of downloaded file(s) (including files that were already on disk
                                    and not replaced) is returned.
@@ -424,7 +432,7 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,version,snapshot_interval='
     
     # Download the granules
     
-    downloaded_files = download_files_wrapper(urls, download_dir, n_workers, force_redownload)
+    downloaded_files = download_files_wrapper(urls, download_dir, n_workers, force_redownload, show_noredownload_msg)
     
     if return_downloaded_files:
         if len(downloaded_files) == 1:
@@ -438,7 +446,7 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,version,snapshot_interval='
 
 
 def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,version,snapshot_interval=None,\
-                                   download_root_dir=None,max_avail_frac=0.5,n_workers=6,force_redownload=False):
+                                   download_root_dir=None,max_avail_frac=0.5,n_workers=6,force_redownload=False,show_noredownload_msg=True):
     
     """
     
@@ -483,6 +491,11 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,version,snapshot
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False, existing files will not be replaced.
                             Applies only if files are downloaded.
+    
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
     
     
     Returns
@@ -564,7 +577,7 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,version,snapshot
             download_dir = Path(download_root_dir) / curr_shortname
             
             # download files
-            curr_downloaded_files = download_files_wrapper(urls_list, download_dir, version, n_workers, force_redownload)
+            curr_downloaded_files = download_files_wrapper(urls_list, download_dir, version, n_workers, force_redownload, show_noredownload_msg)
 
             if len(curr_downloaded_files) == 1:
                 # if only 1 file is downloaded, return a string of filename instead of a list
@@ -586,7 +599,7 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,version,snapshot
 
 
 def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_interval=None,\
-                                n_workers=4,force_redownload=False,\
+                                n_workers=4,force_redownload=False,show_noredownload_msg=True,\
                                 vars_to_include='all',vars_to_omit=None,\
                                 times_to_include='all',\
                                 k_isel=[0,50,1],tile_isel=[0,13,1],j_isel=[0,90,1],i_isel=[0,90,1],\
@@ -629,6 +642,11 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
     
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False, existing files will not be replaced.
+    
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
     
     vars_to_include: list or tuple, names of data variables to include in the downloaded files.
                                     Dimension and coordinate variables are automatically included,
@@ -983,7 +1001,7 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
     
     
     def download_wrapper(url: str, url_append: str, download_dir: str, subset_file_id: str,\
-                         force: bool=False):
+                         force: bool=False, show_noredownload_msg: bool=True):
         import os.path
         
         head, tail = os.path.split(url)
@@ -1002,7 +1020,8 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
         downloaded_files = []
         total_download_size_in_bytes = 0
         try:
-            result = download_file(url=url, output_file=ncout, force=force)
+            result = download_file(url=url, output_file=ncout, force=force,\
+                                   show_noredownload_msg=show_noredownload_msg)
             downloaded_files.append(result[0])
             total_download_size_in_bytes += result[1]
             status_code = 0
@@ -1013,7 +1032,8 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
             while n_retry <= max_retries:
                 time.sleep(5*(n_retry**2))
                 try:
-                    result = download_file(url=url, output_file=ncout, force=force)
+                    result = download_file(url=url, output_file=ncout, force=force,\
+                                           show_noredownload_msg=show_noredownload_msg)
                     downloaded_files.append(result[0])
                     total_download_size_in_bytes += result[1]
                     status_code = 0
@@ -1214,7 +1234,7 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
             with ThreadPoolExecutor(max_workers=n_workers) as executor:
                 results = list(tqdm(executor.map(download_wrapper, grans_urls, repeat(url_append),\
                                                  repeat(download_dir), repeat(subset_file_id),\
-                                                 repeat(force_redownload)),\
+                                                 repeat(force_redownload), repeat(show_noredownload_msg)),\
                                     total=len(grans_urls), desc='DL Progress',\
                                     ascii=True, ncols=75, file=sys.stdout))
                 downloaded_files = []
@@ -1232,7 +1252,7 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
             status_codes = np.array([]).astype('int32')
             for url in grans_urls:
                 downloaded_file,download_size,status_code \
-                  = download_wrapper(url,url_append,download_dir,subset_file_id,force_redownload)
+                  = download_wrapper(url,url_append,download_dir,subset_file_id,force_redownload,show_noredownload_msg)
                 downloaded_files.append(downloaded_file[0])
                 total_download_size_in_bytes += download_size
                 status_codes = np.append(status_codes,status_code)
