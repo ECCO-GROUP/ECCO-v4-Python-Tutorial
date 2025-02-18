@@ -3,6 +3,7 @@
 
 from .ecco_acc_dates import date_adjustment
 
+
 ## Initalize Python libraries for module
 import numpy as np
 import pandas as pd
@@ -56,7 +57,7 @@ def setup_earthdata_login_auth(url: str='urs.earthdata.nasa.gov'):
 
 
 
-def ecco_podaac_s3_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
+def ecco_podaac_s3_query(ShortName,StartDate,EndDate,version,snapshot_interval='monthly'):
     
     """
     
@@ -75,6 +76,12 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
 
+    version: ('v4r4','v4r5'), specifies ECCO version to query.
+             Currently 'v4r5' only works with ['s3_open','s3_get','s3_get_ifspace'] modes,
+             or if the files are already stored in download_root_dir/ShortName/.
+             Otherwise an error is returned.
+             'v4r5' only has grid='native' and time_res='monthly' data files available.
+    
     snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
                        determines whether snapshots are included for only the beginning/end of each month 
                        ('monthly'), or for every day ('daily'). Defaults to 'monthly'.
@@ -134,6 +141,34 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'
 
         return s3_files_list
     
+    def get_granules_ecco_bucket(StartDate: str, EndDate: str,\
+                                   ShortName: str, version: str, SingleDay_flag: bool):
+        import s3fs
+        
+        # find all granules in the dataset identified by ShortName
+        s3 = s3fs.S3FileSystem(anon=False,\
+                               requester_pays=True)
+        if version == 'v4r5':
+            s3_files_all = s3.ls("s3://ecco-model-granules/netcdf/V4r5/native/mon_mean/"\
+                                 +ShortName+"/")
+        
+        # include only the granules in the date range given by temporal_range
+        s3_files_all_dates = np.array([np.datetime64(s3_file.split("_")[-5],'M')\
+                                         for s3_file in s3_files_all])
+        in_range_ind = np.logical_and(\
+                         s3_files_all_dates >= np.datetime64(StartDate,'M'),\
+                         s3_files_all_dates <= np.datetime64(EndDate,'M'))\
+                         .nonzero()[0]
+        s3_files_list = [s3_files_all[ind] for ind in in_range_ind]
+
+        # reduce granule list to single day if only one day in requested range
+        if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
+            if ((SingleDay_flag == True) and (len(s3_files_list) > 1)):
+                day_index = np.argmin(np.abs(time_start - np.datetime64(StartDate,'D')))
+                s3_files_list = s3_files_list[day_index:(day_index+1)]
+        
+        return s3_files_list
+    
     
     
     # # set default StartDate or EndDate if not previously provided
@@ -146,33 +181,36 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'
     StartDate,EndDate,SingleDay_flag = date_adjustment(ShortName,\
                                          StartDate,EndDate,CMR_query=True)
     
-    ## Log into Earthdata using your username and password
-    setup_earthdata_login_auth()
-    
-    # Query the NASA Common Metadata Repository to find the URL of every granule associated with the desired 
-    # ECCO Dataset and date range of interest.
-    
-    # create a Python dictionary with our search criteria:  `ShortName` and `temporal`
-    input_search_params = {'ShortName': ShortName,
-                           'temporal': ",".join([StartDate, EndDate])}
-    
-    print(input_search_params)
-    
-    ### Query CMR for the desired ECCO Dataset
-    
-    # grans means 'granules', PO.DAAC's term for individual files in a dataset
-    s3_files_list = get_granules(input_search_params,ShortName,SingleDay_flag)
-    
-    # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
-    if 'SNAPSHOT' in ShortName:
-        if snapshot_interval == 'monthly':
-            import re
-            s3_files_list_copy = list(tuple(s3_files_list))
-            for s3_file in s3_files_list:
-                snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",s3_file)[0][1:]
-                if snapshot_date[8:] != '01':
-                    s3_files_list_copy.remove(s3_file)
-            s3_files_list = s3_files_list_copy
+    if version == 'v4r5':
+        # Query ecco-model-granules S3 bucket for desired granules
+        s3_files_list = get_granules_ecco_bucket(StartDate,EndDate,\
+                                                 ShortName,version,SingleDay_flag)
+    else:
+        ## Log into Earthdata using your username and password
+        setup_earthdata_login_auth()
+        
+        # Query the NASA Common Metadata Repository to find the URL of every granule associated with the desired 
+        # ECCO Dataset and date range of interest.
+        
+        # create a Python dictionary with our search criteria:  `ShortName` and `temporal`
+        input_search_params = {'ShortName': ShortName,
+                               'temporal': ",".join([StartDate, EndDate])}
+        
+        print(input_search_params)
+        
+        # Query CMR for the desired ECCO Dataset
+        s3_files_list = get_granules(input_search_params,ShortName,SingleDay_flag)
+        
+        # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
+        if 'SNAPSHOT' in ShortName:
+            if snapshot_interval == 'monthly':
+                import re
+                s3_files_list_copy = list(tuple(s3_files_list))
+                for s3_file in s3_files_list:
+                    snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",s3_file)[0][1:]
+                    if snapshot_date[8:] != '01':
+                        s3_files_list_copy.remove(s3_file)
+                s3_files_list = s3_files_list_copy
     
     
     return s3_files_list
@@ -182,13 +220,17 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'
 ###================================================================================================================
 
 
-def init_S3FileSystem():
+def init_S3FileSystem(version):
     
     """
     
     This routine automatically pulls your EDL crediential from .netrc file and use it to obtain an AWS S3 credential 
     through a PO.DAAC service accessible at https://archive.podaac.earthdata.nasa.gov/s3credentials.
     From the PO.DAAC Github (https://podaac.github.io/tutorials/external/July_2022_Earthdata_Webinar.html).
+
+    Parameters
+    ----------
+    version: ('v4r4','v4r5'), the ECCO version of the files.
     
     Returns:
     =======        
@@ -198,11 +240,14 @@ def init_S3FileSystem():
     
     import s3fs
     
-    creds = requests.get('https://archive.podaac.earthdata.nasa.gov/s3credentials').json()
-    s3 = s3fs.S3FileSystem(anon=False,
-                           key=creds['accessKeyId'],
-                           secret=creds['secretAccessKey'], 
-                           token=creds['sessionToken'])
+    if version == 'v4r5':
+        s3 = s3fs.S3FileSystem(anon=False,requester_pays=True)
+    else:
+        creds = requests.get('https://archive.podaac.earthdata.nasa.gov/s3credentials').json()
+        s3 = s3fs.S3FileSystem(anon=False,
+                               key=creds['accessKeyId'],
+                               secret=creds['secretAccessKey'], 
+                               token=creds['sessionToken'])
     
     return s3
 
@@ -211,7 +256,7 @@ def init_S3FileSystem():
 ###================================================================================================================
 
 
-def download_file(s3, url, output_dir, force):
+def download_file(s3, url, output_dir, force, show_noredownload_msg):
     
     """
     Helper subroutine to gracefully download single files and avoids re-downloading if file already exists.
@@ -222,6 +267,7 @@ def download_file(s3, url, output_dir, force):
     url: str, the HTTPS url from which the file will download
     output_dir: str, the local path into which the file will download
     force: bool, download even if the file exists locally already
+    show_noredownload_msg (bool): show "no re-download" messages (vs. not showing messages)
 
     Returns
     -------
@@ -238,10 +284,13 @@ def download_file(s3, url, output_dir, force):
     
     # if the file has already been downloaded, skip    
     if isfile(target_file) and force is False:
-        print(f'\n{basename(url)} already exists, and force=False, not re-downloading')
+        if show_noredownload_msg:
+            print(f'\n{basename(url)} already exists, and force=False, not re-downloading')
         return target_file
 
     # download file to local (output) file directory
+    u_name = url.split('/')[-1]
+    print(f'downloading {u_name}')
     s3.get_file(url, target_file)
 
     return target_file
@@ -251,7 +300,7 @@ def download_file(s3, url, output_dir, force):
 ###================================================================================================================
 
 
-def download_files_concurrently(s3, dls, download_dir, n_workers, force=False):
+def download_files_concurrently(s3, dls, download_dir, n_workers, force=False, show_noredownload_msg=True):
     """Download files using thread pool with up to n_workers"""
 
     pass
@@ -262,7 +311,7 @@ def download_files_concurrently(s3, dls, download_dir, n_workers, force=False):
     with ThreadPoolExecutor(max_workers=n_workers) as executor:
 
         # tqdm makes a cool progress bar
-        downloaded_files = list(tqdm(executor.map(download_file, repeat(s3), dls, repeat(download_dir), repeat(force)),\
+        downloaded_files = list(tqdm(executor.map(download_file, repeat(s3), dls, repeat(download_dir), repeat(force), repeat(show_noredownload_msg)),\
                                      total=len(dls), desc='DL Progress',\
                                      ascii=True, ncols=75, file=sys.stdout))
     
@@ -280,7 +329,7 @@ def download_files_concurrently(s3, dls, download_dir, n_workers, force=False):
 ###================================================================================================================
 
 
-def download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload):
+def download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload, show_noredownload_msg):
     """Wrapper for downloading functions"""
 
     pass
@@ -290,7 +339,7 @@ def download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_
         ### Method 1: Concurrent downloads        
         
         # Force redownload (or not) depending on value of force_redownload
-        downloaded_files = download_files_concurrently(s3, s3_files_list, download_dir, n_workers, force_redownload)
+        downloaded_files = download_files_concurrently(s3, s3_files_list, download_dir, n_workers, force_redownload, show_noredownload_msg)
         
     except:
         ### Method 2: Sequential Downloads
@@ -303,9 +352,8 @@ def download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_
         # loop through all files
         downloaded_files = []
         for u in s3_files_list:
-            u_name = u.split('/')[-1]
-            print(f'downloading {u_name}')
-            result = download_file(s3, url=u, output_dir=download_dir, force=force_redownload)
+            result = download_file(s3, url=u, output_dir=download_dir, force=force_redownload,\
+                                   show_noredownload_msg=show_noredownload_msg)
             downloaded_files.append(result)
         
         # calculate total time spent in the download
@@ -322,7 +370,8 @@ def download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_
 ###================================================================================================================
 
 
-def ecco_podaac_s3_open(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
+def ecco_podaac_s3_open(ShortName,StartDate,EndDate,version,snapshot_interval='monthly',\
+                        prompt_request_payer=True):
     
     """
     
@@ -341,9 +390,17 @@ def ecco_podaac_s3_open(ShortName,StartDate,EndDate,snapshot_interval='monthly')
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
 
+    version: ('v4r4','v4r5'), specifies ECCO version to query.
+             'v4r5' only has grid='native' and time_res='monthly' data files available.
+    
     snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
                        determines whether snapshots are included for only the beginning/end of each month 
                        ('monthly'), or for every day ('daily'). Defaults to 'monthly'.
+    
+    prompt_request_payer: bool, if True (default), user is prompted to approve 
+                                (by entering "y" or "Y") any access to a 
+                                requester pays bucket, otherwise request is canceled; 
+                                if False, data access proceeds without prompting.
 
     Returns
     -------
@@ -352,15 +409,25 @@ def ecco_podaac_s3_open(ShortName,StartDate,EndDate,snapshot_interval='monthly')
     """
 
     pass    
-        
+    
+    
     # get list of files
-    s3_files_list = ecco_podaac_s3_query(ShortName,StartDate,EndDate)
+    s3_files_list = ecco_podaac_s3_query(ShortName,StartDate,EndDate,version)
 
     num_grans = len(s3_files_list)
     print (f'\nTotal number of matching granules: {num_grans}')
 
     # initiate S3 access
-    s3 = init_S3FileSystem()
+    s3 = init_S3FileSystem(version)
+    
+    if ((version == 'v4r5') and prompt_request_payer):
+        # give requester a chance to opt out of paying data transfer fees
+        option_proceed = input("Files will be accessed from a requester pays S3 bucket.\n"\
+                               "Requester is responsible for any data transfer fees.\n"\
+                               "Do you want to proceed? [y/n]: ")
+        if option_proceed.casefold() != 'y':
+            raise Exception("Request canceled; no data transferred.")
+    
     # open files and create list that can be passed to xarray file opener
     open_files = [s3.open(file) for file in s3_files_list]
     # if list has length 1, return a string instead of a list
@@ -374,7 +441,7 @@ def ecco_podaac_s3_open(ShortName,StartDate,EndDate,snapshot_interval='monthly')
 ###================================================================================================================
 
 
-def ecco_podaac_s3_open_fsspec(ShortName,jsons_root_dir):
+def ecco_podaac_s3_open_fsspec(ShortName,version,jsons_root_dir):
     
     """
     
@@ -385,6 +452,9 @@ def ecco_podaac_s3_open_fsspec(ShortName,jsons_root_dir):
     Parameters
     ----------
     ShortName: str, the ShortName that identifies the dataset on PO.DAAC.
+    
+    version: ('v4r4'), specifies ECCO version to query.
+             Only 'v4r4' files currently available using this access mode.
     
     jsons_root_dir: str, the root/parent directory where the 
                     fsspec/kerchunk-generated jsons are found.
@@ -451,8 +521,10 @@ def ecco_podaac_s3_open_fsspec(ShortName,jsons_root_dir):
 ###================================================================================================================
 
 
-def ecco_podaac_s3_get(ShortName,StartDate,EndDate,snapshot_interval='monthly',download_root_dir=None,\
-                       n_workers=6,force_redownload=False,return_downloaded_files=False):
+def ecco_podaac_s3_get(ShortName,StartDate,EndDate,version,snapshot_interval='monthly',download_root_dir=None,\
+                       n_workers=6,force_redownload=False,show_noredownload_msg=True,\
+                       prompt_request_payer=True,\
+                       return_downloaded_files=False):
 
     """
     
@@ -471,7 +543,9 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,snapshot_interval='monthly',d
                        ECCOv4r4 date range is '1992-01-01' to '2017-12-31'.
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
-
+    version: ('v4r4','v4r5'), specifies ECCO version to query.
+             'v4r5' only has grid='native' and time_res='monthly' data files available.
+    
     snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
                        determines whether snapshots are included for only the beginning/end of each month 
                        ('monthly'), or for every day ('daily'). Defaults to 'monthly'.
@@ -484,6 +558,16 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,snapshot_interval='monthly',d
     
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False, existing files will not be replaced.
+    
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
+    
+    prompt_request_payer: bool, if True (default), user is prompted to approve 
+                                (by entering "y" or "Y") any access to a 
+                                requester pays bucket, otherwise request is canceled; 
+                                if False, data access proceeds without prompting.
     
     return_downloaded_files: bool, if True, string or list of downloaded file(s) (including files that were 
                              already on disk and not replaced) is returned.
@@ -513,16 +597,24 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,snapshot_interval='monthly',d
     download_dir.mkdir(exist_ok = True, parents=True)
     
     # get list of files
-    s3_files_list = ecco_podaac_s3_query(ShortName,StartDate,EndDate)
+    s3_files_list = ecco_podaac_s3_query(ShortName,StartDate,EndDate,version)
     
     num_grans = len(s3_files_list)
     print (f'\nTotal number of matching granules: {num_grans}')
 
     # initiate S3 access
-    s3 = init_S3FileSystem()
+    s3 = init_S3FileSystem(version)
 
+    if ((version == 'v4r5') and prompt_request_payer):
+        # give requester a chance to opt out of paying data transfer fees
+        option_proceed = input("Files will be accessed from a requester pays S3 bucket.\n"\
+                               "Requester is responsible for data transfer fees.\n"\
+                               "Do you want to proceed? [y/n]: ")
+        if option_proceed.casefold() != 'y':
+            raise Exception("Request canceled; no data transferred.")
+    
     # download files
-    downloaded_files = download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload)
+    downloaded_files = download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload, show_noredownload_msg)
     
     if return_downloaded_files == True:
         if len(downloaded_files) == 1:
@@ -535,8 +627,9 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,snapshot_interval='monthly',d
 ###================================================================================================================
 
 
-def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,snapshot_interval=None,\
-                                 download_root_dir=None,max_avail_frac=0.5,n_workers=6,force_redownload=False):
+def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,version,snapshot_interval=None,\
+                                 download_root_dir=None,max_avail_frac=0.5,n_workers=6,force_redownload=False,\
+                                 show_noredownload_msg=True,prompt_request_payer=True):
     
     """
     
@@ -560,6 +653,9 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,snapshot_interval=
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
     
+    version: ('v4r4','v4r5'), specifies ECCO version to query.
+             'v4r5' only has grid='native' and time_res='monthly' data files available.
+    
     snapshot_interval: ('monthly', 'daily', or None), if snapshot datasets are included in ShortNames, 
                        this determines whether snapshots are included for only the beginning/end of each month 
                        ('monthly'), or for every day ('daily').
@@ -582,6 +678,16 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,snapshot_interval=
                             if False, existing files will not be replaced.
                             Applies only if files are downloaded.
     
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
+    
+    prompt_request_payer: bool, if True (default), user is prompted to approve 
+                                (by entering "y" or "Y") any access to a 
+                                requester pays bucket, otherwise request is canceled; 
+                                if False, data access proceeds without prompting.
+    
     
     Returns
     -------
@@ -599,7 +705,7 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,snapshot_interval=
     max_avail_frac = np.fmin(np.fmax(max_avail_frac,0),0.9)
     
     # initiate S3 access
-    s3 = init_S3FileSystem()
+    s3 = init_S3FileSystem(version)
 
     # determine value of snapshot_interval if None or not specified
     if snapshot_interval == None:
@@ -619,7 +725,7 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,snapshot_interval=
     for curr_shortname in ShortNames:
         
         # get list of files
-        s3_files_list = ecco_podaac_s3_query(curr_shortname,StartDate,EndDate,snapshot_interval)
+        s3_files_list = ecco_podaac_s3_query(curr_shortname,StartDate,EndDate,version,snapshot_interval)
         
         # create the download directory if it does not already exist
         download_dir = Path(download_root_dir) / curr_shortname
@@ -655,11 +761,19 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,snapshot_interval=
 
     print(f'Size of files to be downloaded to instance is {(1.e-3)*np.round((1.e3)*sizes_sum/(2**30))} GB,\n'\
                 +f'which is {.01*np.round((1.e4)*avail_frac)}% of the {(1.e-3)*np.round((1.e3)*avail_storage/(2**30))} GB available storage.')
+    
+    if ((version == 'v4r5') and prompt_request_payer):
+        # give requester a chance to opt out of paying data transfer fees
+        option_proceed = input("Files will be accessed from a requester pays S3 bucket.\n"\
+                               "Requester is responsible for data transfer fees.\n"\
+                               "Do you want to proceed? [y/n]: ")
+        if option_proceed.casefold() != 'y':
+            raise Exception("Request canceled; no data transferred.")
 
     retrieved_files = {}
     if avail_frac <= max_avail_frac:
         # proceed with file downloads
-        print('Proceeding with file downloads from S3')
+        print('Proceeding with downloads of any needed files from S3.')
         for curr_shortname,s3_files_list in zip(ShortNames,s3_files_list_all):
             # set default download parent directory
             if download_root_dir==None:
@@ -669,7 +783,7 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,snapshot_interval=
             download_dir = Path(download_root_dir) / curr_shortname
             
             # download files
-            downloaded_files = download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload)
+            downloaded_files = download_files_s3_wrapper(s3, s3_files_list, download_dir, n_workers, force_redownload, show_noredownload_msg)
 
             if len(downloaded_files) == 1:
                 # if only 1 file is downloaded, return a string of filename instead of a list

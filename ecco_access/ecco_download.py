@@ -27,7 +27,7 @@ from tqdm import tqdm
 from urllib import request    
 
 
-def ecco_podaac_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
+def ecco_podaac_query(ShortName,StartDate,EndDate,version,snapshot_interval='monthly'):
     
     """
     
@@ -47,6 +47,8 @@ def ecco_podaac_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
 
+    version: ('v4r4', 'v4r5'), which version of ECCO to query.
+    
     snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
                        determines whether snapshots are included for only the beginning/end of each month 
                        ('monthly'), or for every day ('daily'). Defaults to 'monthly'.
@@ -153,6 +155,7 @@ def ecco_podaac_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
     #=====================================================
     
     
+    
     # # set default StartDate or EndDate if not previously provided
     if StartDate == None:
         StartDate = '1992-01-01'
@@ -180,48 +183,52 @@ def ecco_podaac_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
                            'temporal': ",".join([StartDate, EndDate])}
     
     
-    ### Query CMR for the desired ECCO Dataset
-    
-    # grans means 'granules', PO.DAAC's term for individual files in a dataset
-    urls,gran_sizes = get_granules(input_search_params,ShortName,SingleDay_flag)
-    
-#     ## Prepare results of query
-#     
-#     # reduce granule list to single day if only one day in requested range
-#     if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
-#         if ((SingleDay_flag == True) and (len(grans['Granule UR']) > 1)):
-#             day_index = np.argmin(np.abs(np.asarray(grans['Start Time'])\
-#                        .astype('datetime64[ns]') - np.datetime64(StartDate,'D')))
-#             grans = grans[day_index:(day_index+1)]
-#     
-#     # convert the rows of the 'Online Access URLS' column to a Python list
-#     urls = grans['Online Access URLs'].tolist()
-    
-    # estimate granule sizes where this info is missing from CMR
-    sizes = (2**20)*np.asarray(gran_sizes).astype('float64')
-    sizes = np.where(sizes > (2**10),sizes,np.nan) 
-    if np.sum(~np.isnan(sizes)) >= 1:
-        sizes = np.where(~np.isnan(sizes),sizes,np.nanmean(sizes))
+    if version == 'v4r5':
+        urls = glob.glob(join(download_root_dir,ShortName,'*.nc'))
+        sizes = [0]*len(urls)
     else:
-        input_search_params['temporal'] = ['1992-01-01','2017-12-31']
-        _,gran_sizes_all = get_granules(input_search_params)
-        sizes_all = (2**20)*np.asarray(grans_all['Size']).astype('float64')
-        sizes_all = np.where(sizes_all > (2**10),sizes_all,np.nan) 
-        sizes = np.where(~np.isnan(sizes),sizes,np.nanmean(sizes_all))
-    sizes = list(sizes)
-#     urls = grans['Online Access URLs'].tolist()
-    
-    # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
-    if 'SNAPSHOT' in ShortName:
-        if snapshot_interval == 'monthly':
-            import re
-            url_sizes_dict = {url:size for url,size in zip(urls,sizes)}
-            for url,size in zip(urls,sizes):
-                snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",url)[0][1:]
-                if snapshot_date[8:] != '01':
-                    del url_sizes_dict[url]
-            urls = list(url_sizes_dict.keys())
-            sizes = list(url_sizes_dict.values())
+        ### Query CMR for the desired ECCO Dataset
+        
+        # grans means 'granules', PO.DAAC's term for individual files in a dataset
+        urls,gran_sizes = get_granules(input_search_params,ShortName,SingleDay_flag)
+        
+    #     ## Prepare results of query
+    #     
+    #     # reduce granule list to single day if only one day in requested range
+    #     if (('MONTHLY' in ShortName) or ('DAILY' in ShortName)):
+    #         if ((SingleDay_flag == True) and (len(grans['Granule UR']) > 1)):
+    #             day_index = np.argmin(np.abs(np.asarray(grans['Start Time'])\
+    #                        .astype('datetime64[ns]') - np.datetime64(StartDate,'D')))
+    #             grans = grans[day_index:(day_index+1)]
+    #     
+    #     # convert the rows of the 'Online Access URLS' column to a Python list
+    #     urls = grans['Online Access URLs'].tolist()
+        
+        # estimate granule sizes where this info is missing from CMR
+        sizes = (2**20)*np.asarray(gran_sizes).astype('float64')
+        sizes = np.where(sizes > (2**10),sizes,np.nan) 
+        if np.sum(~np.isnan(sizes)) >= 1:
+            sizes = np.where(~np.isnan(sizes),sizes,np.nanmean(sizes))
+        else:
+            input_search_params['temporal'] = ['1992-01-01','2017-12-31']
+            _,gran_sizes_all = get_granules(input_search_params)
+            sizes_all = (2**20)*np.asarray(grans_all['Size']).astype('float64')
+            sizes_all = np.where(sizes_all > (2**10),sizes_all,np.nan) 
+            sizes = np.where(~np.isnan(sizes),sizes,np.nanmean(sizes_all))
+        sizes = list(sizes)
+    #     urls = grans['Online Access URLs'].tolist()
+        
+        # for snapshot datasets with monthly snapshot_interval, only include snapshots at beginning/end of months
+        if 'SNAPSHOT' in ShortName:
+            if snapshot_interval == 'monthly':
+                import re
+                url_sizes_dict = {url:size for url,size in zip(urls,sizes)}
+                for url,size in zip(urls,sizes):
+                    snapshot_date = re.findall("_[0-9]{4}-[0-9]{2}-[0-9]{2}",url)[0][1:]
+                    if snapshot_date[8:] != '01':
+                        del url_sizes_dict[url]
+                urls = list(url_sizes_dict.keys())
+                sizes = list(url_sizes_dict.values())
     
     return urls,sizes
 
@@ -229,7 +236,7 @@ def ecco_podaac_query(ShortName,StartDate,EndDate,snapshot_interval='monthly'):
 ###================================================================================================================
 
 
-def download_files_wrapper(urls, download_dir, n_workers, force_redownload):
+def download_files_wrapper(urls, download_dir, version, n_workers, force_redownload, show_noredownload_msg):
     """Wrapper for downloading functions"""
     
     pass
@@ -240,20 +247,26 @@ def download_files_wrapper(urls, download_dir, n_workers, force_redownload):
     
     ### Helper subroutine to gracefully download single files and avoids re-downloading if file already exists.
     # To force redownload of the file, pass **True** to the boolean argument *force* (default **False**)\n,
-    def download_file(url: str, output_dir: str, force: bool=False):
+    def download_file(url: str, output_dir: str, version: str, force: bool=False, show_noredownload_msg: bool=True):
         """url (str): the HTTPS url from which the file will download
         output_dir (str): the local path into which the file will download
+        version (str): the version of ECCO to be downloaded
         force (bool): download even if the file exists locally already
+        show_noredownload_msg (bool): show no re-download messages (vs. not showing messages)
         """
         if not isdir(output_dir):
             raise Exception(f"Output directory doesnt exist! ({output_dir})")
         
         target_file = join(output_dir, basename(url))
         
-        # if the file has already been downloaded, skip    
+        # if the file has already been downloaded, skip
         if isfile(target_file) and force is False:
-            print(f'\n{basename(url)} already exists, and force=False, not re-downloading')
+            if show_noredownload_msg:
+                print(f'\n{basename(url)} already exists, and force=False, not re-downloading')
             return target_file,0
+        elif version == 'v4r5':
+            raise Exception('Capability to download v4r5 files via HTTPS has not been added yet.\n'\
+                            +'Please download files from ECCO Drive or use v4r4 files.')
         
         with requests.get(url) as r:
             if not r.status_code // 100 == 2: 
@@ -270,14 +283,15 @@ def download_files_wrapper(urls, download_dir, n_workers, force_redownload):
     
     
     ### Helper subroutine to download all urls in the list `dls`
-    def download_files_concurrently(dls, download_dir, n_workers, force=False):
+    def download_files_concurrently(dls, download_dir, version, n_workers, force=False, show_noredownload_msg=True):
         start_time = time.time()
     
         # use thread pool for concurrent downloads
         with ThreadPoolExecutor(max_workers=n_workers) as executor:
     
             # tqdm makes a cool progress bar
-            results = list(tqdm(executor.map(download_file, dls, repeat(download_dir), repeat(force)),\
+            results = list(tqdm(executor.map(download_file, dls, repeat(download_dir),\
+                                repeat(version), repeat(force), repeat(show_noredownload_msg)),\
                                 total=len(dls), desc='DL Progress',\
                                 ascii=True, ncols=75, file=sys.stdout))
             
@@ -309,7 +323,7 @@ def download_files_wrapper(urls, download_dir, n_workers, force_redownload):
         ### Method 1: Concurrent downloads        
        
         # Force redownload (or not) depending on value of force_redownload
-        downloaded_files = download_files_concurrently(urls, download_dir, n_workers, force_redownload)
+        downloaded_files = download_files_concurrently(urls, download_dir, version, n_workers, force_redownload, show_noredownload_msg)
         
     except:
         ### Method 2: Sequential Downloads
@@ -325,7 +339,7 @@ def download_files_wrapper(urls, download_dir, n_workers, force_redownload):
         for u in urls:
             u_name = u.split('/')[-1]
             print(f'downloading {u_name}')
-            result = download_file(url=u, output_dir=download_dir, force=force_redownload)
+            result = download_file(url=u, output_dir=download_dir, force=force_redownload, show_noredownload_msg=show_noredownload_msg)
             downloaded_files.append(result[0])
             total_download_size_in_bytes += result[-1]
         
@@ -345,8 +359,9 @@ def download_files_wrapper(urls, download_dir, n_workers, force_redownload):
 ###================================================================================================================
 
 
-def ecco_podaac_download(ShortName,StartDate,EndDate,snapshot_interval='monthly',download_root_dir=None,n_workers=6,\
-                         force_redownload=False,return_downloaded_files=False):
+def ecco_podaac_download(ShortName,StartDate,EndDate,version,snapshot_interval='monthly',download_root_dir=None,\
+                         n_workers=6,force_redownload=False,show_noredownload_msg=True,\
+                         return_downloaded_files=False):
     """
     
     This routine downloads ECCO datasets from PO.DAAC. It is adapted from the Jupyter notebooks 
@@ -364,6 +379,8 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,snapshot_interval='monthly'
                        ECCOv4r4 date range is '1992-01-01' to '2017-12-31'.
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
+    
+    version: ('v4r4', 'v4r5'), the version of ECCO to download.
 
     snapshot_interval: ('monthly', 'daily'), if the dataset corresponding to ShortName is a snapshot, 
                        determines whether snapshots are included for only the beginning/end of each month 
@@ -377,6 +394,11 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,snapshot_interval='monthly'
     
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False (default), existing files will not be replaced.
+    
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
 
     return_downloaded_files: bool, if True, string or list of downloaded file(s) (including files that were already on disk
                                    and not replaced) is returned.
@@ -406,11 +428,11 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,snapshot_interval='monthly'
     print(f'created download directory {download_dir}')
     
     # query CMR for granules matching the request
-    urls,sizes = ecco_podaac_query(ShortName,StartDate,EndDate,snapshot_interval)
+    urls,sizes = ecco_podaac_query(ShortName,StartDate,EndDate,version,snapshot_interval)
     
     # Download the granules
     
-    downloaded_files = download_files_wrapper(urls, download_dir, n_workers, force_redownload)
+    downloaded_files = download_files_wrapper(urls, download_dir, n_workers, force_redownload, show_noredownload_msg)
     
     if return_downloaded_files:
         if len(downloaded_files) == 1:
@@ -423,8 +445,8 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,snapshot_interval='monthly'
 ###================================================================================================================
 
 
-def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,snapshot_interval=None,\
-                                   download_root_dir=None,max_avail_frac=0.5,n_workers=6,force_redownload=False):
+def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,version,snapshot_interval=None,\
+                                   download_root_dir=None,max_avail_frac=0.5,n_workers=6,force_redownload=False,show_noredownload_msg=True):
     
     """
     
@@ -445,6 +467,8 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,snapshot_interva
                        ECCOv4r4 date range is '1992-01-01' to '2017-12-31'.
                        For 'SNAPSHOT' datasets, an additional day is added to EndDate to enable closed budgets
                        within the specified date range.
+    
+    version: ('v4r4', 'v4r5'), the version of ECCO to download.
     
     snapshot_interval: ('monthly', 'daily', or None), if snapshot datasets are included in ShortNames, 
                        this determines whether snapshots are included for only the beginning/end of each month 
@@ -467,6 +491,11 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,snapshot_interva
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False, existing files will not be replaced.
                             Applies only if files are downloaded.
+    
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
     
     
     Returns
@@ -501,7 +530,7 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,snapshot_interva
     for curr_shortname in ShortNames:
         
         # get list of files
-        urls,sizes = ecco_podaac_query(curr_shortname,StartDate,EndDate,snapshot_interval)
+        urls,sizes = ecco_podaac_query(curr_shortname,StartDate,EndDate,version,snapshot_interval)
         
         # create the download directory if it does not already exist
         download_dir = Path(download_root_dir) / curr_shortname
@@ -548,7 +577,7 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,snapshot_interva
             download_dir = Path(download_root_dir) / curr_shortname
             
             # download files
-            curr_downloaded_files = download_files_wrapper(urls_list, download_dir, n_workers, force_redownload)
+            curr_downloaded_files = download_files_wrapper(urls_list, download_dir, version, n_workers, force_redownload, show_noredownload_msg)
 
             if len(curr_downloaded_files) == 1:
                 # if only 1 file is downloaded, return a string of filename instead of a list
@@ -570,7 +599,7 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,snapshot_interva
 
 
 def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_interval=None,\
-                                n_workers=4,force_redownload=False,\
+                                n_workers=4,force_redownload=False,show_noredownload_msg=True,\
                                 vars_to_include='all',vars_to_omit=None,\
                                 times_to_include='all',\
                                 k_isel=[0,50,1],tile_isel=[0,13,1],j_isel=[0,90,1],i_isel=[0,90,1],\
@@ -613,6 +642,11 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
     
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False, existing files will not be replaced.
+    
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
     
     vars_to_include: list or tuple, names of data variables to include in the downloaded files.
                                     Dimension and coordinate variables are automatically included,
@@ -967,7 +1001,7 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
     
     
     def download_wrapper(url: str, url_append: str, download_dir: str, subset_file_id: str,\
-                         force: bool=False):
+                         force: bool=False, show_noredownload_msg: bool=True):
         import os.path
         
         head, tail = os.path.split(url)
@@ -986,7 +1020,8 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
         downloaded_files = []
         total_download_size_in_bytes = 0
         try:
-            result = download_file(url=url, output_file=ncout, force=force)
+            result = download_file(url=url, output_file=ncout, force=force,\
+                                   show_noredownload_msg=show_noredownload_msg)
             downloaded_files.append(result[0])
             total_download_size_in_bytes += result[1]
             status_code = 0
@@ -997,7 +1032,8 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
             while n_retry <= max_retries:
                 time.sleep(5*(n_retry**2))
                 try:
-                    result = download_file(url=url, output_file=ncout, force=force)
+                    result = download_file(url=url, output_file=ncout, force=force,\
+                                           show_noredownload_msg=show_noredownload_msg)
                     downloaded_files.append(result[0])
                     total_download_size_in_bytes += result[1]
                     status_code = 0
@@ -1198,7 +1234,7 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
             with ThreadPoolExecutor(max_workers=n_workers) as executor:
                 results = list(tqdm(executor.map(download_wrapper, grans_urls, repeat(url_append),\
                                                  repeat(download_dir), repeat(subset_file_id),\
-                                                 repeat(force_redownload)),\
+                                                 repeat(force_redownload), repeat(show_noredownload_msg)),\
                                     total=len(grans_urls), desc='DL Progress',\
                                     ascii=True, ncols=75, file=sys.stdout))
                 downloaded_files = []
@@ -1216,7 +1252,7 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
             status_codes = np.array([]).astype('int32')
             for url in grans_urls:
                 downloaded_file,download_size,status_code \
-                  = download_wrapper(url,url_append,download_dir,subset_file_id,force_redownload)
+                  = download_wrapper(url,url_append,download_dir,subset_file_id,force_redownload,show_noredownload_msg)
                 downloaded_files.append(downloaded_file[0])
                 total_download_size_in_bytes += download_size
                 status_codes = np.append(status_codes,status_code)

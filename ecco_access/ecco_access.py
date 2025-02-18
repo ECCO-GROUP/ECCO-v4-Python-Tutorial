@@ -44,7 +44,11 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
            will query the native grid monthly SSH datasets, and all native grid 
            monthly datasets with variables or descriptions matching 'THETA'.
     
-    version: ('v4r4'), specifies ECCO version to query
+    version: ('v4r4','v4r5'), specifies ECCO version to query.
+             Currently 'v4r5' only works with ['s3_open','s3_get','s3_get_ifspace'] modes, 
+             or if the files are already stored in download_root_dir/ShortName/.
+             Otherwise an error is returned.
+             'v4r5' only has grid='native' and time_res='monthly' data files available.
     
     grid: ('native','latlon',None), specifies whether to query datasets with output
           on the native grid or the interpolated lat/lon grid.
@@ -120,7 +124,17 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
     
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False (default), existing files will not be replaced.
-
+    
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
+    
+    prompt_request_payer: bool, if True (default), user is prompted to approve 
+                                (by entering "y" or "Y") any access to a 
+                                requester pays bucket, otherwise request is canceled; 
+                                if False, data access proceeds without prompting.
+    
     return_granules: bool, if True (default), str or list of queried or 
                            downloaded granules/files (including ones that 
                            were already on disk and not replaced) is returned.
@@ -139,23 +153,50 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
     
     """
     
+    
     pass
     
     
     ## query varlists as needed to obtain shortnames
     
-    def shortnames_find(query_list,grid,time_res):
+    def shortnames_find(query_list,version,grid,time_res):
         shortnames_list = []
-        for query_item in query_list:
-            # see if the query is an existing NASA Earthdata ShortName
-            # if not, then do a text search of the ECCO variable lists
-            response = requests.get(url="https://cmr.earthdata.nasa.gov/search/collections.json", 
-                                    params={'ShortName':query_item})
-            if len(response.json()['feed']['entry']) > 0:
-                shortnames_list.append(query_item)
+        if version == 'v4r5':
+            if ((grid == 'native') or (grid is None)):
+                if ((time_res == 'monthly') or (time_res == 'all')):
+                    import s3fs
+                    from os.path import split
+                    s3 = s3fs.S3FileSystem(anon=False,\
+                                           requester_pays=True)
+                    s3_datasets_list = [split(dataset_path)[-1]\
+                                          for dataset_path in \
+                                          s3.ls("s3://ecco-model-granules/netcdf/V4r5/native/mon_mean/")]
+                else:
+                    raise ValueError("'"+time_res+"' time res can not currently be accessed for v4r5.\n"\
+                                     +"ecco_access can currently access only 'monthly' time_res v4r5 netCDF files.")
             else:
-                shortname_match = ecco_podaac_varlist_query(query_item,version,grid,time_res)
-                shortnames_list.append(shortname_match)
+                raise ValueError("'"+grid+"' grid can not currently be accessed for v4r5.\n"\
+                                 +"ecco_access can currently access only 'native' grid v4r5 netCDF files.")
+                
+        for query_item in query_list:
+            if version == 'v4r5':
+                # see if the query is an existing dataset ID
+                if query_item not in s3_datasets_list:
+                    raise ValueError("'"+query_item+"' is not a v4r5 dataset ID.\n"\
+                                     +"Please query using the following dataset IDs:\n"\
+                                     +str(s3_datasets_list))
+                else:
+                    shortnames_list.append(query_item)
+            else:    
+                # see if the query is an existing NASA Earthdata ShortName
+                # if not, then do a text search of the ECCO variable lists
+                response = requests.get(url="https://cmr.earthdata.nasa.gov/search/collections.json", 
+                                        params={'ShortName':query_item})
+                if len(response.json()['feed']['entry']) > 0:
+                    shortnames_list.append(query_item)
+                else:
+                    shortname_match = ecco_podaac_varlist_query(query_item,version,grid,time_res)
+                    shortnames_list.append(shortname_match)
         
         return shortnames_list
     
@@ -173,10 +214,11 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
             if isinstance(curr_query,str):
                 curr_query = [curr_query]
             shortnames += shortnames_find(curr_query,\
+                                          version,\
                                           grid=curr_grid,\
                                           time_res=curr_time_res)
     else:
-        shortnames = shortnames_find(query,grid=grid,time_res=time_res)
+        shortnames = shortnames_find(query,version,grid=grid,time_res=time_res)
     
     
     ## query NASA Earthdata CMR and download granules
@@ -207,11 +249,11 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
             kwargs['max_avail_frac'] = 0.5
         if mode == 'download_ifspace':
             granule_files = ecco_podaac_download_diskaware(\
-                               shortnames,StartDate,EndDate,snapshot_interval,\
+                               shortnames,StartDate,EndDate,version,snapshot_interval,\
                                download_root_dir=download_root_dir,**kwargs)
         elif mode == 's3_get_ifspace':
             granule_files = ecco_podaac_s3_get_diskaware(\
-                               shortnames,StartDate,EndDate,snapshot_interval,\
+                               shortnames,StartDate,EndDate,version,snapshot_interval,\
                                download_root_dir=download_root_dir,**kwargs)
         else:
             raise ValueError('Invalid mode specified; please specify one of the following:'\
@@ -232,15 +274,15 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
         for shortname in shortnames:
             
             if mode in ['ls','query']:
-                urls,sizes = ecco_podaac_query(shortname,StartDate,EndDate,snapshot_interval)
+                urls,sizes = ecco_podaac_query(shortname,StartDate,EndDate,version,snapshot_interval)
                 granule_files[shortname] = urls
             elif mode in ['s3_ls','s3_query']:
                 granule_files[shortname] = ecco_podaac_s3_query(\
-                                              shortname,StartDate,EndDate,snapshot_interval)
+                                              shortname,StartDate,EndDate,version,snapshot_interval)
             elif mode == 'download':
                 kwargs['return_downloaded_files'] = True
                 granule_files[shortname] = ecco_podaac_download(\
-                                              shortname,StartDate,EndDate,snapshot_interval,\
+                                              shortname,StartDate,EndDate,version,snapshot_interval,\
                                               download_root_dir=download_root_dir,\
                                               **kwargs)
             elif mode == 'download_subset':
@@ -253,7 +295,7 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
                                               **kwargs)
             elif mode == 's3_open':
                 granule_files[shortname] = ecco_podaac_s3_open(\
-                                              shortname,StartDate,EndDate,snapshot_interval)
+                                              shortname,StartDate,EndDate,version,snapshot_interval)
             elif mode == 's3_open_fsspec':
                 # granule_files will consist of mapper objects rather than URL/path or file lists
                 granule_files[shortname] = ecco_podaac_s3_open_fsspec(\
@@ -261,7 +303,7 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
             elif mode == 's3_get':
                 kwargs['return_downloaded_files'] = True
                 granule_files[shortname] = ecco_podaac_s3_get(\
-                                              shortname,StartDate,EndDate,snapshot_interval,\
+                                              shortname,StartDate,EndDate,version,snapshot_interval,\
                                               download_root_dir=download_root_dir,\
                                               **kwargs)
             else:
@@ -314,7 +356,11 @@ def ecco_podaac_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
            will query the native grid monthly SSH datasets, and all native grid 
            monthly datasets with variables or descriptions matching 'THETA'.
     
-    version: ('v4r4'), specifies ECCO version to query
+    version: ('v4r4','v4r5'), specifies ECCO version to query.
+             Currently 'v4r5' only works with ['s3_open','s3_get','s3_get_ifspace'] modes, 
+             or if the files are already stored in download_root_dir/ShortName/.
+             Otherwise an error is returned.
+             'v4r5' only has grid='native' and time_res='monthly' data files available.
     
     grid: ('native','latlon',None), specifies whether to query datasets with output
           on the native grid or the interpolated lat/lon grid.
@@ -386,6 +432,16 @@ def ecco_podaac_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
     
     force_redownload: bool, if True, existing files will be redownloaded and replaced;
                             if False (default), existing files will not be replaced.
+    
+    show_noredownload_msg: bool, if True (default), and force_redownload=False, 
+                               display message for each file that is already 
+                               downloaded (and therefore not re-downloaded); 
+                               if False, these messages are not shown.
+    
+    prompt_request_payer: bool, if True (default), user is prompted to approve 
+                                (by entering "y" or "Y") any access to a 
+                                requester pays bucket, otherwise request is canceled; 
+                                if False, data access proceeds without prompting.
 
     Returns
     -------
