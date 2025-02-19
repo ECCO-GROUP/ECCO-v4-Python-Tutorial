@@ -299,7 +299,7 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
             elif mode == 's3_open_fsspec':
                 # granule_files will consist of mapper objects rather than URL/path or file lists
                 granule_files[shortname] = ecco_podaac_s3_open_fsspec(\
-                                              shortname,**kwargs)
+                                              shortname,version,**kwargs)
             elif mode == 's3_get':
                 kwargs['return_downloaded_files'] = True
                 granule_files[shortname] = ecco_podaac_s3_get(\
