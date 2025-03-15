@@ -1160,7 +1160,7 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
         if varname in ['nb','nv']:
             # 2025-03-01 OpenDap fix: remove these dimension variables that seem to cause errors
             del varinfo_dict[varname]
-        
+            continue
         if ((vars_to_include != 'all') and (varname not in vars_to_include_all)):
             del varinfo_dict[varname]
         elif vars_to_omit != None:
