@@ -1157,6 +1157,10 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
     varinfo_dict_copy = {**varinfo_dict,**{'dummy_key':0}}
     del varinfo_dict_copy['dummy_key']
     for varname in varinfo_dict_copy.keys():
+        if varname in ['nb','nv']:
+            # 2025-03-01 OpenDap fix: remove these dimension variables that seem to cause errors
+            del varinfo_dict[varname]
+            continue
         if ((vars_to_include != 'all') and (varname not in vars_to_include_all)):
             del varinfo_dict[varname]
         elif vars_to_omit != None:
