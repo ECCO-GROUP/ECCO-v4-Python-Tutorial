@@ -176,7 +176,7 @@ def ecco_podaac_varlist_query(query,version,grid=None,time_res='all'):
     query: str, a text string being used to query ShortNames, variable names,
            and descriptions.
     
-    version: ('v4r4'), ECCO version to search variable lists for
+    version: ('v4r4','v4r5'), ECCO version to search variable lists for
     
     grid: ('native','latlon',None), specifies whether to query datasets with output
           on the native grid or the interpolated lat/lon grid.
@@ -197,17 +197,21 @@ def ecco_podaac_varlist_query(query,version,grid=None,time_res='all'):
     pass
     
     
-    if version != 'v4r4':
+    if version not in ['v4r4','v4r5']:
         raise ValueError('ECCO '+version+' is not currently available from PO.DAAC')
     
     # paths to variable list files
     varlist_url_root = 'https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/'
-    varlist_url_ids = {'native,monthly':'v4r4_nctiles_monthly_varlist.txt',\
-                       'native,daily':'v4r4_nctiles_daily_varlist.txt',\
-                       'native,snapshot':'v4r4_nctiles_snapshots_varlist.txt',\
-                       'latlon,monthly':'v4r4_latlon_monthly_varlist.txt',\
-                       'latlon,daily':'v4r4_latlon_daily_varlist.txt',\
-                       'mixed,all':'v4r4_tseries_grid_varlist.txt'}
+    if version == 'v4r4':
+        varlist_url_ids = {'native,monthly':'v4r4_nctiles_monthly_varlist.txt',\
+                           'native,daily':'v4r4_nctiles_daily_varlist.txt',\
+                           'native,snapshot':'v4r4_nctiles_snapshots_varlist.txt',\
+                           'latlon,monthly':'v4r4_latlon_monthly_varlist.txt',\
+                           'latlon,daily':'v4r4_latlon_daily_varlist.txt',\
+                           'mixed,all':'v4r4_tseries_grid_varlist.txt'}
+    elif version == 'v4r5':
+        varlist_url_ids = {'native,monthly':'v4r5_nctiles_monthly_varlist.txt'}
+    
     
     # set keys of grid types and time resolutions to search
     
