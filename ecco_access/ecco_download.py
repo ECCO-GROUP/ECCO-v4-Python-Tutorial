@@ -388,7 +388,8 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,version,snapshot_interval='
 
     download_root_dir: str, defines parent directory to download files to.
                        Files will be downloaded to directory download_root_dir/ShortName/.
-                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
+                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/',
+                       or '~/Downloads/ECCO_V4r5_PODAAC/' if version == 'v4r5'.
     
     n_workers: int, number of workers to use in concurrent downloads. Benefits typically taper off above 5-6.
     
@@ -417,15 +418,20 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,version,snapshot_interval='
     
     # set default download parent directory
     if download_root_dir==None:
-        download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+        if version == 'v4r4':
+            download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+        elif version == 'v4r5':
+            download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r5_PODAAC')
 
     # define the directory where the downloaded files will be saved
     download_dir = Path(download_root_dir) / ShortName
     
-    # create the download directory
+    # create the download directory if it does not already exist
+    if isdir(download_dir) == True:
+        print(f'Download to directory {download_dir}')
+    else:
+        print(f'Creating download directory {download_dir}')
     download_dir.mkdir(exist_ok = True, parents=True)
-    
-    print(f'created download directory {download_dir}')
     
     # query CMR for granules matching the request
     urls,sizes = ecco_podaac_query(ShortName,StartDate,EndDate,version,snapshot_interval)
@@ -478,7 +484,8 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,version,snapshot
     
     download_root_dir: str, defines parent directory to download files to.
                        Files will be downloaded to directory download_root_dir/ShortName/.
-                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
+                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/',
+                       or '~/Downloads/ECCO_V4r5_PODAAC/' if version == 'v4r5'.
 
     max_avail_frac: float, maximum fraction of remaining available disk space to use in storing current ECCO datasets.
                     If storing the datasets exceeds this fraction, an error is returned.
@@ -522,7 +529,10 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,version,snapshot
 
     # set default download parent directory
     if download_root_dir==None:
-        download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+        if version == 'v4r4':
+            download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+        elif version == 'v4r5':
+            download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r5_PODAAC')
 
     # add up total size of files that would be downloaded
     dataset_sizes = np.array([])
@@ -532,8 +542,14 @@ def ecco_podaac_download_diskaware(ShortNames,StartDate,EndDate,version,snapshot
         # get list of files
         urls,sizes = ecco_podaac_query(curr_shortname,StartDate,EndDate,version,snapshot_interval)
         
-        # create the download directory if it does not already exist
+        # define the directory where the downloaded files will be saved
         download_dir = Path(download_root_dir) / curr_shortname
+        
+        # create the download directory if it does not already exist
+        if isdir(download_dir) == True:
+            print(f'Download to directory {download_dir}')
+        else:
+            print(f'Creating download directory {download_dir}')
         download_dir.mkdir(exist_ok = True, parents=True)
         
         # compute size of current dataset
@@ -718,7 +734,8 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
         
         download_root_dir: str, defines parent directory to download files to.
                            Files will be downloaded to directory download_root_dir/ShortName/.
-                           If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
+                           If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/',
+                           or '~/Downloads/ECCO_V4r5_PODAAC/' if version == 'v4r5'.
         subset_file_id: str, identifier appended to each downloaded file to identify it as a subset.
                         Default is to not append an identifier.
 
@@ -1079,7 +1096,10 @@ def ecco_podaac_download_subset(ShortName,StartDate=None,EndDate=None,snapshot_i
     
     # set default download parent directory
     if download_root_dir==None:
-        download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+        if version == 'v4r4':
+            download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+        elif version == 'v4r5':
+            download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r5_PODAAC')
     
     # define the directory where the downloaded files will be saved
     download_dir = Path(download_root_dir) / ShortName

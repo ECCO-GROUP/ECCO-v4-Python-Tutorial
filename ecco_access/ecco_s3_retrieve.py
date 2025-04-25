@@ -149,8 +149,9 @@ def ecco_podaac_s3_query(ShortName,StartDate,EndDate,version,snapshot_interval='
         s3 = s3fs.S3FileSystem(anon=False,\
                                requester_pays=True)
         if version == 'v4r5':
+            shortname_dir = "_".join(ShortName.split("_")[2:-3])
             s3_files_all = s3.ls("s3://ecco-model-granules/netcdf/V4r5/native/mon_mean/"\
-                                 +ShortName+"/")
+                                 +shortname_dir+"/")
         
         # include only the granules in the date range given by temporal_range
         s3_files_all_dates = np.array([np.datetime64(s3_file.split("_")[-5],'M')\
@@ -552,7 +553,8 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,version,snapshot_interval='mo
     
     download_root_dir: str, defines parent directory to download files to.
                        Files will be downloaded to directory download_root_dir/ShortName/.
-                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
+                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/',
+                       or '~/Downloads/ECCO_V4r5_PODAAC/' if version == 'v4r5'.
     
     n_workers: int, number of workers to use in concurrent downloads. Benefits typically taper off above 5-6.
     
@@ -588,12 +590,19 @@ def ecco_podaac_s3_get(ShortName,StartDate,EndDate,version,snapshot_interval='mo
 
     # set default download parent directory
     if download_root_dir==None:
-        download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+        if version == 'v4r4':
+            download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+        elif version == 'v4r5':
+            download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r5_PODAAC')
 
     # define the directory where the downloaded files will be saved
     download_dir = Path(download_root_dir) / ShortName
     
-    # create the download directory
+    # create the download directory if it does not already exist
+    if isdir(download_dir) == True:
+        print(f'Download to directory {download_dir}')
+    else:
+        print(f'Creating download directory {download_dir}')
     download_dir.mkdir(exist_ok = True, parents=True)
     
     # get list of files
@@ -664,7 +673,8 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,version,snapshot_i
 
     download_root_dir: str, defines parent directory to download files to.
                        Files will be downloaded to directory download_root_dir/ShortName/.
-                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
+                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/',
+                       or '~/Downloads/ECCO_V4r5_PODAAC/' if version == 'v4r5'.
     
     max_avail_frac: float, maximum fraction of remaining available disk space to use in storing current ECCO datasets.
                     This determines whether the dataset files are stored on the current instance, or opened on S3.
@@ -717,7 +727,10 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,version,snapshot_i
 
     # set default download parent directory
     if download_root_dir==None:
-        download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+        if version == 'v4r4':
+            download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+        elif version == 'v4r5':
+            download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r5_PODAAC')
 
     # add up total size of files that would be downloaded
     dataset_sizes = np.array([])
@@ -729,6 +742,10 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,version,snapshot_i
         
         # create the download directory if it does not already exist
         download_dir = Path(download_root_dir) / curr_shortname
+        if isdir(download_dir) == True:
+            print(f'Download to directory {download_dir}')
+        else:
+            print(f'Creating download directory {download_dir}')
         download_dir.mkdir(exist_ok = True, parents=True)
         
         # compute size of current dataset
@@ -777,7 +794,10 @@ def ecco_podaac_s3_get_diskaware(ShortNames,StartDate,EndDate,version,snapshot_i
         for curr_shortname,s3_files_list in zip(ShortNames,s3_files_list_all):
             # set default download parent directory
             if download_root_dir==None:
-                download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+                if version == 'v4r4':
+                    download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r4_PODAAC')
+                elif version == 'v4r5':
+                    download_root_dir = join(expanduser('~'),'Downloads','ECCO_V4r5_PODAAC')
         
             # define the directory where the downloaded files will be saved
             download_dir = Path(download_root_dir) / curr_shortname

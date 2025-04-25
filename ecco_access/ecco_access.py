@@ -98,7 +98,8 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
 
     download_root_dir: str, defines parent directory to download files to.
                        Files will be downloaded to directory download_root_dir/ShortName/.
-                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
+                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/',
+                       or '~/Downloads/ECCO_V4r5_PODAAC/' if version == 'v4r5'.
     
     Additional keyword arguments*:
     *This is not an exhaustive list, especially for 
@@ -181,12 +182,12 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
         for query_item in query_list:
             if version == 'v4r5':
                 # see if the query is an existing dataset ID
-                if query_item not in s3_datasets_list:
-                    raise ValueError("'"+query_item+"' is not a v4r5 dataset ID.\n"\
-                                     +"Please query using the following dataset IDs:\n"\
-                                     +str(s3_datasets_list))
-                else:
+                # if not, then do a text search of the ECCO variable lists
+                if query_item in s3_datasets_list:
                     shortnames_list.append(query_item)
+                else:
+                    shortname_match = ecco_podaac_varlist_query(query_item,version,grid,time_res)
+                    shortnames_list.append(shortname_match)
             else:    
                 # see if the query is an existing NASA Earthdata ShortName
                 # if not, then do a text search of the ECCO variable lists
@@ -412,7 +413,8 @@ def ecco_podaac_to_xrdataset(query,version='v4r4',grid=None,time_res='all',\
 
     download_root_dir: str, defines parent directory to download files to.
                        Files will be downloaded to directory download_root_dir/ShortName/.
-                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/'.
+                       If not specified, parent directory defaults to '~/Downloads/ECCO_V4r4_PODAAC/',
+                       or '~/Downloads/ECCO_V4r5_PODAAC/' if version == 'v4r5'.
     
     Additional keyword arguments*:
     *This is not an exhaustive list, especially for 
