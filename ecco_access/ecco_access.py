@@ -238,9 +238,14 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
         for kwarg in list(kwargs.keys()):
             if kwarg != 'jsons_root_dir':
                 del kwargs[kwarg]
+    elif mode == 's3_open':
+        for kwarg in list(kwargs.keys()):
+            if kwarg in ['n_workers','force_redownload','show_noredownload_msg']:
+                del kwargs[kwarg]
     else:
         if 'jsons_root_dir' in kwargs.keys():
             del kwargs['jsons_root_dir']
+    
     
     # download or otherwise access granules, depending on mode
     
@@ -295,7 +300,8 @@ def ecco_podaac_access(query,version='v4r4',grid=None,time_res='all',\
                                               **kwargs)
             elif mode == 's3_open':
                 granule_files[shortname] = ecco_podaac_s3_open(\
-                                              shortname,StartDate,EndDate,version,snapshot_interval)
+                                              shortname,StartDate,EndDate,version,snapshot_interval,\
+                                              **kwargs)
             elif mode == 's3_open_fsspec':
                 # granule_files will consist of mapper objects rather than URL/path or file lists
                 granule_files[shortname] = ecco_podaac_s3_open_fsspec(\
