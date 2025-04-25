@@ -108,7 +108,7 @@ def print_varlist_query_results(query,shortnames_match,\
     for count,shortname in enumerate(shortnames_match):
         shortname_line = 'Option '+str(count+1)+': '+shortname
         if (('Note' in content_dict[shortname].keys())\
-          and ('*' in content_dict[shortname]['Note'])):
+          and (' *' in content_dict[shortname]['Note'])):
             shortname_line += ('    '+content_dict[shortname]['Note'])
         else:
             shortname_line += '    *'
@@ -126,6 +126,8 @@ def print_varlist_query_results(query,shortnames_match,\
         query_resp_str += shortname_line
         for varname,descrip in content_dict[shortname].items():
             max_descrip_len_perline = 50
+            if varname == 'Note':
+                max_descrip_len_perline += descrip_pos - 6
             if len(descrip) > max_descrip_len_perline:
                 # put line breaks in long descriptions
                 descrip_withbreaks = ''
@@ -139,10 +141,13 @@ def print_varlist_query_results(query,shortnames_match,\
                     descrip_withbreaks += curr_descrip
                     descrip_remaining = descrip_remaining[(len(curr_descrip)+1):]
                     if len(descrip_remaining) > 0:
-                        descrip_withbreaks += ('\n'+(' '*descrip_pos))
+                        if varname == 'Note':
+                            descrip_withbreaks += '\n      '
+                        else:
+                            descrip_withbreaks += ('\n'+(' '*descrip_pos))
                 descrip = descrip_withbreaks
             if varname == 'Note':
-                if '*' in descrip:
+                if ' *' in descrip:
                     continue
                 else:
                     var_line = 'Note: '+descrip+'\n'
@@ -176,7 +181,7 @@ def ecco_podaac_varlist_query(query,version,grid=None,time_res='all'):
     query: str, a text string being used to query ShortNames, variable names,
            and descriptions.
     
-    version: ('v4r4'), ECCO version to search variable lists for
+    version: ('v4r4','v4r5'), ECCO version to search variable lists for
     
     grid: ('native','latlon',None), specifies whether to query datasets with output
           on the native grid or the interpolated lat/lon grid.
@@ -194,20 +199,25 @@ def ecco_podaac_varlist_query(query,version,grid=None,time_res='all'):
     
     """
     
+    
     pass
     
     
-    if version != 'v4r4':
+    if version not in ['v4r4','v4r5']:
         raise ValueError('ECCO '+version+' is not currently available from PO.DAAC')
     
     # paths to variable list files
-    varlist_url_root = 'https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/'
-    varlist_url_ids = {'native,monthly':'v4r4_nctiles_monthly_varlist.txt',\
-                       'native,daily':'v4r4_nctiles_daily_varlist.txt',\
-                       'native,snapshot':'v4r4_nctiles_snapshots_varlist.txt',\
-                       'latlon,monthly':'v4r4_latlon_monthly_varlist.txt',\
-                       'latlon,daily':'v4r4_latlon_daily_varlist.txt',\
-                       'mixed,all':'v4r4_tseries_grid_varlist.txt'}
+    varlist_url_root = 'https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/ecco_access/varlist/'
+    if version == 'v4r4':
+        varlist_url_ids = {'native,monthly':'v4r4_nctiles_monthly_varlist.txt',\
+                           'native,daily':'v4r4_nctiles_daily_varlist.txt',\
+                           'native,snapshot':'v4r4_nctiles_snapshots_varlist.txt',\
+                           'latlon,monthly':'v4r4_latlon_monthly_varlist.txt',\
+                           'latlon,daily':'v4r4_latlon_daily_varlist.txt',\
+                           'mixed,all':'v4r4_tseries_grid_varlist.txt'}
+    elif version == 'v4r5':
+        varlist_url_ids = {'native,monthly':'v4r5_nctiles_monthly_varlist.txt'}
+    
     
     # set keys of grid types and time resolutions to search
     
@@ -245,6 +255,8 @@ def ecco_podaac_varlist_query(query,version,grid=None,time_res='all'):
     # build content dictionary containing all varlists being queried
     content_dict = {}
     for curr_key in grid_timeres_keys:
+        if curr_key not in varlist_url_ids.keys():
+            continue
         curr_content_dict,varname_pos,descrip_pos = varlist_file_parse(\
                                     varlist_url_root+varlist_url_ids[curr_key])
         content_dict = {**content_dict,**curr_content_dict}

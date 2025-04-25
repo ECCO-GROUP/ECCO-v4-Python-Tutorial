@@ -1,0 +1,138 @@
+ECCO Version 4: Fourth Release (1992-2017)  [ECCO v4r4]
+
+These are the variables in the ECCO v4r4 output that can be downloaded as daily averages on the native LLC90 grid:
+
+ShortName         Variable Name     Description (units)
+
+ECCO_L4_SSH_LLC0090GRID_DAILY_V4R4
+                  SSH               Dynamic sea surface height anomaly. Suitable for comparisons with altimetry sea surface height data products that apply the inverse barometer correction. (m)
+                  SSHIBC            The inverted barometer correction to sea surface height due to atmospheric pressure loading. (m)
+                  SSHNOIBC          Sea surface height anomaly without the inverted barometer correction. Suitable for comparisons with altimetry sea surface height data products that do NOT apply the inverse barometer correction. (m)
+                  ETAN              Model sea level anomaly, without corrections for global mean density changes, inverted barometer effect, or volume displacement due to submerged sea-ice and snow. (m)
+
+ECCO_L4_ATM_STATE_LLC0090GRID_DAILY_V4R4
+                  EXFatemp          Atmosphere surface (2 m) air temperature (degK)
+                  EXFaqh            Atmosphere surface (2 m) specific humidity (kg/kg)
+                  EXFuwind          Wind speed at 10m in the model +x direction (m/s)
+                  EXFvwind          Wind speed at 10m in the model +y direction (m/s)
+                  EXFwspee          Wind speed (m/s)
+                  EXFpress          Atmosphere surface pressure (N/m^2)
+
+ECCO_L4_STRESS_LLC0090GRID_DAILY_V4R4
+                  EXFtaux           Wind stress in the model +x direction (N/m^2)
+                  EXFtauy           Wind stress in the model +y direction (N/m^2)
+                  oceTAUX           Ocean surface stress in the model +x direction, due to wind and sea-ice (N/m^2)
+                  oceTAUY           Ocean surface stress in the model +y direction, due to wind and sea-ice (N/m^2)
+
+ECCO_L4_HEAT_FLUX_LLC0090GRID_DAILY_V4R4
+                  EXFhl             Open ocean air-sea latent heat flux (W/m^2)
+                  EXFhs             Open ocean air-sea sensible heat flux (W/m^2)
+                  EXFlwdn           Downward longwave radiative flux (W/m^2)
+                  EXFswdn           Downwelling shortwave radiative flux (W/m^2)
+                  EXFqnet           Open ocean net air-sea heat flux (W/m^2)
+                  oceQnet           Net heat flux into the ocean surface (W/m^2)
+                  SIatmQnt          Net upward heat flux to the atmosphere (W/m^2)
+                  TFLUX             Rate of change of ocean heat content per m^2 accounting for mass (e.g. freshwater) fluxes (W/m^2)
+                  EXFswnet          Open ocean net shortwave radiative flux (W/m^2)
+                  EXFlwnet          Net open ocean longwave radiative flux (W/m^2)
+                  oceQsw            Net shortwave radiative flux across the ocean surface (W/m^2)
+                  SIaaflux          Conservative ocean and sea-ice advective heat flux adjustment, associated with temperature difference between sea surface temperature and sea-ice, excluding latent heat of fusion (W/m^2)
+
+ECCO_L4_FRESH_FLUX_LLC0090GRID_DAILY_V4R4
+                  EXFpreci          Precipitation rate (m/s)
+                  EXFevap           Open ocean evaporation rate (m/s)
+                  EXFroff           River runoff (m/s)
+                  SIsnPrcp          Snow precipitation on sea-ice (kg/(m^2 s))
+                  EXFempmr          Open ocean net surface freshwater flux from precipitation, evaporation, and runoff (m/s)
+                  oceFWflx          Net freshwater flux into the ocean (kg/(m^2 s))
+                  SIatmFW           Net freshwater flux into the open ocean, sea-ice, and snow (kg/(m^2 s))
+                  SFLUX             Rate of change of total ocean salinity per m^2 accounting for mass fluxes (g/(m^2 s))
+                  SIacSubl          Freshwater flux to the atmosphere due to sublimation-deposition of snow or ice (kg/(m^2 s))
+                  SIrsSubl          Residual sublimation freshwater flux (kg/(m^2 s))
+                  SIfwThru          Precipitation through sea-ice (kg/(m^2 s))
+
+ECCO_L4_SEA_ICE_CONC_THICKNESS_LLC0090GRID_DAILY_V4R4
+                  SIarea            Sea-ice concentration (fraction between 0 and 1)
+                  SIheff            Area-averaged sea-ice thickness (m)
+                  SIhsnow           Area-averaged snow thickness (m)
+                  sIceLoad          Average sea-ice and snow mass per unit area (kg/m^2)
+
+ECCO_L4_SEA_ICE_VELOCITY_LLC0090GRID_DAILY_V4R4
+                  SIuice            Sea-ice velocity in the model +x direction (m/s)
+                  SIvice            Sea-ice velocity in the model +y direction (m/s)
+
+ECCO_L4_SEA_ICE_HORIZ_VOLUME_FLUX_LLC0090GRID_DAILY_V4R4
+                  ADVxHEFF          Lateral advective flux of sea-ice thickness in the model +x direction (m^3/s)
+                  ADVyHEFF          Lateral advective flux of sea-ice thickness in the model +y direction (m^3/s)
+                  DFxEHEFF          Lateral diffusive flux of sea-ice thickness in the model +x direction (m^3/s)
+                  DFyEHEFF          Lateral diffusive flux of sea-ice thickness in the model +y direction (m^3/s)
+                  ADVxSNOW          Lateral advective flux of snow thickness in the model +x direction (m^3/s)
+                  ADVySNOW          Lateral advective flux of snow thickness in the model +y direction (m^3/s)
+                  DFxESNOW          Lateral diffusive flux of snow thickness in the model +x direction (m^3/s)
+                  DFyESNOW          Lateral diffusive flux of snow thickness in the model +y direction (m^3/s)
+
+ECCO_L4_SEA_ICE_SALT_PLUME_FLUX_LLC0090GRID_DAILY_V4R4
+                  oceSPflx          Net salt flux into the ocean due to brine rejection (g/(m^2 s))
+                  oceSPDep          Salt plume depth (m)
+
+ECCO_L4_MIXED_LAYER_DEPTH_LLC0090GRID_DAILY_V4R4
+                  MXLDEPTH          Mixed-layer depth diagnosed using the temperature difference criterion of Kara et al., 2000 (m)
+
+ECCO_L4_OBP_LLC0090GRID_DAILY_V4R4
+                  OBP               Ocean bottom pressure, excluding global mean atmospheric pressure, given as equivalent water thickness. This is suitable for comparisons with GRACE data products. (m)
+                  OBPGMAP           Ocean bottom pressure, includes global mean atmospheric pressure, given as equivalent water thickness. This is suitable for comparisons with ocean bottom pressure gauge data products. (m)
+                  PHIBOT            Ocean hydrostatic bottom pressure anomaly (m^2/s^2)
+
+ECCO_L4_OCEAN_VEL_LLC0090GRID_DAILY_V4R4
+Note: UVEL,VVEL should not be used in volume flux calculations due to time-variable grid cell thicknesses (z* coordinates). Use UVELMASS,VVELMASS instead.
+                  UVEL              Horizontal velocity in the model +x direction (m/s)
+                  VVEL              Horizontal velocity in the model +y direction (m/s)
+                  WVEL              Vertical velocity (m/s)
+
+ECCO_L4_TEMP_SALINITY_LLC0090GRID_DAILY_V4R4
+                  THETA             Potential temperature, i.e., temperature of water parcel at sea level pressure (degC)
+                  SALT              Salinity (1e-3, or parts per thousand)
+
+ECCO_L4_DENS_STRAT_PRESS_LLC0090GRID_DAILY_V4R4
+                  RHOAnoma          In-situ seawater density anomaly (kg/m^3)
+                  DRHODR            Density stratification ((kg/m^3)/m)
+                  PHIHYD            Ocean hydrostatic pressure anomaly (m^2/s^2)
+                  PHIHYDcR          Ocean hydrostatic pressure anomaly at constant depths (m^2/s^2)
+
+ECCO_L4_OCEAN_3D_VOLUME_FLUX_LLC0090GRID_DAILY_V4R4
+                  UVELMASS          Horizontal velocity in the model +x direction per unit area of the grid cell \'u\' face. Use this in volume flux calculations as it accounts for partial cells and time-varying grid cell thickness. (m/s)
+                  VVELMASS          Horizontal velocity in the model +y direction per unit area of the grid cell \'v\' face. Use this in volume flux calculations as it accounts for partial cells and time-varying grid cell thickness. (m/s)
+                  WVELMASS          Grid cell face-averaged vertical velocity in the model +z direction. (m/s)
+             
+
+ECCO_L4_OCEAN_3D_MOMENTUM_TEND_LLC0090GRID_DAILY_V4R4
+                  Um_dPHdx          Momentum tendency in the model +x direction (m/s^2)
+                  Vm_dPHdy          Momentum tendency in the model +y direction (m/s^2)
+
+ECCO_L4_OCEAN_3D_TEMPERATURE_FLUX_LLC0090GRID_DAILY_V4R4
+                  ADVx_TH           Lateral advective flux of potential temperature in the model +x direction (degC m^3/s)
+                  ADVy_TH           Lateral advective flux of potential temperature in the model +y direction (degC m^3/s)
+                  ADVr_TH           Vertical advective flux of potential temperature (degC m^3/s)
+                  DFxE_TH           Lateral diffusive flux of potential temperature in the model +x direction (degC m^3/s)
+                  DFyE_TH           Lateral diffusive flux of potential temperature in the model +y direction (degC m^3/s)
+                  DFrE_TH           Vertical diffusive flux of potential temperature, explicit term (degC m^3/s)
+                  DFrI_TH           Vertical diffusive flux of potential temperature, implicit term (degC m^3/s)
+
+ECCO_L4_OCEAN_3D_SALINITY_FLUX_LLC0090GRID_DAILY_V4R4
+                  ADVx_SLT          Lateral advective flux of salinity in the model +x direction (1e-3 m^3/s)
+                  ADVy_SLT          Lateral advective flux of salinity in the model +y direction (1e-3 m^3/s)
+                  ADVr_SLT          Vertical advective flux of salinity (1e-3 m^3/s)
+                  DFxE_SLT          Lateral diffusive flux of salinity in the model +x direction (1e-3 m^3/s)
+                  DFyE_SLT          Lateral diffusive flux of salinity in the model +y direction (1e-3 m^3/s)
+                  DFrE_SLT          Vertical diffusive flux of salinity, explicit term (1e-3 m^3/s)
+                  DFrI_SLT          Vertical diffusive flux of salinity, implicit term (1e-3 m^3/s)
+                  oceSPtnd          Salt tendency due to the vertical transport of salt in high-salinity brine plumes (g/(m^2 s))
+
+ECCO_L4_BOLUS_LLC0090GRID_DAILY_V4R4
+                  UVELSTAR          Gent-McWilliams parameterized bolus velocity in the model +x direction scaled by time-varying grid cell thickness (m/s)
+                  VVELSTAR          Gent-McWilliams parameterized bolus velocity in the model +y direction scaled by time-varying grid cell thickness (m/s)
+                  WVELSTAR          Gent-McWilliams parameterized bolus velocity in the model +z direction (m/s)
+
+ECCO_L4_OCEAN_BOLUS_STREAMFUNCTION_LLC0090GRID_DAILY_V4R4
+                  GM_PsiX           Gent-McWilliams bolus transport streamfunction in the model +x direction (m^2/s)
+                  GM_PsiY           Gent-McWilliams bolus transport streamfunction in the model +y direction (m^2/s)
