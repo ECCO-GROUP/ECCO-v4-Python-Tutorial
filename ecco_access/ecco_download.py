@@ -339,7 +339,7 @@ def download_files_wrapper(urls, download_dir, version, n_workers, force_redownl
         for u in urls:
             u_name = u.split('/')[-1]
             print(f'downloading {u_name}')
-            result = download_file(url=u, output_dir=download_dir, force=force_redownload, show_noredownload_msg=show_noredownload_msg)
+            result = download_file(url=u, output_dir=download_dir, version=version, force=force_redownload, show_noredownload_msg=show_noredownload_msg)
             downloaded_files.append(result[0])
             total_download_size_in_bytes += result[-1]
         
@@ -438,7 +438,7 @@ def ecco_podaac_download(ShortName,StartDate,EndDate,version,snapshot_interval='
     
     # Download the granules
     
-    downloaded_files = download_files_wrapper(urls, download_dir, n_workers, force_redownload, show_noredownload_msg)
+    downloaded_files = download_files_wrapper(urls, download_dir, version, n_workers, force_redownload, show_noredownload_msg)
     
     if return_downloaded_files:
         if len(downloaded_files) == 1:
