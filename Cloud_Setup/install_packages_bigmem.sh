@@ -50,6 +50,7 @@ mamba install -n ${env_name} xarray[complete] jupyterlab dask_labextension s3fs 
 mamba install -n ${env_name} pyresample -y
 
 # install remaining packages using pip
+pip install ecco_access --no-cache-dir
 pip install ecco_v4_py --no-cache-dir
 
 echo -e "${red_start}Completed Python package installations${nocolor_start}"
