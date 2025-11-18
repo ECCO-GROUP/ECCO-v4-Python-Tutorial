@@ -34,7 +34,7 @@ JPL does not enable `ssh` access to AWS instances by default, instead preferring
 
 - *Connect using SSM in the browser*: Go to **EC2** --> **Instances** and click on the instance ID of the new instance. Then click **Connect** in the upper-right part of the page. There are a few options for connecting, select **Session Manager** and then click the yellow **Connect** button. If you can not connect and/or see an error message, you might need to wait several minutes for the session to be fully established. A tab or window should open in your browser with a terminal window on the instance.
 
-- *Initial set up and download GitHub repository*: Copy the following commands and paste in your SSM window (using shift-insert or right-click then **Paste**):
+- *Initial set up and download GitHub repository*: Copy the following commands (it is recommended to do this one line at a time) and paste in your SSM window (using shift-insert or right-click then **Paste**):
 
 ```
 cd ~ && sudo dnf update -y && sudo dnf install git -y
