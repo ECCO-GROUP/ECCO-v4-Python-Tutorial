@@ -33,11 +33,11 @@ The Cartesian (x,y) coordinates of llc tiles do not coorespond to longitude and 
 Available fields on the llc90 grid
 ----------------------------------
 
-`Monthly-averaged fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/v4r4_nctiles_monthly_varlist.txt>`_
+`Monthly-averaged fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-ACCESS/main/varlist/v4r4/v4r4_nctiles_monthly_varlist.txt>`_
 
-`Daily-averaged fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/v4r4_nctiles_daily_varlist.txt>`_
+`Daily-averaged fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-ACCESS/main/varlist/v4r4/v4r4_nctiles_daily_varlist.txt>`_
 
-`Daily snapshot fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/v4r4_nctiles_snapshots_varlist.txt>`_
+`Daily snapshot fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-ACCESS/main/varlist/v4r4/v4r4_nctiles_snapshots_varlist.txt>`_
 
 
 *interpolated* 0.5° x 0.5° latitude-longitude grid
@@ -48,15 +48,15 @@ Many fields from the *native* lat-lon-cap model output have been interpolated to
 Available fields on the 0.5° x 0.5° latitude-longitude grid
 -----------------------------------------------------------
 
-`0.5° x 0.5° monthly-averaged fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/v4r4_latlon_monthly_varlist.txt>`_
+`0.5° x 0.5° monthly-averaged fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-ACCESS/main/varlist/v4r4/v4r4_latlon_monthly_varlist.txt>`_
 
-`0.5° x 0.5° daily-averaged fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/v4r4_latlon_daily_varlist.txt>`_
+`0.5° x 0.5° daily-averaged fields <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-ACCESS/main/varlist/v4r4/v4r4_latlon_daily_varlist.txt>`_
 
 
 Miscellaneous fields and data
 ==================================================
 
-A few time series that do not have spatial dimensions (e.g. averages over the global ocean), as well as the grid parameter fields, are listed `here <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-v4-Python-Tutorial/master/varlist/v4r4_tseries_grid_varlist.txt>`_.
+A few time series that do not have spatial dimensions (e.g. averages over the global ocean), as well as the grid parameter fields, are listed `here <https://raw.githubusercontent.com/ECCO-GROUP/ECCO-ACCESS/main/varlist/v4r4/v4r4_tseries_grid_varlist.txt>`_.
 
 See the "Using Python to Download ECCO Datasets" tutorial for information on how to download the output.
 

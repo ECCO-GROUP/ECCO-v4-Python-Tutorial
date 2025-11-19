@@ -77,6 +77,7 @@ pip install "xarray[complete]"
 pip install jupyterlab
 pip install dask_labextension
 pip install s3fs
+pip install ecco_access
 pip install ecco_v4_py
 
 echo -e "${red_start}Completed Python package installations${nocolor_start}"

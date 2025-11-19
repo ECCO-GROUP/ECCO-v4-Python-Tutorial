@@ -29,8 +29,6 @@ The `ecco_v4_py`_ package used in this tutorial was inspired by the `xmitgcm`_ p
    fields
    Installing_Python_and_Python_Packages
    ECCO_access_intro.ipynb
-   ECCO_access_modes.ipynb
-   Downloading_Subsets_of_ECCO_Datasets.ipynb
    Tutorial_wget_Command_Line_HTTPS_Downloading_ECCO_Datasets_from_PODAAC
    AWS_Cloud_getting_started.ipynb
    Tutorial_Introduction

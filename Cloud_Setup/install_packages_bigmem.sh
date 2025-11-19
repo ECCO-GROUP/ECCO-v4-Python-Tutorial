@@ -44,12 +44,13 @@ mamba install -n ${env_name} glib freetype libcap libcups libopus -y
 mamba install -n ${env_name} gst-plugins-base mysql-common xcb-util -y
 mamba install -n ${env_name} cairo libsndfile harfbuzz xorg-libxau -y
 mamba install -n ${env_name} libglib libxcb qt-main pyqt matplotlib netcdf4 -y
-mamba install -n ${env_name} h5netcdf boto3 lxml scipy goes proj pyproj cartopy notebook -y 
+mamba install -n ${env_name} h5netcdf boto3 lxml scipy geos proj pyproj cartopy notebook -y 
 mamba install -n ${env_name} progressbar gsw nco pympler -y
 mamba install -n ${env_name} xarray[complete] jupyterlab dask_labextension s3fs -y
 mamba install -n ${env_name} pyresample -y
 
 # install remaining packages using pip
+pip install ecco_access --no-cache-dir
 pip install ecco_v4_py --no-cache-dir
 
 echo -e "${red_start}Completed Python package installations${nocolor_start}"
